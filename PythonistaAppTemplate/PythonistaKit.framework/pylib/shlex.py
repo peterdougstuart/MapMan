@@ -1,3 +1,4 @@
+#\input texinfo
 # -*- coding: iso-8859-1 -*-
 """A lexical analyzer class for simple shell-like syntaxes."""
 

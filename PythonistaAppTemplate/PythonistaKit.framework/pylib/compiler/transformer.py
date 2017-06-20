@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Parse tree transformation module.
 

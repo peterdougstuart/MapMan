@@ -1,3 +1,4 @@
+#\input texinfo
 
 """distutils.fancy_getopt
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """ robotparser.py
 

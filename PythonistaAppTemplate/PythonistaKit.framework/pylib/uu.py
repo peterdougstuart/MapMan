@@ -1,3 +1,4 @@
+#\input texinfo
 
 # Copyright 1994 by Lance Ellinghouse
 # Cathedral City, California Republic, United States of America.

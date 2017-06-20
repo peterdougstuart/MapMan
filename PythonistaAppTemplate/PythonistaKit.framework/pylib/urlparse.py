@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Parse (absolute and relative) URLs.
 

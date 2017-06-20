@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Utilities needed to emulate Python's interactive interpreter.
 

@@ -1,3 +1,4 @@
+#\input texinfo
 r"""HTTP/1.1 client library
 
 <intro stuff goes here>

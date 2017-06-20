@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Filename globbing utility."""
 

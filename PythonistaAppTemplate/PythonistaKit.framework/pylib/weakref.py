@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Weak reference support for Python.
 

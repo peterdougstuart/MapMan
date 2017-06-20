@@ -1,3 +1,4 @@
+#\input texinfo
 
 """ codecs -- Python Codec Registry, API and helpers.
 

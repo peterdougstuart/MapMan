@@ -1,3 +1,4 @@
+#\input texinfo
 #
 # XML-RPC CLIENT LIBRARY
 # $Id$

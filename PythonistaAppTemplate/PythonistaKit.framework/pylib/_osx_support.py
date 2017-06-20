@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Shared OS X support functions."""
 

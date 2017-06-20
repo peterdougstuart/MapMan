@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Manage shelves of pickled objects.
 

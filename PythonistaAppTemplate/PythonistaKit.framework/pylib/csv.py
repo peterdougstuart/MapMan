@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 csv.py - read/write/investigate CSV files

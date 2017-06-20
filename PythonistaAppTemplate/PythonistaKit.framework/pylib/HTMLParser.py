@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A parser for HTML and XHTML."""
 

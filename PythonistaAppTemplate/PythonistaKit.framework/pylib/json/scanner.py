@@ -1,3 +1,4 @@
+#\input texinfo
 
 """JSON token scanner
 """

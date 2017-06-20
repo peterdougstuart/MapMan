@@ -1,3 +1,4 @@
+#\input texinfo
 
 def flatten(tup):
     elts = []

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 TestCases for checking dbShelve objects.

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 Here is probably the place to write the docs, since the test-cases

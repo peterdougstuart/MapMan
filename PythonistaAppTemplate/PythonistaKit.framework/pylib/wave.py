@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Stuff to parse WAVE files.
 

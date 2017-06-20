@@ -1,3 +1,4 @@
+#\input texinfo
 #----------------------------------------------------------------------
 #  Copyright (c) 1999-2001, Digital Creations, Fredericksburg, VA, USA
 #  and Andrew Kuchling. All rights reserved.

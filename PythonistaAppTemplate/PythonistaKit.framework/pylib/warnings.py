@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Python part of the warnings subsystem."""
 

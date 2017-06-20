@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Mozilla / Netscape cookie loading / saving."""
 

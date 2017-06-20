@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Configuration file parser.
 

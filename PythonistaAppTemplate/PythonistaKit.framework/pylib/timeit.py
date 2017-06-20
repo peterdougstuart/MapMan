@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Tool for measuring execution time of small code snippets.
 

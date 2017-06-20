@@ -1,3 +1,4 @@
+#\input texinfo
 # This module implements the RFCs 3490 (IDNA) and 3491 (Nameprep)
 
 import stringprep, re, codecs

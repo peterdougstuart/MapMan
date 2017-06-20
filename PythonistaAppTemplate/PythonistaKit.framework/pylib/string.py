@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A collection of string operations (most are no longer used).
 

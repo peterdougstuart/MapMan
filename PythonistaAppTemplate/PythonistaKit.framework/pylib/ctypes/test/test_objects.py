@@ -1,3 +1,4 @@
+#\input texinfo
 r'''
 This tests the '_objects' attribute of ctypes instances.  '_objects'
 holds references to objects that must be kept alive as long as the

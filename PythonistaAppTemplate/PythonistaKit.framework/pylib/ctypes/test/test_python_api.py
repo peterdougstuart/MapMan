@@ -1,3 +1,4 @@
+#\input texinfo
 from ctypes import *
 import unittest, sys
 from ctypes.test import is_resource_enabled

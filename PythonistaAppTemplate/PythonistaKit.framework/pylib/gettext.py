@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Internationalization and localization support.
 

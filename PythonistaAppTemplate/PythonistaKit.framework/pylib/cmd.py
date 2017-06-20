@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A generic class to build line-oriented command interpreters.
 

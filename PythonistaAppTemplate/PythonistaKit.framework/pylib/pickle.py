@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Create portable serialized representations of Python objects.
 

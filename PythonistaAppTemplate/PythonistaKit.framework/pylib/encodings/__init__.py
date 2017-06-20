@@ -1,3 +1,4 @@
+#\input texinfo
 
 """ Standard "encodings" Package
 

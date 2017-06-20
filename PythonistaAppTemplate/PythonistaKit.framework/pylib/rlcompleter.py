@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Word completion for GNU readline.
 

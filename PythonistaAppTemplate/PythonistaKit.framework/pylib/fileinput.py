@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Helper class to quickly write a loop over all standard input files.
 

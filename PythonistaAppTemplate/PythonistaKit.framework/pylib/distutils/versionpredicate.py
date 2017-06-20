@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Module for parsing and testing package version predicate strings.
 """

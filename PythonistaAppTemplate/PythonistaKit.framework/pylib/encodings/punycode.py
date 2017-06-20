@@ -1,3 +1,4 @@
+#\input texinfo
 # -*- coding: iso-8859-1 -*-
 """ Codec for the Punicode encoding, as specified in RFC 3492
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """An extensible library for opening URLs using a variety of protocols
 

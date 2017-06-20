@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 Python implementation of the io module.

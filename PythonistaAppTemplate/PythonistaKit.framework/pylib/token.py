@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Token constants (from "token.h")."""
 

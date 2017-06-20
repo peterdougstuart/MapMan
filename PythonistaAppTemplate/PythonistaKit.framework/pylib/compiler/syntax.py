@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Check for errs in the AST.
 

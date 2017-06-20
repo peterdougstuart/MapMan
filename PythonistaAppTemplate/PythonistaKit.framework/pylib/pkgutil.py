@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Utilities to support packages."""
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Utilities for comparing files and directories.
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 import os, string
 import unittest

@@ -1,3 +1,4 @@
+#\input texinfo
 # A lot of failures in these tests on Mac OS X.
 # Byte order related?
 

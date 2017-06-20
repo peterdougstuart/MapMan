@@ -1,3 +1,4 @@
+#\input texinfo
 # Access WeakSet through the weakref module.
 # This code is separated-out because it is needed
 # by abc.py to load everything else at startup.

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Faux ``threading`` version using ``dummy_thread`` instead of ``thread``.
 

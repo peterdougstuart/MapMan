@@ -1,3 +1,4 @@
+#\input texinfo
 
 """ Python 'zlib_codec' Codec - zlib compression encoding
 

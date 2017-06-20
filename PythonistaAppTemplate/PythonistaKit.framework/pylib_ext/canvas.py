@@ -1,3 +1,4 @@
+#\input texinfo
 from _canvas import *
 import _canvas
 

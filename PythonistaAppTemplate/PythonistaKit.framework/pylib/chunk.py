@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Simple class to read IFF chunks.
 

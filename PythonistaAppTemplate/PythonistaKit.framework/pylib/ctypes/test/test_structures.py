@@ -1,3 +1,4 @@
+#\input texinfo
 import unittest
 from ctypes import *
 from struct import calcsize

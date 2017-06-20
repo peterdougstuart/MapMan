@@ -1,3 +1,4 @@
+#\input texinfo
 import unittest, sys
 
 class SimpleTypesTestCase(unittest.TestCase):

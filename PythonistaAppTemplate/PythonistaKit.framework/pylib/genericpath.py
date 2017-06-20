@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 Path operations common to more than one OS

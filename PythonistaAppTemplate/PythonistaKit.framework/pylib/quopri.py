@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Conversions to/from quoted-printable transport encoding as per RFC 1521."""
 

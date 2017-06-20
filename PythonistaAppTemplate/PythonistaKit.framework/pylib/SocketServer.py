@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Generic socket server classes.
 

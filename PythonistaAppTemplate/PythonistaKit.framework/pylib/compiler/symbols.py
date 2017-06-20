@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Module symbol-table generator"""
 

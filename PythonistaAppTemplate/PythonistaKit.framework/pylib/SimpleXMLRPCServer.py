@@ -1,3 +1,4 @@
+#\input texinfo
 r"""Simple XML-RPC Server.
 
 This module can be used to create simple XML-RPC servers

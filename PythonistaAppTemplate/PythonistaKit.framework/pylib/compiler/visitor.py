@@ -1,3 +1,4 @@
+#\input texinfo
 from compiler import ast
 
 # XXX should probably rename ASTVisitor to ASTWalker

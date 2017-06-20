@@ -1,3 +1,4 @@
+#\input texinfo
 import unittest, os, errno
 from ctypes import *
 from ctypes.util import find_library

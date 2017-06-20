@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Macintosh binhex compression/decompression.
 

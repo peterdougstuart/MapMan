@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Random variable generators.
 

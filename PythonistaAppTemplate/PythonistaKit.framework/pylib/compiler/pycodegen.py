@@ -1,3 +1,4 @@
+#\input texinfo
 import imp
 import os
 import marshal

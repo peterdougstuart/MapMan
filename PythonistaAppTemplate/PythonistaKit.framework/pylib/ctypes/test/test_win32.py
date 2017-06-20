@@ -1,3 +1,4 @@
+#\input texinfo
 # Windows specific tests
 
 from ctypes import *

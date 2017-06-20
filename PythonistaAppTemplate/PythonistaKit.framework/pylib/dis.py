@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Disassembler of Python byte code into mnemonics."""
 

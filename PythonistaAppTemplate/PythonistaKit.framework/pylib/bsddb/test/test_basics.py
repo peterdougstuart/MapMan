@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 Basic TestCases for BTree and hash DBs, with and without a DBEnv, with

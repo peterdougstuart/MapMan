@@ -1,3 +1,4 @@
+#\input texinfo
 
 """HTML 2.0 parser.
 

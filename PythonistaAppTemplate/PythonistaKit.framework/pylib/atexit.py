@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 atexit.py - allow programmer to define multiple exit functions to be executed

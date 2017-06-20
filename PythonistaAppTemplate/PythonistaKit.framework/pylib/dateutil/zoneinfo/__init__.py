@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>

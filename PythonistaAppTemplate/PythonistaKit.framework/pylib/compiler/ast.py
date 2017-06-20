@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Python abstract syntax node definitions
 

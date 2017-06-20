@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 TestCases for testing the locking sub-system.

@@ -1,3 +1,4 @@
+#\input texinfo
 # -*- Mode: Python; tab-width: 4 -*-
 #       Id: asynchat.py,v 2.26 2000/09/07 22:29:26 rushing Exp
 #       Author: Sam Rushing <rushing@nightmare.com>

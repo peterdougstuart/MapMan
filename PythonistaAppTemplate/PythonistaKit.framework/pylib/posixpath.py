@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Common operations on Posix pathnames.
 

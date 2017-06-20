@@ -1,3 +1,4 @@
+#\input texinfo
 
 """TestCases for using the DB.join and DBCursor.join_item methods.
 """

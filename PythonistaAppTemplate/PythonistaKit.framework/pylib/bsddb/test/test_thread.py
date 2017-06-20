@@ -1,3 +1,4 @@
+#\input texinfo
 
 """TestCases for multi-threaded access to a DB.
 """

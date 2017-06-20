@@ -1,3 +1,4 @@
+#\input texinfo
 import sys, unittest, struct, math, ctypes
 from binascii import hexlify
 

@@ -1,3 +1,4 @@
+#\input texinfo
 r"""HTTP cookie handling for web clients.
 
 This module has (now fairly distant) origins in Gisle Aas' Perl module

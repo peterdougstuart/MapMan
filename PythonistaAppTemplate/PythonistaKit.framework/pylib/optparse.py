@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A powerful, extensible, and easy-to-use option parser.
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 TestCases for exercising a Queue DB.

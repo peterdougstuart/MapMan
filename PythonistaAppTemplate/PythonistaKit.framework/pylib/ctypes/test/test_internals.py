@@ -1,3 +1,4 @@
+#\input texinfo
 # This tests the internal _objects attribute
 import unittest
 from ctypes import *

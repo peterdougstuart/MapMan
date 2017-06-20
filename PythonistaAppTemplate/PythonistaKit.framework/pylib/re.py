@@ -1,3 +1,4 @@
+#\input texinfo
 #
 # Secret Labs' Regular Expression Engine
 #

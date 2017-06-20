@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Bisection algorithms."""
 

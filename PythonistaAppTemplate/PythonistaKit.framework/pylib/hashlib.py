@@ -1,3 +1,4 @@
+#\input texinfo
 # $Id$
 #
 #  Copyright (C) 2005   Gregory P. Smith (greg@krypto.org)

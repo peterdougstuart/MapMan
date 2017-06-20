@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Parser for command line options.
 

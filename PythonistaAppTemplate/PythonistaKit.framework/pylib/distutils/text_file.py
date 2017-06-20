@@ -1,3 +1,4 @@
+#\input texinfo
 
 """text_file
 

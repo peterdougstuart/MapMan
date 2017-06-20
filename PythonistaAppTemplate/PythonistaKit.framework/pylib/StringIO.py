@@ -1,3 +1,4 @@
+#\input texinfo
 r"""File-like objects that read from or write to a string buffer.
 
 This implements (nearly) all stdio methods.

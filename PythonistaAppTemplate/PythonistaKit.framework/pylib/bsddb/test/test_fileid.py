@@ -1,3 +1,4 @@
+#\input texinfo
 
 """TestCase for reseting File ID.
 """

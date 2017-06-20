@@ -1,3 +1,4 @@
+#\input texinfo
 # -*- coding: iso-8859-1 -*-
 # Copyright (C) 2005, 2006 Martin von Löwis
 # Licensed to PSF under a Contributor Agreement.

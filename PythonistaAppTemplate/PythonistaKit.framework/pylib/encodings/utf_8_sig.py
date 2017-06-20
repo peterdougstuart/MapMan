@@ -1,3 +1,4 @@
+#\input texinfo
 
 """ Python 'utf-8-sig' Codec
 This work similar to UTF-8 with the following changes:

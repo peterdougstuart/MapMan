@@ -1,3 +1,4 @@
+#\input texinfo
 # coding: latin-1
 import unittest
 import ctypes

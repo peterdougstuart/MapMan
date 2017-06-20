@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A multi-producer, multi-consumer queue."""
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Miscellaneous bsddb module test cases
 """

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A POP3 client class.
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 '''SMTP/ESMTP client class.
 

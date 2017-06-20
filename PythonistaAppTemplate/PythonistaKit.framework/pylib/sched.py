@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A generally useful event scheduler class.
 

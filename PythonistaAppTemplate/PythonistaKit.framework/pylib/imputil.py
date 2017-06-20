@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 Import utilities

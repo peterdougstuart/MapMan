@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Tokenization help for Python programs.
 

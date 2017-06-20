@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Functions that read and write gzipped files.
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A flow graph representation for Python bytecode"""
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """ Python 'latin-1' Codec
 

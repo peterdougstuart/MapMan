@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Routines to help recognizing sound files.
 

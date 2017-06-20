@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Bastionification utility.
 

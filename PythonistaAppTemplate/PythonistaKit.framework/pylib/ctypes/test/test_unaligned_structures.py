@@ -1,3 +1,4 @@
+#\input texinfo
 import sys, unittest
 from ctypes import *
 

@@ -1,3 +1,4 @@
+#\input texinfo
 from _scene2 import *
 import _scene2
 from _scene_types import Vector3, Color

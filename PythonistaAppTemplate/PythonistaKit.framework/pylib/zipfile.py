@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 Read and write ZIP files.

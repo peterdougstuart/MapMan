@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Open an arbitrary URL.
 

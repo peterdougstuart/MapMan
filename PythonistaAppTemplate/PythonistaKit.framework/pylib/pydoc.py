@@ -1,3 +1,4 @@
+#\input texinfo
 # -*- coding: latin-1 -*-
 """Generate Python documentation in HTML or text for interactive use.
 

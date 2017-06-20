@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 A testcase which accesses *values* in a dll.

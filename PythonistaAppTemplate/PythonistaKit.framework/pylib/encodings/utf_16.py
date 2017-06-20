@@ -1,3 +1,4 @@
+#\input texinfo
 
 """ Python 'utf-16' Codec
 

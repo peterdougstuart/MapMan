@@ -1,3 +1,4 @@
+#\input texinfo
 r"""Utilities to compile possibly incomplete Python source code.
 
 This module provides two interfaces, broadly similar to the builtin

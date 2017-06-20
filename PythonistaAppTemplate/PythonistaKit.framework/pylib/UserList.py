@@ -1,3 +1,4 @@
+#\input texinfo
 
 """A more or less complete user-defined wrapper around list objects."""
 

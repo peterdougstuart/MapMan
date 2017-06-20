@@ -1,3 +1,4 @@
+#\input texinfo
 
 """
 opcode module - potentially shared between dis and other modules which

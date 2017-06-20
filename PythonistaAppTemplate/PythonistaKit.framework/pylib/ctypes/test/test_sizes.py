@@ -1,3 +1,4 @@
+#\input texinfo
 # Test specifically-sized containers.
 
 from ctypes import *

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Execute shell commands via os.popen() and return status, output.
 

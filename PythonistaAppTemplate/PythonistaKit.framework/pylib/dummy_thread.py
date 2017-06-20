@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Drop-in replacement for the thread module.
 

@@ -1,3 +1,4 @@
+#\input texinfo
 
 """Strptime-related classes and functions.
 

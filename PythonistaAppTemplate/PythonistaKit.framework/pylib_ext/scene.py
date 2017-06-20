@@ -1,3 +1,4 @@
+#\input texinfo
 #coding: utf-8
 
 from _scene2 import *

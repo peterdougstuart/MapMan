@@ -18,7 +18,7 @@ class BottomBar (object):
 		self.effect = Effect(parent)
 
 	def add_background(self):
-		self.height = 90
+		self.height = 85
 		self.top_bg = SpriteNode(parent=self.parent, position=(0, self.height))
 		self.top_bg.color = '#1c1c1c'
 		self.top_bg.size = self.parent.size.w, self.height
@@ -34,11 +34,11 @@ class BottomBar (object):
 		
 		self.controls_message_label_bottom = LabelNode(parent=self.parent)
 		self.controls_message_label_bottom.anchor_point = (0, 0.5)
-		self.controls_message_label_bottom.position = (90, 50)
+		self.controls_message_label_bottom.position = (87, 42.5)
 		
 	def add_time_message(self):
 	
-		self.time_message_label_bottom = LabelNode(position=(self.parent.size.w-100, 45), parent=self.parent)
+		self.time_message_label_bottom = LabelNode(position=(self.parent.size.w-100, 42.5), parent=self.parent)
 	
 	def set_controls(self, controls, text, size):
 		

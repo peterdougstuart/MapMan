@@ -3,6 +3,7 @@ from scene import *
 import game_levels as levels
 import os
 import datetime
+import os.path
 
 A = Action
 
@@ -21,6 +22,7 @@ class Tile:
 	def __init__(self, map, brick_type, x, y):
 		
 		self.key = (x, y)
+		self.hidden_texture = None
 		
 		self.position = Point(map.min_x + x * map.tile_w, map.min_y + y * map.tile_h)
 		
@@ -28,19 +30,41 @@ class Tile:
 		self.size = (map.tile_w, map.tile_h)
 		
 		if brick_type != ' ' and brick_type != '-':
-			self.node = SpriteNode(self.get_path(brick_type), parent=map.game.game_node, position=self.position)		
+            
+			path = self.get_path(brick_type)
+			
+			if not os.path.isfile(path):
+				raise Exception("Image not found {0}".format(path))
+			
+			self.node = SpriteNode(path, parent=map.game.game_node, position=self.position)
 			self.node.anchor_point = (0.5, 0.5)
 			self.node.size = self.size
 			self.node.scale = 0
 			self.node.alpha = 0.8
 			self.blank = False
+			if brick_type.lower() == 'i':
+				self.can_hide = True
+			else:
+				self.can_hide = False
 		else:
 			self.node = None
 			self.blank = True
+			self.can_hide = False
+
+	def hide(self):
+		if self.can_hide:
+			self.hidden_texture = self.node.texture
+			self.node.texture = None
 	
+	def unhide(self):
+		if self.hidden_texture is not None:
+			self.node.texture = self.hidden_texture
+			self.node.size = self.size
+			
 	def normalise(self):
-		self.node.texture = Texture(self.get_path('c'))
-		self.node.size = self.size
+		if self.hidden_texture is None:
+			self.node.texture = Texture(self.get_path('c'))
+			self.node.size = self.size
 	
 	def denormalise(self):
 		self.node.texture = Texture(self.get_path(self.brick_type))
@@ -53,6 +77,8 @@ class Tile:
 		
 		if vanish > 0:
 			return os.path.join(folder, "tile_vanish.png")
+		elif tile_type.lower() == 'h':
+			return os.path.join(folder, "hide.png")
 		elif tile_type.lower() == "s":
 			return os.path.join(folder, "south.png")
 		elif tile_type.lower() == "e":
@@ -112,6 +138,9 @@ class Map:
 		self.more_times = {}
 		self.less_times = {}
 		self.points = {}
+		self.hides = {}
+		
+		self.hidden = False
 		
 		if self.game.size.w > 760:
 			#iPad
@@ -121,7 +150,30 @@ class Map:
 			self.tile_w, self.tile_h = 32, 32
 		
 		self.load_end = None
+	
+	def toggle_hide(self):
+		if self.hidden:
+			self.unhide()
+		else:
+			self.hide()
+			
+	def hide(self):
+			
+		for tile in self.tiles.values():
+			tile.hide()
 		
+		self.hidden = True
+
+	def unhide(self):
+		
+		if not self.hidden:
+			return
+			
+		for tile in self.tiles.values():
+			tile.unhide()
+		
+		self.hidden = False
+			
 	def get_position(self):
 		
 		if self.moving:
@@ -190,6 +242,10 @@ class Map:
 		self.position = self.start_position
 		self.show_position = self.position
 		
+		for position in self.hides:
+			self.hides[position] = True
+			self.tiles[position].denormalise()
+			
 		for position in self.reverses:
 			self.reverses[position] = True
 			self.tiles[position].denormalise()
@@ -268,9 +324,20 @@ class Map:
 		else:
 			return False
 	
+	def on_hide(self):
+		if self.position in self.hides:
+			return self.hides[self.position]
+		else:
+			return False
+			
 	def vanish_duration(self):
 		return self.vanish_durations[self.position]
 
+	def clear_hide(self):
+		if self.position in self.hides:
+			self.hides[self.position] = False
+			self.tiles[self.position].normalise()
+			
 	def clear_death(self):
 		if self.position in self.deaths:
 			self.deaths[self.position] = False
@@ -311,7 +378,7 @@ class Map:
 			self.vanishes[self.position] = False
 			self.tiles[self.position].normalise()
 			
-	def load_level(self, level_str, loading_str=None):
+	def load_level(self, level_str, loading_str=None, delay=0.05):
 		
 		for tile in self.tiles.values():
 			if tile.node != None:
@@ -328,9 +395,11 @@ class Map:
 		self.more_times = {}
 		self.less_times = {}
 		self.points = {}
+		self.hides = {}
 		self.loadings = {}
 		
-		lines = level_str.splitlines()
+		lines = level_str.splitlines()[1:]
+		
 		
 		if loading_str is not None:
 			loading_lines = loading_str.splitlines()
@@ -373,8 +442,6 @@ class Map:
 			tiles = []
 			for tile in self.tiles.values():
 				tiles.append([tile])
-		
-		delay = 0.05
 		
 		for tile_array in tiles:
 			
@@ -479,3 +546,5 @@ class Map:
 			self.less_times[tile.key] = True
 		elif tile_type == 'p':
 			self.points[tile.key] = True
+		elif tile_type == 'h':
+			self.hides[tile.key] = True

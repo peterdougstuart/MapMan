@@ -30,7 +30,9 @@ class LevelDisplay(object):
 		
 	def add_score(self):
 		
-		self.score_label = LabelNode('', font=('Avenir Next', 40), position=(self.parent.size.w/6, self.parent.size.h-50), parent=self.parent)
+		self.score_label = LabelNode('', font=('Avenir Next', 40), position=(10, self.parent.size.h-30), parent=self.parent)
+		
+		self.score_label.anchor_point = (0, 0.5)
 
 	def score_text(self):
 		

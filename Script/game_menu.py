@@ -5,7 +5,6 @@ from scene import *
 import ui
 import sound
 import os
-from font_installer import FontInstaller
 
 A = Action
 
@@ -24,7 +23,16 @@ class MenuScene (Scene):
 		self.button_titles = button_titles
 		self.subtitle_size = subtitle_size
 		
+	def load_font(self):
+		#return
+		
+		font_path = os.path.join(os.getcwd(), 'Font', 'Anson-Regular.ttf')
+		installer = FontInstaller()
+		installer.install(font_path)
+		
 	def setup(self):
+		
+		#self.load_font()
 		
 		button_font = ('Avenir Next', 20)
 		title_font = ('Avenir Next', 36)

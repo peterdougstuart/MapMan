@@ -22,7 +22,7 @@ class Timer (object):
 		
 	def add_countdown(self):
 		
-		self.timer_label = LabelNode('0', font=('Avenir Next', 40), position=(self.parent.size.w/2, 45), parent=self.parent)
+		self.timer_label = LabelNode('0', font=('Avenir Next', 50), position=(self.parent.size.w/2, 42.5), parent=self.parent)
 		
 	def update(self):
 		

@@ -5,7 +5,7 @@ from scene import *
 class LivesDisplay(object):
 	
 	INITIAL_LIVES = 3
-	SCALE = 0.06
+	SCALE = 0.18
 	
 	def __init__(self, parent):
 		
@@ -33,16 +33,17 @@ class LivesDisplay(object):
 		
 	def add_lives(self):
 		
-		x = self.parent.size.w*5.0/6.0
-		y = self.parent.size.h-50
+		x = self.parent.size.w - 45
+		y = self.parent.size.h - 30
 		
 		self.lives_label = LabelNode('', font=('Avenir Next', 40), position=(x, y), parent=self.parent)
+		self.lives_label.anchor_point=(1, 0.5)
 
 		heart = Texture('heart.png')
 		
 		self.heart = SpriteNode(heart)
 		self.heart.anchor_point = (0.5, 0.5)
-		self.heart.position = (x + 30, y + 4)
+		self.heart.position = (x + 18, y + 2)
 		self.heart.scale = 0
 		
 		self.parent.add_child(self.heart)

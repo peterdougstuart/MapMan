@@ -4,6 +4,7 @@ colors = {'r': 'pzl:Red8', 'g': 'pzl:Green8', 'b': 'pzl:Blue8', 'y': 'pzl:Yellow
 
 loadings = {}
 levels = {}
+delays = {}
 
 levels[1] = '''
  Wccccccc
@@ -45,19 +46,18 @@ levels[3] = '''
 -----cr-----s---
 ------cr----c---
 -------ccc3cc---
-   
 '''
 
 loadings[3] = '''
----------wxyz---
----------v--1---
------qrstu--234-
--abcde----------
------fg-----5---
-------hi----p---
--------jklmno---
-   
+---------opqr---
+---------n--s---
+-----ijklm--tuv-
+-12345----------
+-----67-----h---
+------89----g---
+-------abcdef---
 '''
+
 levels[4] = '''
   pp   rr
  ppppcrrrE
@@ -67,8 +67,6 @@ levels[4] = '''
   c
   c
   ccccyyyw
- 
- 
 '''
 
 loadings[4] = '''
@@ -80,8 +78,6 @@ loadings[4] = '''
   j
   i
   hgfedcba
- 
- 
 '''
 
 levels[5] = '''
@@ -120,6 +116,8 @@ b b b b b b b b
 a fgh fgh fgh a
 '''
 
+delays[6] = 0.1
+
 levels[7] = '''
 ccc ccc ccc
 c c c c c c
@@ -127,6 +125,17 @@ x c c c c c
 c c c c c c
 c c c c c c
 n ccc ccc S
+'''
+
+delays[7] = 0.1
+
+loadings[7] = '''
+fgh fgh fgh
+e e e e e e
+d d d d d d
+c c c c c c
+b b b b b b
+a fgh fgh a
 '''
 
 levels[8] = '''
@@ -137,12 +146,28 @@ levels[8] = '''
  rrrrrw
 '''
 
+loadings[8] = '''
+ jihgfe
+      d
+ cbaabc
+ d
+ efghuj
+'''
+
 levels[9] = '''
  Wccccccc
     dmd ccttl
  cccccccc
  c
  cccccccw
+'''
+
+loadings[9] = '''
+ qponmlkj
+    vwv irstu
+ abcdefgh
+ 9
+ 87654321
 '''
 
 levels[10] = '''
@@ -153,6 +178,14 @@ crcrcrccrcrc
 ecrcrcrcrccc
 '''
 
+loadings[10] = '''
+312312312345
+2
+132132132132
+-----------1
+123123123123
+'''
+
 levels[11] = '''
  Wyyyyyyy
         y
@@ -161,13 +194,30 @@ levels[11] = '''
  yyyyyyyw
 '''
 
+loadings[11] = '''
+ qdpcobna
+        m
+ i6j7k8l9
+ 5
+ h4g3f2e1
+'''
+
 levels[12] = '''
- W
+ N
  t      
  t    m
  t    c
  t    c
  ccccccw
+'''
+
+loadings[12] = '''
+ k
+ j      
+ i    n
+ h    m
+ g    l
+ fedcba0
 '''
 
 levels[13] = '''
@@ -181,18 +231,60 @@ levels[13] = '''
      eyyy
 '''
 
+loadings[13] = '''
+ fedcba        f
+      9    a   e
+      8----9   d
+      7656789abc
+        41
+        32
+        4
+     8765
+'''
+
 levels[14] = '''
  Wcccccd
  dddddcd
  ccccccd
- cdddd
- cccdcw
- ddcdc
- -dccc
- -dddd
+ cdddddd
+ cccdcccccw
+ ddcdcdd
+ ddcccdd
+ ddddddd
+'''
+
+loadings[14] = '''
+ srqponx
+ xxxxxmx
+ ghijklx
+ fxxxxxx
+ edcx654321
+ xxbx7xx
+ xxa98xx
+ xxxxxxx
 '''
 
 levels[15] = '''
+ Wccccrccd  ppppm
+ d     c    p
+ ccccccvccccp
+ c
+ yyyyyytyyyyyyyyw
+  c         c
+  ccccttccccc
+'''
+
+loadings[15] = '''
+ mkjihgfcn  jklmn
+ o     e    i
+ aabccdeefggh
+ 9
+ 8766554433221111
+  7         3 
+  76655544433
+'''
+ 
+levels[16] = '''
  Wcccccd
  dddddcd
  ccccccd
@@ -203,7 +295,90 @@ levels[15] = '''
  ddddddd
 '''
 
-levels[16] = '''
+loadings[16] = '''
+ srqponx
+ xxxxxmx
+ ghijklx
+ fxxxxxx
+ edcx654321
+ xxbxzxx
+ xxa98xx
+ xxxxxxx
+'''
+
+levels[17] = '''
+     d
+ hii iiid
+ c i i i
+ c i i iiid
+ c iii   iiii
+ c d i      S
+ c   iiiih
+ c
+ cccccccw
+'''
+
+loadings[17] = '''
+     m
+ gnn nnnj
+ f o o o
+ e p p pppj
+ d qqq   qqqq
+ c h r      l
+ b   uuuuk
+ a
+ 87654321
+'''
+
+levels[18] = '''
+       N
+       t
+       t
+       t
+       t
+ mccvcceccrccm
+       c
+       y
+       m
+'''
+
+loadings[18] = '''
+       m
+       l
+       k
+       j
+       i
+hmgedcb1234557
+       8
+       9
+       a
+'''
+
+levels[19] = '''
+   rcccccccr
+   c       c
+   c rcccr c
+   c c   c c
+   c c s c c
+   c c c c c
+   c c tcr c
+   c c     c
+   S rcccccr
+'''
+
+loadings[19] = '''
+   xllkkjjiw
+   m       i
+   m t987s h
+   n a   6 h
+   n a 1 5 g
+   o b 2 4 g
+   o b q3r f
+   p c     f
+   y ucddeev
+'''
+
+levels[20] = '''
  Wcccccd
  dddddcd
  ccccccd
@@ -214,4 +389,88 @@ levels[16] = '''
  ddddddd
 '''
 
+loadings[20] = '''
+ srqponx
+ xxxxxmx
+ ghijklx
+ fxxxxxx
+ edcx654321
+ xxbxzxx
+ xxa98xx
+ xxxxxxx
+'''
+
+levels[21] = '''
+ Wrrrrr
+      r
+ rrrrrr
+ r
+ rrrrrw
+'''
+
+loadings[21] = '''
+ jihgfe
+      d
+ cbaabc
+ d
+ efghuj
+'''
+
+levels[22] = '''
+ Wcccccd
+ dddddcd
+ ccccccd
+ cdddddd
+ cccdrccccw
+ ddcdvdd
+ ddcccdd
+ ddddddd
+'''
+
+loadings[22] = '''
+ srqponx
+ xxxxxmx
+ ghijklx
+ fxxxxxx
+ edcxy54321
+ xxbxzxx
+ xxa98xx
+ xxxxxxx
+'''
+
+levels[23] = '''
+ccc ccc ccc ccc
+c c c c c c c c
+r c c c c c c c
+9 c c c c c c c
+c c c c c c c c
+n ccc ccc ccc S
+'''
+
+loadings[23] = '''
+fgh fgh fgh fgh
+e e e e e e e e
+d d d d d d d d
+c c c c c c c c
+b b b b b b b b
+a fgh fgh fgh a
+'''
+
+delays[23] = 0.1
+
+# Tara edit below this line
+
+#levels[1] = '''
+#        
+#        t
+# Wcyycycy
+#        c
+#     lyucyym
+# tccyccyc
+# y
+# ccyycccw
+#'''
+
 #del loadings[1]
+
+

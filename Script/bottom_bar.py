@@ -8,7 +8,9 @@ class WrappingLabelNode(LabelNode):
 	
 	def __init__(self, parent, target_width, position, anchor_point):
 		
-		LabelNode.__init__(self, parent=parent, position=position, anchor_point=anchor_point, text='')
+		LabelNode.__init__(self, parent=parent, position=position, text='')
+		
+		self.anchor_point=anchor_point
 		
 		self.target_width = target_width
 		

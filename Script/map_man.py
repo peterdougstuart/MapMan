@@ -68,7 +68,8 @@ class Game (Scene):
 		
 		background_texture = Texture(os.path.join(Game.GRADIENTS_FOLDER, 'MapMan-background-TRANSPARENCY.png'))
 		
-		self.background_gradient = SpriteNode(position=(0,self.bottom_bar.height), parent=self, anchor_point=(0,0))
+		self.background_gradient = SpriteNode(position=(0,self.bottom_bar.height), parent=self)
+		self.background_gradient.anchor_point=(0,0)
 		
 		self.background_gradient.texture = background_texture
 		self.background_gradient.size=(self.size.w, self.size.h - self.bottom_bar.height)

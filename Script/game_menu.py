@@ -37,7 +37,9 @@ class ButtonNode (SpriteNode):
 		
 		button_font = ('Courier', 20)
 		
-		self.label = LabelNode(title, font=button_font, color='#71c0e2', position=(0, 0), parent=self,anchor_point=(0.5,0.5))
+		self.label = LabelNode(title, font=button_font, color='#71c0e2', position=(0, 0), parent=self)
+		
+		self.label.anchor_point = (0.5,0.5)
 		
 		self.title = title
 		
@@ -69,7 +71,8 @@ class MenuScene (Scene):
 
 		background_texture = Texture(os.path.join('Gradients', 'MapMan-background-TRANSPARENCY.png'))
 		
-		self.background_gradient = SpriteNode(position=(0,0), parent=self, anchor_point=(0,0))
+		self.background_gradient = SpriteNode(position=(0,0), parent=self)
+		self.background_gradient.anchor_point=(0,0)
 		
 		self.background_gradient.texture = background_texture
 		
@@ -77,9 +80,13 @@ class MenuScene (Scene):
 		
 		bg_shape.line_width = 0
 		
-		self.menu_bg = ShapeNode(bg_shape, anchor_point=(0.5, 0.5), position=(self.size.w/2,self.size.h/2+self.y_position_delta), color='#ffffff', parent=self)
+		self.menu_bg = ShapeNode(bg_shape, position=(self.size.w/2,self.size.h/2+self.y_position_delta), color='#ffffff', parent=self)
 		
-		self.title_label = LabelNode(self.title, font=title_font, color='#ffffff', anchor_point=(0.5, 0), parent=self)
+		self.menu_bg.anchor_point = (0.5, 0.5)
+		
+		self.title_label = LabelNode(self.title, font=title_font, color='#ffffff', parent=self)
+		
+		self.title_label.anchor_point = (0.5, 0)
 		
 		self.buttons = []
 		
@@ -181,13 +188,16 @@ class MainMenu(MenuScene):
 		button_font = ('Courier', 20)
 		score_text = 'best score {0} {1} {0}'.format(unichr(9733), self.high_score)
 		
-		self.score_label = LabelNode(score_text, font=button_font, color='#ffffff',  parent=self.menu_bg,anchor_point=(0.5,0.5))
+		self.score_label = LabelNode(score_text, font=button_font, color='#ffffff',  parent=self.menu_bg)
+		
+		self.score_label.anchor_point = (0.5,0.5)
 		
 		self.score_label.position=(0, -self.menu_bg.size.h/2-self.score_label.size.h)
 		
 		man_texture = Texture(os.path.join('Man','Idle', 'MapMan-idle-FRONT-2.png'))
 		
-		self.man = SpriteNode(parent=self.menu_bg, anchor_point=(0,0),texture=man_texture)
+		self.man = SpriteNode(parent=self.menu_bg,texture=man_texture)
+		self.man.anchor_point=(0,0)
 		
 		ratio = self.man.size.w / self.menu_bg.size.w
 		

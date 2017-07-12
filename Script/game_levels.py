@@ -355,30 +355,6 @@ hmgedcb1234557
 '''
 
 levels[19] = '''
-   rcccccccr
-   c       c
-   c rcccr c
-   c c   c c
-   c c s c c
-   c c c c c
-   c c tcr c
-   c c     c
-   S rcccccr
-'''
-
-loadings[19] = '''
-   xllkkjjiw
-   m       i
-   m t987s h
-   n a   6 h
-   n a 1 5 g
-   o b 2 4 g
-   o b q3r f
-   p c     f
-   y ucddeev
-'''
-
-levels[20] = '''
  Wcccccd
  dddddcd
  ccccccd
@@ -389,7 +365,7 @@ levels[20] = '''
  ddddddd
 '''
 
-loadings[20] = '''
+loadings[19] = '''
  srqponx
  xxxxxmx
  ghijklx
@@ -400,7 +376,7 @@ loadings[20] = '''
  xxxxxxx
 '''
 
-levels[21] = '''
+levels[20] = '''
  Wrrrrr
       r
  rrrrrr
@@ -408,7 +384,7 @@ levels[21] = '''
  rrrrrw
 '''
 
-loadings[21] = '''
+loadings[20] = '''
  jihgfe
       d
  cbaabc
@@ -427,7 +403,7 @@ levels[22] = '''
  ddddddd
 '''
 
-loadings[22] = '''
+loadings[21] = '''
  srqponx
  xxxxxmx
  ghijklx
@@ -438,7 +414,7 @@ loadings[22] = '''
  xxxxxxx
 '''
 
-levels[23] = '''
+levels[21] = '''
 ccc ccc ccc ccc
 c c c c c c c c
 r c c c c c c c
@@ -447,7 +423,7 @@ c c c c c c c c
 n ccc ccc ccc S
 '''
 
-loadings[23] = '''
+loadings[22] = '''
 fgh fgh fgh fgh
 e e e e e e e e
 d d d d d d d d
@@ -456,7 +432,31 @@ b b b b b b b b
 a fgh fgh fgh a
 '''
 
-delays[23] = 0.1
+delays[22] = 0.1
+
+levels[23] = '''
+   rcccccccr
+   c       c
+   c rcccr c
+   c c   c c
+   c c s c c
+   c c c c c
+   c c tcr c
+   c c     c
+   S rcccccr
+'''
+
+loadings[23] = '''
+   xllkkjjiw
+   m       i
+   m t987s h
+   n a   6 h
+   n a 1 5 g
+   o b 2 4 g
+   o b q3r f
+   p c     f
+   y ucddeev
+'''
 
 # Tara edit below this line
 

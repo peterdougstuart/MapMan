@@ -11,7 +11,14 @@ import map
 import bottom_bar
 import player
 import controls
-from game_menu import MenuScene
+import sys
+
+from game_menu import CreditsMenu
+from game_menu import MainMenu
+from game_menu import EndGameMenu
+from game_menu import EndLevelMenu
+from game_menu import LoseLifeMenu
+
 from score_tweet import ScoreTweet
 from shake import ShakeAndTilt
 from music import Music
@@ -24,7 +31,6 @@ class Game (Scene):
 	
 	GRADIENTS_FOLDER = 'Gradients'
 	POINTS_PER_LEVEL = 10
-	BONUS_POINTS = 5
 	
 	BASE_BG = '#71c0e2'
 	REVERSE_BG = '#e28c9b'
@@ -54,26 +60,25 @@ class Game (Scene):
 		self.reverse = False
 		self.vanish = 0
 		self.sound = 0
+		self.stars = 0
 		
+		self.bottom_bar = bottom_bar.BottomBar(parent=self)
+				
 		self.background_color = Game.BASE_BG
 		
 		background_texture = Texture(os.path.join(Game.GRADIENTS_FOLDER, 'MapMan-background-TRANSPARENCY.png'))
 		
-		self.background_gradient = SpriteNode(size=self.size, position=self.size/2, parent=self)
+		self.background_gradient = SpriteNode(position=(0,self.bottom_bar.height), parent=self, anchor_point=(0,0))
 		
 		self.background_gradient.texture = background_texture
-
+		self.background_gradient.size=(self.size.w, self.size.h - self.bottom_bar.height)
+		
 		self.level_display = LevelDisplay(parent=self)
 		self.lives_display = LivesDisplay(parent=self)
-
-		self.bottom_bar = bottom_bar.BottomBar(parent=self)
 		
-		self.tutorial_text = LabelNode('', font=('Avenir Next', 20), position=(self.size.w/2, self.size.h - 50), parent=self)
-
 		self.map = map.Map(self)
-
 		self.game_node = Node(parent=self)
-
+		
 		self.set_up_player()
 		self.load_highscore()
 		self.show_start_menu()
@@ -150,7 +155,6 @@ class Game (Scene):
 		if not self.tutorial:
 			
 			selected_levels = levels.levels
-			tutorial_text = ''
 			
 			if level in levels.loadings:
 				loading = levels.loadings[level]
@@ -162,15 +166,15 @@ class Game (Scene):
 				
 			self.bottom_bar.timer.blank_timer()
 			self.bottom_bar.set_time_message('Get Ready!!!')
-						
+			
+			self.bottom_bar.set_tutorial_text('')
+			
 		else:
 			
 			selected_levels = tutorial.levels
-			tutorial_text = tutorial.descriptions[level]
 			loading = None	
+			self.bottom_bar.set_tutorial_text(tutorial.descriptions[level])
 		self.map.load_level(selected_levels[level], loading, delay)
-		
-		self.tutorial_text.text = tutorial_text
 		
 	def update(self):
 		
@@ -375,9 +379,13 @@ class Game (Scene):
 			self.bottom_bar.set_time_message('Time Up!!!')
 		else:
 			self.bottom_bar.set_time_message('')
+	
+	#def touch_began(self, touch):
+	#	self.background_gradient.scale = 0
 				
 	def reset_all(self):
-		
+			
+			self.stars = 0
 			self.map.reset()
 			self.dead = False
 			self.reverse = False
@@ -433,8 +441,10 @@ class Game (Scene):
 			if self.map.on_points():
 				sound.play_effect('rpg:HandleCoins')
 				self.map.clear_points()
+				
 				if not self.tutorial:
-					self.level_display.score += Game.BONUS_POINTS
+					self.stars += 1
+					
 				self.last_points_time = datetime.datetime.now()
 				self.last_more_time_time = None
 				self.last_less_time_time = None
@@ -536,7 +546,7 @@ class Game (Scene):
 		
 		self.music.play_menu()
 		
-		self.menu = MenuScene('Map Man', 'Your Personal Best: {0}'.format(self.highscore), ['Play', 'Tutorial', 'Credits'])
+		self.menu = MainMenu(self.highscore)
 		self.present_modal_scene(self.menu)
 		
 	def load_highscore(self):
@@ -548,31 +558,39 @@ class Game (Scene):
 
 	def menu_button_selected(self, title):
 		
-		if title in ['Play','New Game']:
+		title = title.lower()
+		
+		if title in ['play','new game']:
 			self.dismiss_modal_scene()
 			self.menu = None
 			self.new_game()
-		elif title == 'Tutorial':
+		elif title == 'tutorial':
 			self.dismiss_modal_scene()
 			self.menu = None
 			self.new_tutorial()
-		elif title == 'Credits':
+		elif title == 'credits':
 			self.show_credits()
-		elif title == 'Tweet PB':
+		elif title == 'tweet pb':
 			ScoreTweet(self.highscore)
 			self.dismiss_modal_scene()
 			self.show_start_menu()
-		elif title == 'Main Menu':
+		elif title == 'main menu':
 			self.dismiss_modal_scene()
 			self.show_start_menu()
-		elif title == 'Next Level':
+		elif title in ['next level','play next level']:
 			self.next_level()
 			self.menu = None
 			self.dismiss_modal_scene()
+		elif title == 'try again':
+			self.reset_all()
+			self.menu = None
+			self.dismiss_modal_scene()
+		elif title == 'exit':
+			sys.exit()
 				
 	def show_credits(self):
 		
-		self.menu = MenuScene('Map Man','Coding by Peter Stuart\nGraphics by Fred Mangan\nMusic by David Sedgwick\n', ['Main Menu'], 12)
+		self.menu = CreditsMenu()
 		self.present_modal_scene(self.menu)
 
 	def show_level_complete(self):
@@ -583,9 +601,10 @@ class Game (Scene):
 			
 			time_bonus = self.bottom_bar.timer.countdown.seconds_remaining()
 		
-			self.end_of_level_points = Game.POINTS_PER_LEVEL + time_bonus
+			self.end_of_level_points = Game.POINTS_PER_LEVEL + time_bonus + self.stars
 		
-			self.menu = MenuScene('Complete','Level Bonus {0}\nTime Bonus {1}\n '.format(Game.POINTS_PER_LEVEL, time_bonus), ['Next Level'])
+			self.menu = EndLevelMenu(self.level_display.level, Game.POINTS_PER_LEVEL, time_bonus, self.stars)
+			
 			self.present_modal_scene(self.menu)
 		
 		else:
@@ -623,31 +642,32 @@ class Game (Scene):
 		if not self.tutorial:
 			self.lives_display.lives -= 1
 		
+		self.lives_display.update()
+				
 		if self.lives_display.lives < 1:
 			self.game_over()
 		else:
-			self.reset_all()
-			
-		self.lives_display.update()
-			
+			self.menu = LoseLifeMenu(self.lives_display.lives)
+			self.present_modal_scene(self.menu)
+				
 	def game_over(self):
 		
 		self.music.play_end()
 		self.game_active = True
 		self.shake.stop()
 		
-		options = ['New Game','Main Menu']
-		
 		if self.level_display.score > self.highscore:
 			self.highscore = self.level_display.score
 			self.save_highscore()
-			options.append('Tweet PB')
-			text = 'New Personal Best: {0}'.format(self.highscore)
+			pb = True
 		else:
-			text = 'Score: {0}'.format(self.level_display.score)
+			pb = False
 			
-		self.menu = MenuScene('Game Over', text, options)
+		self.menu = EndGameMenu(self.level_display.score, pb)
 		self.present_modal_scene(self.menu)
 	
+	def present_modal_scene(self, menu):
+		Scene.present_modal_scene(self, menu)
+		
 if __name__ == '__main__':
 	run(Game(), LANDSCAPE, show_fps=False)

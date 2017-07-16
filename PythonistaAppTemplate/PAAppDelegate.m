@@ -32,6 +32,8 @@
 	swipeRecognizer.delegate = self;
 	[self.window addGestureRecognizer:swipeRecognizer];
 	
+    [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+    
 	//This is required for the ui module to work correctly:
 	[[PAEExtensionContext sharedContext] setApp:application];
 	[[PAEExtensionContext sharedContext] setRootViewController:self.window.rootViewController];

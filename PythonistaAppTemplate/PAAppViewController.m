@@ -24,7 +24,7 @@
 	[super viewDidLoad];
 	
 	// === You can customize these colors to change the appearance of the console output:
-	UIColor *backgroundColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
+	UIColor *backgroundColor = [UIColor colorWithRed:0.44 green:0.75 blue:0.89  alpha:1.0];
 	UIColor *standardOutputTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
 	UIColor *errorOutputTextColor = [UIColor colorWithRed:0.8 green:0.0 blue:0.0 alpha:1.0];
 	UIColor *textSelectionTintColor = [UIColor colorWithRed:0.0 green:0.48 blue:1.0 alpha:1.0];

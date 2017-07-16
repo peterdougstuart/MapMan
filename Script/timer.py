@@ -4,6 +4,7 @@ from scene import *
 import clock
 import game_levels as levels
 import tutorial
+import font
 
 class Timer (object):
 	
@@ -22,7 +23,7 @@ class Timer (object):
 		
 	def add_countdown(self):
 		
-		self.timer_label = LabelNode('0', font=('Avenir Next', 50), position=(self.parent.size.w/2, 42.5), parent=self.parent)
+		self.timer_label = LabelNode('0', font=(font.TIMER, 50), position=(self.parent.size.w/2, 42.5), parent=self.parent)
 		
 	def update(self):
 		

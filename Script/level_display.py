@@ -3,6 +3,7 @@
 from scene import *
 import game_levels as levels
 import tutorial
+import font
 
 class LevelDisplay(object):
 	
@@ -30,7 +31,7 @@ class LevelDisplay(object):
 		
 	def add_score(self):
 		
-		self.score_label = LabelNode('', font=('Avenir Next', 40), position=(10, self.parent.size.h-30), parent=self.parent)
+		self.score_label = LabelNode('', font=(font.LEVEL_DISPLAY, 40), position=(10, self.parent.size.h-30), parent=self.parent)
 		
 		self.score_label.anchor_point = (0, 0.5)
 

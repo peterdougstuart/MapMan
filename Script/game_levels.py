@@ -155,7 +155,7 @@ loadings[8] = '''
 '''
 
 levels[9] = '''
- Wccccccc
+ Wccctccc
     dmd ccttl
  cccccccc
  c
@@ -265,23 +265,23 @@ loadings[14] = '''
 '''
 
 levels[15] = '''
- Wccccrccd  ppppm
+ Wccccrcd   ppppm
  d     c    p
  ccccccvccccp
  c
- yyyyyytyyyyyyyyw
-  c         c
-  ccccttccccc
+ tcyyyyyytyyyyccccccw
+  c           c
+  cccccttcccccc
 '''
 
 loadings[15] = '''
- mkjihgfcn  jklmn
+ mkjihgfn   jklmn
  o     e    i
  aabccdeefggh
  9
- 8766554433221111
-  7         3 
-  76655544433
+ 87665554443332221111
+  7           2 
+  7666555544433
 '''
  
 levels[16] = '''
@@ -392,6 +392,26 @@ loadings[20] = '''
  efghuj
 '''
 
+levels[21] = '''
+ccc ccc ccc ccc
+c c c c c c c c
+r c c c c c c c
+9 c c c c c c c
+c c c c c c c c
+n ccc ccc ccc S
+'''
+
+loadings[21] = '''
+fgh fgh fgh fgh
+e e e e e e e e
+d d d d d d d d
+c c c c c c c c
+b b b b b b b b
+a fgh fgh fgh a
+'''
+
+delays[21] = 0.1
+
 levels[22] = '''
  Wcccccd
  dddddcd
@@ -403,7 +423,7 @@ levels[22] = '''
  ddddddd
 '''
 
-loadings[21] = '''
+loadings[22] = '''
  srqponx
  xxxxxmx
  ghijklx
@@ -413,26 +433,6 @@ loadings[21] = '''
  xxa98xx
  xxxxxxx
 '''
-
-levels[21] = '''
-ccc ccc ccc ccc
-c c c c c c c c
-r c c c c c c c
-9 c c c c c c c
-c c c c c c c c
-n ccc ccc ccc S
-'''
-
-loadings[22] = '''
-fgh fgh fgh fgh
-e e e e e e e e
-d d d d d d d d
-c c c c c c c c
-b b b b b b b b
-a fgh fgh fgh a
-'''
-
-delays[22] = 0.1
 
 levels[23] = '''
    rcccccccr

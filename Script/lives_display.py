@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from scene import *
+import font
 
 class LivesDisplay(object):
 	
@@ -36,7 +37,7 @@ class LivesDisplay(object):
 		x = self.parent.size.w - 45
 		y = self.parent.size.h - 30
 		
-		self.lives_label = LabelNode('', font=('Avenir Next', 40), position=(x, y), parent=self.parent)
+		self.lives_label = LabelNode('', font=(font.LIVES_DISPLAY, 40), position=(x, y), parent=self.parent)
 		self.lives_label.anchor_point=(1, 0.5)
 
 		heart = Texture('heart.png')

@@ -3,6 +3,7 @@
 from scene import *
 from effect import Effect
 from timer import Timer
+import font
 
 class WrappingLabelNode(LabelNode):
 	
@@ -19,7 +20,7 @@ class WrappingLabelNode(LabelNode):
 		text = text.replace('\n',' ')
 		multi = ''
 		
-		self.font = (BottomBar.FONT, size)
+		self.font = (font.BOTTOM_BAR, size)
 		
 		words = text.split(' ')
 			
@@ -39,8 +40,6 @@ class WrappingLabelNode(LabelNode):
 				multi = trial
 				
 class BottomBar (object):
-	
-	FONT = 'Avenir Next'
 	
 	def __init__(self, parent):
 		
@@ -64,7 +63,7 @@ class BottomBar (object):
 		
 	def set_time_message(self,text,size=30):
 		
-		self.time_message_label_bottom.font = (BottomBar.FONT, size)
+		self.time_message_label_bottom.font = (font.BOTTOM_BAR, size)
 		
 		self.time_message_label_bottom.text = text
 	

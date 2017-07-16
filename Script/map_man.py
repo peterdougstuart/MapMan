@@ -10,7 +10,6 @@ import tutorial
 import map
 import bottom_bar
 import player
-import controls
 import sys
 
 from game_menu import CreditsMenu
@@ -24,20 +23,15 @@ from shake import ShakeAndTilt
 from music import Music
 from level_display import LevelDisplay
 from lives_display import LivesDisplay
+from gradient import Gradient
+
+import palette
 
 A = Action
 
 class Game (Scene):
 	
-	GRADIENTS_FOLDER = 'Gradients'
 	POINTS_PER_LEVEL = 10
-	
-	BASE_BG = '#71c0e2'
-	REVERSE_BG = '#e28c9b'
-	VANISH_BG = '#d593e2'
-	STUCK_BG = '#7ce2c0'
-	DEATH_BG = '#aeaeae'
-	HIDDEN_BG = '#b1aaea'
 	
 	def setup(self):
 		
@@ -64,15 +58,8 @@ class Game (Scene):
 		
 		self.bottom_bar = bottom_bar.BottomBar(parent=self)
 				
-		self.background_color = Game.BASE_BG
-		
-		background_texture = Texture(os.path.join(Game.GRADIENTS_FOLDER, 'MapMan-background-TRANSPARENCY.png'))
-		
-		self.background_gradient = SpriteNode(position=(0,self.bottom_bar.height), parent=self)
-		self.background_gradient.anchor_point=(0,0)
-		
-		self.background_gradient.texture = background_texture
-		self.background_gradient.size=(self.size.w, self.size.h - self.bottom_bar.height)
+		self.background_color = palette.BASE_BG
+		self.gradient = Gradient(self, self.bottom_bar.height)
 		
 		self.level_display = LevelDisplay(parent=self)
 		self.lives_display = LivesDisplay(parent=self)
@@ -90,17 +77,17 @@ class Game (Scene):
 	def set_background(self):
 		
 		if self.map.hidden:
-			self.background_color = Game.HIDDEN_BG
+			self.background_color = palette.HIDDEN_BG
 		elif self.dead:
-			self.background_color = Game.DEATH_BG
+			self.background_color = palette.DEATH_BG
 		elif self.reverse:
-			self.background_color = Game.REVERSE_BG
+			self.background_color = palette.REVERSE_BG
 		elif self.vanish > 0:
-			self.background_color = Game.VANISH_BG
+			self.background_color = palette.VANISH_BG
 		elif self.stuck:
-			self.background_color = Game.STUCK_BG
+			self.background_color = palette.STUCK_BG
 		else:
-			self.background_color = Game.BASE_BG
+			self.background_color = palette.BASE_BG
 	
 	def set_controls_message(self):
 		
@@ -375,7 +362,6 @@ class Game (Scene):
 			self.bottom_bar.set_time_message('Go!!!')
 		elif time_left < 5:
 			self.bottom_bar.set_time_message('Hurry Up!!!')
-			self.background_gradient.texture = None
 		elif time_left < 0:
 			self.bottom_bar.set_time_message('Time Up!!!')
 		else:
@@ -600,11 +586,11 @@ class Game (Scene):
 		
 		if not self.tutorial:
 			
-			time_bonus = self.bottom_bar.timer.countdown.seconds_remaining()
+			time_bonus = int(round(self.bottom_bar.timer.countdown.seconds_remaining() / 2, 0))
 		
 			self.end_of_level_points = Game.POINTS_PER_LEVEL + time_bonus + self.stars
 		
-			self.menu = EndLevelMenu(self.level_display.level, Game.POINTS_PER_LEVEL, time_bonus, self.stars)
+			self.menu = EndLevelMenu(self.level_display.level, self.level_display.score, Game.POINTS_PER_LEVEL, time_bonus, self.stars)
 			
 			self.present_modal_scene(self.menu)
 		
@@ -648,8 +634,11 @@ class Game (Scene):
 		if self.lives_display.lives < 1:
 			self.game_over()
 		else:
-			self.menu = LoseLifeMenu(self.lives_display.lives)
-			self.present_modal_scene(self.menu)
+			if not self.tutorial:
+				self.menu = LoseLifeMenu(self.lives_display.lives)
+				self.present_modal_scene(self.menu)
+			else:
+				self.reset_all()
 				
 	def game_over(self):
 		

@@ -5,17 +5,72 @@ from scene import *
 import ui
 import sound
 import os
-import objc_util
+from gradient import Gradient
+import palette
+import font
 
-A = Action
+class EmphasiseText:
+	
+	def __init__(self, node, index):
+		self.node = node
+		self.on = False
+		self.base_color = self.node.color
+		self.base_font = self.node.font
+		self.index = index
+		
+	def __call__(self):
+		if not self.on:
+			sound.play_effect('arcade:Powerup_3', 1, 1 + 1.0/8.0 * self.index)
+			#self.node.color = '#e28c9b'
+			self.node.font = (self.node.font[0], 30)
+			self.on = True
+		else:
+			self.node.color = self.base_color
+			self.node.font = self.base_font
+			self.on = False
+		
+class StartFade:
+	
+	def __init__(self, node):
+		self.node = node
 
+	def __call__(self):
+		sound.play_effect('arcade:Powerup_2')
+		self.node.run_action(Action.fade_to(1))
+		
+class Star:
+	
+	def __init__(self, node, score_node):
+		self.node = node
+		self.score_node = score_node
+		
+	def __call__(self):
+		
+		text = self.node.info_label.text
+		
+		if len(text) < 1:
+			return
+		
+		sound.play_effect('game:Ding_3')
+		
+		if len(text) > 1:
+			self.node.info_label.text = text[1:]
+		else:
+			self.node.info_label.text = ''
+			
+		old_score = int(self.score_node.info_label.text)
+		
+		new_score = old_score + 1
+		
+		self.score_node.info_label.text = str(new_score)
+		
 class InfoNode (SpriteNode):
 	
 	def __init__(self, info, parent):
 		
 		SpriteNode.__init__(self, parent=parent)
 		
-		button_font = ('Courier', 20)
+		button_font = (font.BUTTON, 20)
 		
 		self.heading_label = LabelNode(info[0], font=button_font, color='#71c0e2', position=(0, 5), parent=self)
 		
@@ -35,7 +90,7 @@ class ButtonNode (SpriteNode):
 		
 		SpriteNode.__init__(self, parent=parent)
 		
-		button_font = ('Courier', 20)
+		button_font = (font.BUTTON, 20)
 		
 		self.label = LabelNode(title, font=button_font, color='#71c0e2', position=(0, 0), parent=self)
 		
@@ -59,7 +114,7 @@ class MenuScene (Scene):
 		
 	def setup(self):
 		
-		title_font = ('Avenir Rounded Bold', self.title_size)
+		title_font = (font.TITLE, self.title_size)
 		
 		info_delta = 64
 		button_delta = 40
@@ -67,14 +122,9 @@ class MenuScene (Scene):
 		number_of_buttons = len(self.button_titles)
 		number_of_infos = len(self.infos)
 				
-		self.bg = SpriteNode(color='#71c0e2', parent=self)
+		self.bg = SpriteNode(color=palette.BASE_BG, parent=self)
 
-		background_texture = Texture(os.path.join('Gradients', 'MapMan-background-TRANSPARENCY.png'))
-		
-		self.background_gradient = SpriteNode(position=(0,0), parent=self)
-		self.background_gradient.anchor_point=(0,0)
-		
-		self.background_gradient.texture = background_texture
+		self.background_gradient = Gradient(self)
 		
 		bg_shape = ui.Path.rounded_rect(0, 0, 240, number_of_buttons * button_delta + number_of_infos * info_delta+5, 16)
 		
@@ -89,6 +139,7 @@ class MenuScene (Scene):
 		self.title_label.anchor_point = (0.5, 0)
 		
 		self.buttons = []
+		self.info_nodes = []
 		
 		for i, info in enumerate(self.infos):
 			
@@ -97,6 +148,8 @@ class MenuScene (Scene):
 			node.anchor_point = (0.5, 1)
 			
 			node.position = 0, self.menu_bg.size.h/2 - (i+0.5) * info_delta
+			
+			self.info_nodes.append(node)
 
 		for i, title in enumerate(self.button_titles):
 			
@@ -112,7 +165,8 @@ class MenuScene (Scene):
 		#self.menu_bg.scale = 0
 		
 		self.bg.alpha = 0
-		self.bg.run_action(A.fade_to(1))
+		self.bg.run_action(Action.fade_to(1))
+		
 		#self.background_gradient.alpha = 0
 		#self.background_gradient.run_action(A.fade_to(1))
 		
@@ -186,7 +240,7 @@ class MainMenu(MenuScene):
 		MenuScene.setup(self)
 		
 		button_font = ('Courier', 20)
-		score_text = 'best score {0} {1} {0}'.format(unichr(9733), self.high_score)
+		score_text = 'best score {0} {1} {0}'.format(font.STAR, self.high_score)
 		
 		self.score_label = LabelNode(score_text, font=button_font, color='#ffffff',  parent=self.menu_bg)
 		
@@ -209,17 +263,80 @@ class MainMenu(MenuScene):
 		
 class EndLevelMenu(MenuScene):
 	
-	def __init__(self, level, level_points, time_bonus, stars):
+	def __init__(self, level, score, level_points, time_bonus, stars):
 		
 		buttons = ['Play Next Level']
 
 		infos = []
-		infos.append(('level bonus', str(level_points)))
-		infos.append(('time bonus', str(time_bonus)))
-		infos.append(('collected', str(stars)))
-						
+		
+		infos.append(('level bonus', font.STAR * level_points))
+		
+		infos.append(('time bonus', font.STAR * time_bonus))
+
+		infos.append(('collected', font.STAR * stars))
+
+		infos.append(('score', str(score)))
+		
 		MenuScene.__init__(self, 'Level {0} Clear'.format(level), buttons, infos=infos, title_size=40)
 
+	def setup(self):
+		
+		MenuScene.setup(self)
+		
+		actions = []
+		
+		next_level_button = self.buttons[0]
+		
+		next_level_button.alpha = 0
+		
+		actions.append(Action.wait(0.2))
+		
+		actions += self.add_star_action(0)
+
+		actions += self.add_star_action(1)
+		
+		actions += self.add_star_action(2)
+		actions.append(Action.call(StartFade(next_level_button)))
+		self.info_nodes[0].run_action(Action.sequence(actions))
+	
+	def add_star_action(self, index):
+		
+		actions = []
+		
+		actions.append(Action.wait(0.2))
+		
+		action = self.star_action(index)
+		
+		if action is not None:
+			actions.append(action)
+			
+		return actions
+		
+	def star_action(self, index):
+		
+		node = self.info_nodes[index]
+		count = len(node.info_label.text)
+		
+		if count < 1:
+			return None
+		
+		score_node = self.info_nodes[3]
+		
+		emphasise = EmphasiseText(node.heading_label, index)
+		
+		emphasise_action = Action.call(emphasise)
+		
+		star_action = Action.call(Star(node, score_node))
+		wait_action = Action.wait(0.1)
+		
+		star_and_wait = Action.sequence([star_action, wait_action])
+		
+		stars = Action.repeat(star_and_wait, count)
+		
+		unemphasise_action = Action.call(emphasise)
+		
+		return Action.sequence([emphasise_action, Action.wait(0.2), stars, unemphasise_action])
+		
 class LoseLifeMenu(MenuScene):
 	
 	def __init__(self, lives):

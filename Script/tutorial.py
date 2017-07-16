@@ -5,11 +5,11 @@ levels = {}
 
 levels[1] = '''
 
- Wczccccc
- ccccczcc
- zczczccc
- cccccccc
- czczczcw
+ Wccccccc
+        c
+    ccccc
+    c
+    ccccw
 '''
 
 descriptions[1] = 'Tilt your device to move around the map.\nHead for the exit tile to progress to the next level.'
@@ -70,10 +70,42 @@ levels[6] = '''
 descriptions[6] = 'Also keep an out for extra lives,\nbut take care as they that will take you\neven more off course then bonus points'
 
 levels[7] = '''
+    
+Wcccccdccccc
+     ccc  dcd
+      d    c
+           n
+'''
+
+descriptions[7] = 'Be careful for the poison tiles, if you step on them you will lose a life.'
+
+levels[8] = '''
+
+Wcccc
+    cccccm
+    c
+    cttccc
+         cccccm
+         n
+'''
+
+descriptions[8] = 'The real game takes place against the clock. These tiles will give you extra time or cost you time. You will get bonus points for time left on the clock when you finish each level.'
+
+levels[9] = '''
+
+Wccci
+    i iiiiiiiih
+    i i  i
+    iii  h
+         c
+         n
+'''
+
+descriptions[9] = 'This tile causes other tiles to disappear. Even though the tiles aren\'t visible you can still step on them so remember where they are. Step on another to make them reappear.'
+
+levels[10] = '''
 
 Wczczccw
 '''
 
-descriptions[7] = 'You\'re all set, head for the exit to start the game.\nP.S. The real game take place against the clock, have fun!\n'
-
-
+descriptions[10] = 'You\'re all set, head for the exit to start the game. Have fun!'

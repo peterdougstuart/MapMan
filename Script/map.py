@@ -3,7 +3,9 @@ from scene import *
 import game_levels as levels
 import os
 import datetime
-import os.path
+from scaler import Scaler
+from random import randint
+from check_point import CheckPoint
 
 A = Action
 
@@ -22,7 +24,6 @@ class Tile:
 	def __init__(self, map, brick_type, x, y):
 		
 		self.key = (x, y)
-		self.hidden_texture = None
 		
 		self.position = Point(map.min_x + x * map.tile_w, map.min_y + y * map.tile_h)
 		
@@ -30,45 +31,54 @@ class Tile:
 		self.size = (map.tile_w, map.tile_h)
 		
 		if brick_type != ' ' and brick_type != '-':
-            
-			path = self.get_path(brick_type)
 			
-			if not os.path.isfile(path):
-				raise Exception("Image not found {0}".format(path))
-			
-			self.node = SpriteNode(path, parent=map.game.game_node, position=self.position)
+			self.node = SpriteNode(parent=map.game.game_node, position=self.position)
+			self.node.texture = self.get_texture(brick_type)
 			self.node.anchor_point = (0.5, 0.5)
 			self.node.size = self.size
 			self.node.scale = 0
 			self.node.alpha = 0.8
 			self.blank = False
+			
 			if brick_type.lower() == 'i':
 				self.can_hide = True
 			else:
 				self.can_hide = False
+				
 		else:
 			self.node = None
 			self.blank = True
 			self.can_hide = False
-
+		
 	def hide(self):
 		if self.can_hide:
-			self.hidden_texture = self.node.texture
-			self.node.texture = None
+			self.node.scale = 0
 	
 	def unhide(self):
-		if self.hidden_texture is not None:
-			self.node.texture = self.hidden_texture
-			self.node.size = self.size
+		if self.node is not None:
+			if self.node.scale == 0:
+				self.node.scale = 1
 			
 	def normalise(self):
-		if self.hidden_texture is None:
-			self.node.texture = Texture(self.get_path('c'))
-			self.node.size = self.size
+		self.node.texture = Texture(self.get_blank(1))
+		self.node.size = self.size
 	
 	def denormalise(self):
+		
+		if self.node is None:
+			return
+			
 		self.node.texture = Texture(self.get_path(self.brick_type))
 		self.node.size = self.size
+	
+	def get_texture(self, tile_type):
+		
+		path = self.get_path(tile_type)
+		
+		if not os.path.isfile(path):
+			raise Exception('File not found {0}'.format(path))
+			
+		return Texture(path)
 			
 	def get_path(self, tile_type):
 		
@@ -76,38 +86,52 @@ class Tile:
 		vanish = get_vanish(tile_type)
 		
 		if vanish > 0:
-			return os.path.join(folder, "tile_vanish.png")
+			return self.get_tile_path("vanish.png")
+		elif tile_type.lower() == 'b':
+			return self.get_tile_path("start.png")
 		elif tile_type.lower() == 'h':
-			return os.path.join(folder, "hide.png")
+			return self.get_tile_path("hide.png")
+		elif tile_type.lower() == 'u':
+			return self.get_tile_path("unhide.png")
 		elif tile_type.lower() == "s":
-			return os.path.join(folder, "south.png")
+			return self.get_tile_path("south.png")
 		elif tile_type.lower() == "e":
-			return os.path.join(folder, "east.png")
+			return self.get_tile_path("east.png")
 		elif tile_type.lower() == "w":
-			return os.path.join(folder, "west.png")
+			return self.get_tile_path("west.png")
 		elif tile_type.lower() == "n":
-			return os.path.join(folder, "north.png")
+			return self.get_tile_path("north.png")
 		elif tile_type == "p":
-			return os.path.join(folder, "points.png")
+			return self.get_tile_path("points.png")
 		elif tile_type == "d":
-			return os.path.join(folder, "death.png")
+			return self.get_tile_path("death.png")
 		elif tile_type == "l":
-			return os.path.join(folder, "life.png")
+			return self.get_tile_path("life.png")
 		elif tile_type == "m":
-			return os.path.join(folder, "more_time.png")
+			return self.get_tile_path("more_time.png")
 		elif tile_type == "t":
-			return os.path.join(folder, "less_time.png")
+			return self.get_tile_path("less_time.png")
 		elif tile_type == "y":
-			return os.path.join(folder, "sticky.png")
+			return self.get_tile_path("sticky.png")
 		if tile_type == "r":
-			return os.path.join(folder, "tile_reverse.png")
+			return self.get_tile_path("reverse.png")
 		elif tile_type == 'c':
-			return os.path.join(folder, "circle_tile_big.png")
+			return self.get_blank()
 		elif tile_type == 'z':
-			return os.path.join(folder, "circle_tile_small.png")
+			return self.get_blank()
 		else:
-			return os.path.join(folder, "circle_tile_big.png")
-			
+			return self.get_blank()
+	
+	def get_blank(self, index=None):
+		
+		if index is None:
+			index = randint(1, 4)
+		
+		return self.get_tile_path("blank{0}.png".format(index))
+		
+	def get_tile_path(self, file_name):
+		return Scaler.get_tile_path(file_name)
+		
 	def appear(self, wait):
 		
 		if self.node != None:
@@ -119,7 +143,9 @@ class Map:
 		
 		self.game = game
 		self.start_position = None
-		self.end_position = None
+		self.end = None
+		self.check_point = False
+		self.check_point_flag = None
 		self.position = None
 		self.show_position = None
 		self.start = None
@@ -139,24 +165,13 @@ class Map:
 		self.less_times = {}
 		self.points = {}
 		self.hides = {}
+		self.unhides = {}
 		
 		self.hidden = False
 		
-		if self.game.size.w > 760:
-			#iPad
-			self.tile_w, self.tile_h = 64, 64
-		else:
-			#iPhone
-			self.tile_w, self.tile_h = 32, 32
+		self.tile_w = 32 * Scaler.get_scale()
+		self.tile_h = 23 * Scaler.get_scale()
 		
-		self.load_end = None
-	
-	def toggle_hide(self):
-		if self.hidden:
-			self.unhide()
-		else:
-			self.hide()
-			
 	def hide(self):
 			
 		for tile in self.tiles.values():
@@ -241,7 +256,11 @@ class Map:
 		self.moving = False
 		self.position = self.start_position
 		self.show_position = self.position
-		
+
+		for position in self.unhides:
+			self.unhides[position] = True
+			self.tiles[position].denormalise()
+			
 		for position in self.hides:
 			self.hides[position] = True
 			self.tiles[position].denormalise()
@@ -274,7 +293,7 @@ class Map:
 		return (self.tiles[self.position].node != None)
 		
 	def at_end(self):
-		return (self.position == self.end_position)
+		return (self.position == self.end.key)
 
 	def on_points(self):
 		if self.position in self.points:
@@ -329,6 +348,12 @@ class Map:
 			return self.hides[self.position]
 		else:
 			return False
+
+	def on_unhide(self):
+		if self.position in self.unhides:
+			return self.unhides[self.position]
+		else:
+			return False
 			
 	def vanish_duration(self):
 		return self.vanish_durations[self.position]
@@ -336,6 +361,11 @@ class Map:
 	def clear_hide(self):
 		if self.position in self.hides:
 			self.hides[self.position] = False
+			self.tiles[self.position].normalise()
+	
+	def clear_unhide(self):
+		if self.position in self.unhides:
+			self.unhides[self.position] = False
 			self.tiles[self.position].normalise()
 			
 	def clear_death(self):
@@ -378,12 +408,18 @@ class Map:
 			self.vanishes[self.position] = False
 			self.tiles[self.position].normalise()
 			
-	def load_level(self, level_str, loading_str=None, delay=0.05):
+	def load_level(self, level_str, loading_str=None, delay=0.05, check_point=False):
 		
 		for tile in self.tiles.values():
 			if tile.node != None:
 				tile.node.run_action(A.remove())
-			
+		
+		if self.check_point:
+			self.check_point_flag.node.run_action(A.remove())
+
+		self.check_point = check_point
+		self.check_point_flag = None
+		
 		self.tiles = {}
 		self.reverses = {}
 		self.vanishes = {}
@@ -396,26 +432,26 @@ class Map:
 		self.less_times = {}
 		self.points = {}
 		self.hides = {}
+		self.unhides = {}
 		self.loadings = {}
 		
-		lines = level_str.splitlines()[1:]
+		self.end = None
 		
+		lines = level_str.splitlines()[1:]
 		
 		if loading_str is not None:
 			loading_lines = loading_str.splitlines()
 		else:
 			loading_lines = None
 		
-		self.min_x = self.game.size.w/2 - 4.5 * self.tile_w
-		
-		self.min_y = self.game.size.h/2 - len(lines) * self.tile_h/2 + 50
+		self.min_y = self.game.size.h/2 - len(lines) * self.tile_h/2 + 50 * Scaler.get_scale()
 		
 		max_columns = 0
 		
 		for line in lines:
 			max_columns = max([max_columns, len(line)])
-		
-		self.min_x = self.game.size.w/2 - (max_columns / 2) * self.tile_w
+			
+		self.min_x = self.game.size.w * 0.5 - (max_columns * 0.5) * self.tile_w
 		
 		self.add_row(-1, "", max_columns)
 		
@@ -451,7 +487,11 @@ class Map:
 			for tile in tile_array:
 				if not tile.blank:
 					tile.appear(count*delay)
-				
+		
+		if self.check_point:
+			count += 1
+			self.check_point_flag.appear(count * delay)
+			
 		self.load_end = datetime.datetime.now() + datetime.timedelta(seconds = count * delay)
 		
 	def loaded(self):
@@ -482,8 +522,15 @@ class Map:
 			self.add_tile(" ", x, y)
 			x += 1
 			
-	def is_start_end(self, tile):
+	def is_start(self, tile):
 		
+		if tile.lower() == 'b':
+			return True
+		else:
+			return False
+			
+	def is_end(self, tile):
+
 		if tile.lower() == 's':
 			return True
 		elif tile.lower() == 'w':
@@ -494,26 +541,11 @@ class Map:
 			return True
 		else:
 			return False
-	
-	def is_start(self, tile):
-		
-		if self.is_start_end(tile):
-			if tile.lower() == tile:
-				return True
-				
-		return False
-
-	def is_end(self, tile):
-		
-		if self.is_start_end(tile):
-			if tile.upper() == tile:
-				return True
-				
-		return False
 		
 	def add_tile(self, tile_type, x, y, loading=None):
 		
 		tile = Tile(self, tile_type, x, y)
+		
 		self.tiles[tile.key] = tile
 		
 		if loading is not None:
@@ -531,7 +563,9 @@ class Map:
 		elif self.is_start(tile_type):
 				self.start_position = tile.key
 		elif self.is_end(tile_type):
-				self.end_position = tile.key
+				self.end = tile
+				if self.check_point:
+					self.check_point_flag = CheckPoint(tile)
 		elif tile_type == 'r':
 			self.reverses[tile.key] = True
 		elif tile_type == 'd':
@@ -548,3 +582,5 @@ class Map:
 			self.points[tile.key] = True
 		elif tile_type == 'h':
 			self.hides[tile.key] = True
+		elif tile_type == 'u':
+			self.unhides[tile.key] = True

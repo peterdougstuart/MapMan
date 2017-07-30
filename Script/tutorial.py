@@ -9,7 +9,7 @@ levels[1] = '''
         c
     ccccc
     c
-    ccccw
+    ccccb
 '''
 
 descriptions[1] = 'Tilt your device to move around the map.\nHead for the exit tile to progress to the next level.'
@@ -20,7 +20,7 @@ levels[2] = '''
  c
  z
  c
- rzcrccw
+ rzcrccb
 '''
 
 descriptions[2] = 'Stepping on this tile will reverse the controls.\nStep on another and they go back to normal.'
@@ -31,7 +31,7 @@ levels[3] = '''
  c
  z
  c
- czcvccw
+ czcvccb
 '''
 
 descriptions[3] = 'Stepping on this tile will make Map Man disappear.\nDon\'t worry after a few moves he will show up again.'
@@ -42,7 +42,7 @@ levels[4] = '''
  c
  z
  c
- czcyccw
+ czcyccb
 '''
 
 descriptions[4] = 'Stepping on this tile will cause Map Man to get stuck.\nShake your device to free him u and get moving again.'
@@ -53,7 +53,7 @@ levels[5] = '''
  c-----c
  ccccccc
  c
- ccccccw
+ ccccccb
 '''
 
 descriptions[5] = 'Watch out for bonus points,\n although you may have to go out of your way to get them'
@@ -64,7 +64,7 @@ levels[6] = '''
  c-----c
  ccccccc
  c
- ccccccw
+ ccccccb
 '''
 
 descriptions[6] = 'Also keep an out for extra lives,\nbut take care as they that will take you\neven more off course then bonus points'
@@ -74,7 +74,7 @@ levels[7] = '''
 Wcccccdccccc
      ccc  dcd
       d    c
-           n
+           b
 '''
 
 descriptions[7] = 'Be careful for the poison tiles, if you step on them you will lose a life.'
@@ -86,26 +86,26 @@ Wcccc
     c
     cttccc
          cccccm
-         n
+         b
 '''
 
-descriptions[8] = 'The real game takes place against the clock. These tiles will give you extra time or cost you time. You will get bonus points for time left on the clock when you finish each level.'
+descriptions[8] = 'These tiles will give you extra time or cost you time. You will get bonus points for time left on the clock when you finish each level.'
 
 levels[9] = '''
 
 Wccci
-    i iiiiiiiih
+    i iiiiiiiiu
     i i  i
     iii  h
          c
-         n
+         b
 '''
 
-descriptions[9] = 'This tile causes other tiles to disappear. Even though the tiles aren\'t visible you can still step on them so remember where they are. Step on another to make them reappear.'
+descriptions[9] = 'These tile causes other tiles to disappear and reappear. When the tiles are hidden you can still step on them so remember where they are.'
 
 levels[10] = '''
 
-Wczczccw
+Wczczccb
 '''
 
 descriptions[10] = 'You\'re all set, head for the exit to start the game. Have fun!'

@@ -5,39 +5,49 @@ import clock
 import game_levels as levels
 import tutorial
 import font
+import sound
+import datetime
+from scaler import Scaler
 
-class Timer (object):
+class Timer (LabelNode):
 	
 	def __init__(self, parent):
 		
-		self.level = 1
+		LabelNode.__init__(self, '0', font=(font.TIMER, int(50*Scaler.get_scale())), position=(parent.size.w/2, parent.size.h/2), parent=parent)
 		
-		self.parent = parent
+		self.player = sound.Player('game:Clock_1')
+		self.player.number_of_loops = -1
 		
 		self.countdown = clock.Countdown(parent, 20)
 		
-		self.add_countdown()
+		self.playing = False
 		
 	def blank_timer(self):
-		self.timer_label.text = ''
-		
-	def add_countdown(self):
-		
-		self.timer_label = LabelNode('0', font=(font.TIMER, 50), position=(self.parent.size.w/2, 42.5), parent=self.parent)
+		self.text = ''
 		
 	def update(self):
 		
-		if not self.parent.tutorial:
+		if not self.parent.parent.tutorial:
 			
 			seconds = self.countdown.seconds_remaining()
 			
 			if seconds > 0:
-				self.timer_label.text = str(seconds)
+				self.text = str(seconds)
+				if seconds <= 3:
+					self.player.play()
+					self.playing = True
 			else:
-				self.timer_label.text = ''
-			
+				self.text = ''
+				if self.playing:
+					self.player.stop()
+				
 		else:
-			self.timer_label.text = ''
+			
+			self.text = ''
 	
 	def advance_level(self):
+		
 		self.countdown.reset()
+		
+		if self.playing:
+			self.player.stop()

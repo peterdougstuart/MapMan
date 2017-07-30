@@ -1,0 +1,45 @@
+
+iPhone4_screen_size = (320, 480)
+iPhone4s_screen_size = (320, 480)
+iPhone5_screen_size = (320, 568)
+iPhone5s_screen_size = (320, 568)
+iPhone6_screen_size = (375, 667)
+iPhone6P_screen_size = (414, 736)
+iPhone6s_screen_size = (375, 667)
+iPhone6sP_screen_size = (414, 736)
+iPad2_screen_size = (768, 1024)
+iPad_Mini_1 = (768, 1024)
+iPad_Mini_2 = (768, 1024)
+iPad_Mini_3 = (768, 1024)
+iPad_Air_screen_size = (768, 1024)
+iPad_Air_2_screen_size = (768, 1024)
+iPad_Pro_screen_size = (1024, 1366)
+
+scale = scene.get_screen_scale()
+
+http://blog.fluidui.com/designing-for-mobile-101-pixels-points-and-resolutions/
+
+1X
+On the iPhone, 1 point is equal to 1 pixel when the resolution is 163DPI. This was the case for all the iPhones before the Retina era.
+
+2X
+At 326DPI, like the iPhone 4, 5 and 6, 1 point is equal to 2 pixels across and 2 pixels down, or 4 total pixels. Meaning your 100x100 image will render a quarter the size on a retina device if rendered by counting pixels alone.
+
+3X
+At 401DPI like the iPhone 6+, 1 point is equal to 3 pixels across and 3 pixels down, or 9 total pixels.
+
+-------------------------
+32
+
+MapMan
+32x32
+
+		if game.size.w > 760:
+			#iPad
+			Scaler.scale = 2
+		else:
+			#iPhone
+			Scaler.scale = 1
+
+Fred Tile:
+300 x 220

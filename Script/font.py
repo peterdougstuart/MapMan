@@ -1,10 +1,14 @@
 GENERAL = 'Courier'
 BUTTON = 'Courier'
-TITLE = 'Avenir Rounded'
+BUTTON_PRESSED = 'Courier'
+TITLE = 'Arial'
 
 LIVES_DISPLAY = 'Courier'
 LEVEL_DISPLAY = 'Courier'
 TIMER = 'Courier'
-BOTTOM_BAR = 'Avenir Rounded'
+BOTTOM_BAR = 'Arial'
 
-STAR = unichr(9733)
+try:
+	STAR = unichr(9733)
+except:
+	STAR = '*'

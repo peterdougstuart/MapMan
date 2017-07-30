@@ -20,7 +20,7 @@ class Countdown(object):
 			
 	def seconds_remaining(self):
 		
-		if self.parent.tutorial:
+		if self.parent.parent.tutorial:
 			return 999
 			
 		elapsed = datetime.datetime.now() - self.start

@@ -16,7 +16,7 @@ class LevelDisplay(object):
 		self.add_score()
 	
 	def reset(self):
-		self.level = 1
+		self.level = levels.START_LEVEL
 		self.score = 0
 		
 	def blank_score(self):

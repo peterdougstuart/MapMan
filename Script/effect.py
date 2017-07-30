@@ -1,6 +1,7 @@
 # coding: utf-8
 from scene import *
 import os.path
+from scaler import Scaler
 
 class Effect(object):
 	
@@ -8,6 +9,8 @@ class Effect(object):
 	FOLDER = 'Effects'
 	
 	def __init__(self, parent):
+		
+		self.scale = Effect.SCALE * Scaler.get_scale()
 		
 		self.off_texture = self.create_texture('off.png')
 		self.reverse_texture = self.create_texture('reverse.png')
@@ -18,7 +21,8 @@ class Effect(object):
 		self.less_time_texture = self.create_texture('less_time.png')
 		self.life_texture = self.create_texture('life.png')
 		self.hide_texture = self.create_texture('hide.png')
-		
+		self.unhide_texture = self.create_texture('unhide.png')
+				
 		self.node = SpriteNode(self.off_texture)
 		self.node_top = SpriteNode(self.off_texture)
 		self.node_bottom = SpriteNode(self.off_texture)
@@ -29,9 +33,9 @@ class Effect(object):
 		self.node_top.anchor_point = (0, 0)
 		self.node_bottom.anchor_point = (0, 0)
 		
-		self.node.position = (5, 5)
-		self.node_top.position = (25, 45)
-		self.node_bottom.position = (25, 5)
+		self.node.position = (5 * Scaler.get_scale(), 2 * Scaler.get_scale())
+		self.node_top.position = (25 * Scaler.get_scale(), 42 * Scaler.get_scale()) 
+		self.node_bottom.position = (25 * Scaler.get_scale(), 2 * Scaler.get_scale()) 
 		
 		self.parent = parent
 		self.parent.add_child(self.node)
@@ -46,6 +50,10 @@ class Effect(object):
 		self.node_top.texture = self.reverse_texture
 		self.node_bottom.texture = self.vanish_texture
 
+	def unhide(self):
+		self.show_effect()
+		self.node.texture = self.unhide_texture
+		
 	def hide(self):
 		self.show_effect()
 		self.node.texture = self.hide_texture
@@ -85,11 +93,11 @@ class Effect(object):
 	def show_effect(self):
 		self.node_top.scale = 0
 		self.node_bottom.scale = 0
-		self.node.scale = Effect.SCALE
+		self.node.scale = self.scale
 
 	def show_double(self):
-		self.node_top.scale = 0.5 * Effect.SCALE
-		self.node_bottom.scale = 0.5 * Effect.SCALE
+		self.node_top.scale = 0.5 * self.scale
+		self.node_bottom.scale = 0.5 * self.scale
 		self.node.scale = 0
 		
 	def hide_effect(self):

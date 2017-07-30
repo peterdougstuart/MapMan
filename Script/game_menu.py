@@ -8,7 +8,35 @@ import os
 from gradient import Gradient
 import palette
 import font
+from scaler import Scaler
+from in_app import InApp
 
+class ScoreLabelNode(LabelNode):
+	
+	def __init__(self, parent, score, base_text='score'):
+		
+		self.base_text = base_text
+		
+		button_font = (font.BUTTON, int(20*Scaler.get_scale()))
+		
+		LabelNode.__init__(self, text='', font=button_font, color='#ffffff', parent =parent)
+
+		self.anchor_point = (0.5,0.5)
+		
+		self.position=(0, -parent.size.h/2-self.size.h)
+		
+		self.set_score(score)
+	
+	def add_score(self):
+		self.set_score(self.score + 1)
+		
+	def set_score(self, score):
+		self.score = score
+		self.text = self.make_score_text(score)
+	
+	def make_score_text(self, score):
+		return '{0} {1} {2} {1}'.format(self.base_text, font.STAR, score)
+		
 class EmphasiseText:
 	
 	def __init__(self, node, index):
@@ -22,7 +50,7 @@ class EmphasiseText:
 		if not self.on:
 			sound.play_effect('arcade:Powerup_3', 1, 1 + 1.0/8.0 * self.index)
 			#self.node.color = '#e28c9b'
-			self.node.font = (self.node.font[0], 30)
+			self.node.font = (self.node.font[0], int(30*Scaler.get_scale()))
 			self.on = True
 		else:
 			self.node.color = self.base_color
@@ -57,12 +85,8 @@ class Star:
 			self.node.info_label.text = text[1:]
 		else:
 			self.node.info_label.text = ''
-			
-		old_score = int(self.score_node.info_label.text)
 		
-		new_score = old_score + 1
-		
-		self.score_node.info_label.text = str(new_score)
+		self.score_node.add_score()
 		
 class InfoNode (SpriteNode):
 	
@@ -70,36 +94,57 @@ class InfoNode (SpriteNode):
 		
 		SpriteNode.__init__(self, parent=parent)
 		
-		button_font = (font.BUTTON, 20)
+		button_font = (font.BUTTON, int(20*Scaler.get_scale()))
 		
 		self.heading_label = LabelNode(info[0], font=button_font, color='#71c0e2', position=(0, 5), parent=self)
 		
-		self.info_label = LabelNode(info[1], font=button_font, color='#000000', position=(0, -20), parent=self)
+		self.info_label = LabelNode(info[1], font=button_font, color='#000000', position=(0, -20*Scaler.get_scale()), parent=self)
 		
 		if len(info) >= 3:
-			self.heading_label.font = (button_font[0], info[2])
+			self.heading_label.font = (button_font[0], info[2]*Scaler.get_scale())
 
 		if len(info) >= 4:
-			self.info_label.font = (button_font[0], info[3])
+			self.info_label.font = (button_font[0], info[3]*Scaler.get_scale())
 			
 		self.size = (self.parent.size.w * 0.8, self.heading_label.size.h + self.info_label.size.h)
 		
-class ButtonNode (SpriteNode):
+class ButtonNode (LabelNode):
 	
 	def __init__(self, title, parent):
 		
-		SpriteNode.__init__(self, parent=parent)
-		
-		button_font = (font.BUTTON, 20)
-		
-		self.label = LabelNode(title, font=button_font, color='#71c0e2', position=(0, 0), parent=self)
-		
-		self.label.anchor_point = (0.5,0.5)
-		
 		self.title = title
 		
-		self.size = (self.parent.size.w * 0.9, self.label.size.h*1.25)
+		self.untouch_color = '#71c0e2'
+		self.touch_color = '#e28c9b'
+		self.untouch_font_size = 20*Scaler.get_scale()
+		self.touch_font_size = 25*Scaler.get_scale()
+		
+		button_font = (font.BUTTON, self.untouch_font_size)
+		
+		text = title
+		
+		while len(text) < 20:
+			text = ' {0} '.format(text)
+			
+		LabelNode.__init__(self, text, font=button_font, color=self.untouch_color, position=(0, 0), parent=parent)
+		
+		self.anchor_point = (0.5,1)
+		self.enabled = True
 
+	def disable(self):
+		self.enabled = False
+		self.color = '#aaaaaa'
+		
+	def touch(self):
+		
+		self.color = self.touch_color
+		self.font = (font.BUTTON_PRESSED, self.touch_font_size)
+
+	def untouch(self):
+		
+		self.color = self.untouch_color
+		self.font = (font.BUTTON, self.untouch_font_size)
+		
 class MenuScene (Scene):
 	
 	def __init__(self, title, button_titles, infos=[], title_size=60, y_position_delta=0):
@@ -109,15 +154,15 @@ class MenuScene (Scene):
 		self.title = title
 		self.button_titles = button_titles
 		self.infos = infos
-		self.title_size = title_size
-		self.y_position_delta = y_position_delta
+		self.title_size = title_size*Scaler.get_scale()
+		self.y_position_delta = y_position_delta*Scaler.get_scale()
 		
 	def setup(self):
 		
 		title_font = (font.TITLE, self.title_size)
 		
-		info_delta = 64
-		button_delta = 40
+		info_delta = 60*Scaler.get_scale()
+		button_delta = 40*Scaler.get_scale()
 		
 		number_of_buttons = len(self.button_titles)
 		number_of_infos = len(self.infos)
@@ -126,7 +171,7 @@ class MenuScene (Scene):
 
 		self.background_gradient = Gradient(self)
 		
-		bg_shape = ui.Path.rounded_rect(0, 0, 240, number_of_buttons * button_delta + number_of_infos * info_delta+5, 16)
+		bg_shape = ui.Path.rounded_rect(0, 0, 240*Scaler.get_scale(), number_of_buttons * button_delta + number_of_infos * info_delta+10*Scaler.get_scale(), 16*Scaler.get_scale())
 		
 		bg_shape.line_width = 0
 		
@@ -173,7 +218,7 @@ class MenuScene (Scene):
 		self.background_color = 'white'
 		
 	def did_change_size(self):
-		self.bg.size = self.size + (2, 2)
+		self.bg.size = self.size + (2, 2)*Scaler.get_scale()
 		self.bg.position = self.size/2
 		self.menu_bg.position = (self.size.w/2,self.size.h/2+self.y_position_delta)
 		self.size/2
@@ -185,11 +230,8 @@ class MenuScene (Scene):
 		touch_loc = self.menu_bg.point_from_scene(touch.location)
 		
 		for btn in self.buttons:
-			
-			if touch_loc in btn.frame:
-				
-				btn.label.color = '#e28c9b'
-				btn.label.font = (btn.label.font[0], 25)
+			if touch_loc in btn.frame and btn.enabled:
+				btn.touch()
 	
 	def touch_ended(self, touch):
 	
@@ -197,17 +239,46 @@ class MenuScene (Scene):
 		
 		for btn in self.buttons:
 			
-			btn.label.color = '#71c0e2'
-			btn.label.font = (btn.label.font[0], 20)
+			if btn.enabled:
+				
+				btn.untouch()
 							
-			if self.presenting_scene and touch_loc in btn.frame:
+				if self.presenting_scene and touch_loc in btn.frame:
 				
-				new_title = self.presenting_scene.menu_button_selected(btn.title)
+					new_title = self.presenting_scene.menu_button_selected(btn.title)
 				
-				if new_title:
-					btn.title = new_title
-					btn.title_label.text = new_title
+					if new_title:
+						btn.title = new_title
+						btn.title_label.text = new_title
 
+class ContinueMenu(MenuScene):
+	
+	def __init__(self, check_points):
+		
+		buttons = []
+		self.enables = []
+		
+		for level in sorted(check_points):
+			
+			check_point = check_points[level]
+			buttons.append('Checkpoint - L{0}'.format(check_point.level))
+			self.enables.append(check_point.complete)
+			
+		buttons.append('main menu')
+		infos = []
+		
+		infos.append(('select checkpoint', ''))
+		
+		MenuScene.__init__(self,'Continue', buttons, infos=infos, y_position_delta=-20)
+		
+	def setup(self):
+			
+		MenuScene.setup(self)
+			
+		for i in range(len(self.enables)):
+			if not self.enables[i]:
+				self.buttons[i].disable()
+		
 class CreditsMenu(MenuScene):
 	
 	def __init__(self):
@@ -228,10 +299,9 @@ class MainMenu(MenuScene):
 		
 		self.high_score = high_score
 		
-		buttons = ['play', 'tutorial', 'credits']
+		buttons = ['play', 'continue', 'tutorial', 'purchase', 'credits']
 		
 		infos = []
-		infos.append(('MapMan', 'Prepare to be AmazeMazed', 30, 15))
 		
 		MenuScene.__init__(self, '', buttons, infos, y_position_delta=-25)
 
@@ -239,14 +309,7 @@ class MainMenu(MenuScene):
 		
 		MenuScene.setup(self)
 		
-		button_font = ('Courier', 20)
-		score_text = 'best score {0} {1} {0}'.format(font.STAR, self.high_score)
-		
-		self.score_label = LabelNode(score_text, font=button_font, color='#ffffff',  parent=self.menu_bg)
-		
-		self.score_label.anchor_point = (0.5,0.5)
-		
-		self.score_label.position=(0, -self.menu_bg.size.h/2-self.score_label.size.h)
+		self.score_label = ScoreLabelNode(parent=self.menu_bg, score=self.high_score, base_text='best score')
 		
 		man_texture = Texture(os.path.join('Man','Idle', 'MapMan-idle-FRONT-2.png'))
 		
@@ -260,13 +323,31 @@ class MainMenu(MenuScene):
 		self.man.scale = ratio_target / ratio
 		
 		self.man.position = (self.menu_bg.size.w/2 - 1.5 * self.man.size.x * self.man.scale, self.menu_bg.size.h/2)
+
+class PurchaseMenu(MenuScene):
+	
+	def __init__(self):
+
+		infos = []
+		buttons = []
+
+		if InApp.Instance.products_received:
+			for product in InApp.Instance.products:
+				buttons.append(product.description)
+		else:
+			infos.append(('no items available', 'try again later'))
+		
+		buttons.append('main menu')
+		
+		MenuScene.__init__(self, 'Purchase', buttons, infos)
 		
 class EndLevelMenu(MenuScene):
 	
-	def __init__(self, level, score, level_points, time_bonus, stars):
+	def __init__(self, level, score, level_points, time_bonus, stars, check_point):
 		
-		buttons = ['Play Next Level']
-
+		self.score = score
+		
+		buttons = []
 		infos = []
 		
 		infos.append(('level bonus', font.STAR * level_points))
@@ -274,14 +355,28 @@ class EndLevelMenu(MenuScene):
 		infos.append(('time bonus', font.STAR * time_bonus))
 
 		infos.append(('collected', font.STAR * stars))
-
-		infos.append(('score', str(score)))
 		
+		if check_point:
+			infos.append(('checkpoint passed', ''))
+
 		MenuScene.__init__(self, 'Level {0} Clear'.format(level), buttons, infos=infos, title_size=40)
 
 	def setup(self):
 		
 		MenuScene.setup(self)
+		
+		self.score_label = ScoreLabelNode(parent=self.menu_bg, score=self.score)
+		
+		btn = ButtonNode('play next level', parent=self.menu_bg)
+		
+		btn.untouch_color='#ffffff'
+		btn.touch_color='#000000'
+		btn.untouch()
+				
+		btn.anchor_point = (0.5, 1)
+		btn.position = (self.score_label.position[0], self.score_label.position[1] - btn.size.h)
+			
+		self.buttons.append(btn)
 		
 		actions = []
 		
@@ -320,7 +415,7 @@ class EndLevelMenu(MenuScene):
 		if count < 1:
 			return None
 		
-		score_node = self.info_nodes[3]
+		score_node = self.score_label
 		
 		emphasise = EmphasiseText(node.heading_label, index)
 		

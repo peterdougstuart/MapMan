@@ -4,6 +4,7 @@ from scene import *
 from effect import Effect
 from timer import Timer
 import font
+from scaler import Scaler
 
 class WrappingLabelNode(LabelNode):
 	
@@ -39,62 +40,62 @@ class WrappingLabelNode(LabelNode):
 			else:
 				multi = trial
 				
-class BottomBar (object):
+class BottomBar (SpriteNode):
 	
 	def __init__(self, parent):
 		
-		self.parent = parent
-		self.add_background()
+		SpriteNode.__init__(self,
+											  parent=parent,
+											  position=(0, 0),
+											  size=(parent.size.w, 80 * Scaler.get_scale())
+											  )
+											  
+		self.color = '#1c1c1c'
+		self.anchor_point = (0, 0)
+
 		self.add_controls_message()
 		self.add_tutorial_message()
 		self.add_time_message()
-		self.timer = Timer(parent)
-		self.effect = Effect(parent)
+		self.timer = Timer(self)
+		self.effect = Effect(self)
 				
 	def set_tutorial_text(self, text):
-		self.tutorial_message.set_text(text, 15)
-		
-	def add_background(self):
-		self.height = 85
-		self.top_bg = SpriteNode(parent=self.parent, position=(0, self.height))
-		self.top_bg.color = '#1c1c1c'
-		self.top_bg.size = self.parent.size.w, self.height
-		self.top_bg.anchor_point = (0, 1)
-		
+		self.tutorial_message.set_text(text, int(15*Scaler.get_scale()))
+
 	def set_time_message(self,text,size=30):
 		
-		self.time_message_label_bottom.font = (font.BOTTOM_BAR, size)
+		self.time_message_label_bottom.font = (font.BOTTOM_BAR, int(size*Scaler.get_scale()))
 		
 		self.time_message_label_bottom.text = text
 	
 	def set_controls_message(self,text,size=30):
 		
-		self.controls_message.set_text(text, size)
+		self.controls_message.set_text(text, int(size*Scaler.get_scale()))
 		
 	def add_controls_message(self):
 		
 		anchor_point = (0, 0.5)
 		
-		position = (87, self.height/2)
+		position = (87*Scaler.get_scale(), self.size.h/2)
 		
-		target_width = self.parent.size.w * 0.33
+		target_width = self.size.w * 0.27
 				
-		self.controls_message = WrappingLabelNode(parent=self.parent, anchor_point=anchor_point, position=position, target_width=target_width)
+		self.controls_message = WrappingLabelNode(parent=self, anchor_point=anchor_point, position=position, target_width=target_width)
 
 	def add_tutorial_message(self):
 		
 		anchor_point = (0, 0.5)
 		
-		x_position = self.controls_message.position.x+self.controls_message.target_width+10
+		x_position = self.controls_message.position.x+self.controls_message.target_width+10*Scaler.get_scale()
 		
-		position = (x_position, self.height/2)
+		position = (x_position, self.size.h/2)
 		
-		target_width = self.parent.size.w - x_position - 10
+		target_width = self.parent.size.w - x_position - 10*Scaler.get_scale()
 		
-		self.tutorial_message = WrappingLabelNode(parent=self.parent, anchor_point=anchor_point, position=position, target_width=target_width)
+		self.tutorial_message = WrappingLabelNode(parent=self, anchor_point=anchor_point, position=position, target_width=target_width)
 		
 	def add_time_message(self):
 	
-		self.time_message_label_bottom = LabelNode(position=(self.parent.size.w-100, 42.5), parent=self.parent)
+		self.time_message_label_bottom = LabelNode(position=(self.size.w-100*Scaler.get_scale(), 42.5*Scaler.get_scale()), parent=self)
 	
 

@@ -1,6 +1,7 @@
 # coding: utf-8
 from scene import *
 import os.path
+from scaler import Scaler
 
 class Player (object):
 	
@@ -11,6 +12,11 @@ class Player (object):
 	FRAMES = 14
 	
 	def __init__(self, parent):
+		
+		self.base_scale = Player.SCALE * Scaler.get_scale()
+		
+		self.x_scale = self.base_scale
+		self.y_scale = self.base_scale
 		
 		self.up_idle = [Texture(os.path.join(Player.FOLDER, Player.IDLE_FOLDER, 'MapMan-idle-BACK-2.png'))]
 		
@@ -71,12 +77,12 @@ class Player (object):
 	def face(self, frames, x_scale=None, y_scale=None):
 		
 		if x_scale is None:
-			self.x_scale = Player.SCALE
+			self.x_scale = self.base_scale
 		else:
 			self.x_scale = x_scale
 
 		if y_scale is None:
-			self.y_scale = Player.SCALE
+			self.y_scale = self.base_scale
 		else:
 			self.y_scale = y_scale
 			
@@ -86,7 +92,7 @@ class Player (object):
 		self.draw()
 
 	def face_death(self):
-		self.face(self.death, Player.SCALE/2, Player.SCALE/2)
+		self.face(self.death, self.base_scale/2, self.base_scale/2)
 		
 	def face_up(self):
 		self.face(self.up)
@@ -95,7 +101,7 @@ class Player (object):
 		self.face(self.down)
 	
 	def face_left(self):
-		self.face(self.side, -Player.SCALE)
+		self.face(self.side, -self.base_scale)
 	
 	def face_right(self):
 		self.face(self.side)
@@ -107,7 +113,7 @@ class Player (object):
 		self.face(self.down_idle)
 	
 	def face_left_idle(self):
-		self.face(self.side_idle, -Player.SCALE)
+		self.face(self.side_idle, -self.base_scale)
 	
 	def face_right_idle(self):
 		self.face(self.side_idle)

@@ -330,7 +330,12 @@ class PurchaseMenu(MenuScene):
 
 		infos = []
 		buttons = []
-
+		
+		if InApp.Instance.can_make_purchases:
+			infos.append(('purchases enabled', ''))
+		else:
+			infos.append(('purchases disabled', ''))
+		
 		if InApp.Instance.products_received:
 			for product in InApp.Instance.products:
 				buttons.append(product.description)

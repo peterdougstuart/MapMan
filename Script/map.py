@@ -40,7 +40,7 @@ class Tile:
 			self.node.alpha = 0.8
 			self.blank = False
 			
-			if brick_type.lower() == 'i':
+			if brick_type.lower() in ['i', '@', '!']:
 				self.can_hide = True
 			else:
 				self.can_hide = False
@@ -49,12 +49,19 @@ class Tile:
 			self.node = None
 			self.blank = True
 			self.can_hide = False
+			
+		self.start_hidden = False
+	
+	def set_start_hidden(self):
+		self.start_hidden = True
+		self.hide()
 		
 	def hide(self):
 		if self.can_hide:
 			self.node.scale = 0
 	
 	def unhide(self):
+			
 		if self.node is not None:
 			if self.node.scale == 0:
 				self.node.scale = 1
@@ -101,9 +108,9 @@ class Tile:
 			return self.get_tile_path("west.png")
 		elif tile_type.lower() == "n":
 			return self.get_tile_path("north.png")
-		elif tile_type == "p":
+		elif tile_type in ["p", "@"]:
 			return self.get_tile_path("points.png")
-		elif tile_type == "d":
+		elif tile_type in ["d", "!"]:
 			return self.get_tile_path("death.png")
 		elif tile_type == "l":
 			return self.get_tile_path("life.png")
@@ -152,6 +159,7 @@ class Map:
 		self.target = None
 		self.moving = False
 		self.load_end = None
+		self.hidden = False
 		
 		self.tiles = {}
 		self.reverses = {}
@@ -167,8 +175,6 @@ class Map:
 		self.hides = {}
 		self.unhides = {}
 		
-		self.hidden = False
-		
 		self.tile_w = 32 * Scaler.get_scale()
 		self.tile_h = 23 * Scaler.get_scale()
 		
@@ -180,15 +186,23 @@ class Map:
 		self.hidden = True
 
 	def unhide(self):
-		
-		if not self.hidden:
-			return
-			
+
 		for tile in self.tiles.values():
 			tile.unhide()
 		
 		self.hidden = False
-			
+
+	def reset_hide(self):
+
+		for tile in self.tiles.values():
+			if tile.start_hidden:
+				tile.hide()
+			else:
+				if self.hidden:
+					tile.unhide()
+		
+		self.hidden = False
+		
 	def get_position(self):
 		
 		if self.moving:
@@ -435,6 +449,8 @@ class Map:
 		self.unhides = {}
 		self.loadings = {}
 		
+		self.hidden = False
+		
 		self.end = None
 		
 		lines = level_str.splitlines()[1:]
@@ -473,7 +489,12 @@ class Map:
 		if len(self.loadings) > 0:
 			tiles = []
 			for key in sorted(self.loadings):
-				tiles.append(self.loadings[key])
+				tile_array = self.loadings[key]
+				if key != '*':
+					tiles.append(tile_array)
+				else:
+					for tile in tile_array:
+						tile.set_start_hidden()
 		else:
 			tiles = []
 			for tile in self.tiles.values():
@@ -568,7 +589,7 @@ class Map:
 					self.check_point_flag = CheckPoint(tile)
 		elif tile_type == 'r':
 			self.reverses[tile.key] = True
-		elif tile_type == 'd':
+		elif tile_type in ['d','!']:
 			self.deaths[tile.key] = True
 		elif tile_type == 'l':
 			self.lives[tile.key] = True
@@ -578,7 +599,7 @@ class Map:
 			self.more_times[tile.key] = True
 		elif tile_type == 't':
 			self.less_times[tile.key] = True
-		elif tile_type == 'p':
+		elif tile_type in ['p','@']:
 			self.points[tile.key] = True
 		elif tile_type == 'h':
 			self.hides[tile.key] = True

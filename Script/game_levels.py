@@ -2,7 +2,6 @@
 
 loadings = {}
 levels = {}
-flevels = {}
 delays = {}
 check_points = [10, 20, 30]
 
@@ -20,7 +19,22 @@ def this():
 		return None
 	else:
 		return max(levels.keys())
-	
+
+levels[next()] = '''
+-wccuci-------
+--!!--i-------
+-iiiiiii!-----
+--i--!--------
+-iiiiiicchcccb
+'''
+
+loadings[this()] = '''
+-dcba98-------
+--cb--8-------
+-dcba9876-----
+--c--9--------
+-dcba987654321
+'''
 	
 levels[next()] = '''
  wccccccc
@@ -65,27 +79,27 @@ loadings[this()] = '''
 
 
 levels[next()] = '''
-   --ccccccccccc---
-   --c---------c---
-   --c-ccccccc-c---
-   --c-c-----c-c---
-   --c-c--bccc-c---
-   --c-c-------c---
-   --c-ccccccccc---
-   --c-------------
-   --cccccccccccce-
+p----ccccccccccc---
+p----c---------c---
+p----c-ccccccc-c---
+p----c-c-----c-c---
+uccccc-c--bccc-c---
+p----c-c-------c---
+p----c-ccccccccc---
+p----c-------------
+p----cccccccccccce-
 '''
 
 loadings[this()] = '''
-   --ttssrrqqppo---
-   --u---------o---
-   --u-ffeeddc-n---
-   --v-g-----c-n---
-   --v-g--aabb-m---
-   --w-h-------m---
-   --w-hiijjkkll---
-   --x-------------
-   --xyyzz11223344-
+*----kkjjiihhggf---
+*----l---------f---
+*----l-6655443-e---
+*----m-7-----3-e---
+wvvuum-7--1122-d---
+*----n-8-------d---
+*----n-899aabbcc---
+*----o-------------
+*----oppqqrrssttuu-
 '''
 
 levels[next()] = '''

@@ -414,7 +414,7 @@ class Game (Scene):
 			self.stuck = False
 			self.map.clear_reverse()
 			self.map.clear_hide()
-			self.map.unhide()
+			self.map.reset_hide()
 			self.bottom_bar.effect.clear()
 			self.bottom_bar.set_controls_message('')
 			self.vanish = 0
@@ -451,12 +451,13 @@ class Game (Scene):
 				self.player.vanish()
 
 			if self.map.on_hide() or self.map.on_unhide():
+				
 				sound.play_effect('game:Spaceship')
 				
 				if self.map.on_hide():
 					self.map.clear_hide()
 					self.map.hide()
-				else:
+				elif self.map.on_unhide():
 					self.map.clear_unhide()
 					self.map.unhide()
 					
@@ -480,7 +481,8 @@ class Game (Scene):
 				self.last_hide_time = None
 				
 			if self.map.on_death() and not self.dead:
-				self.map.clear_death()
+				self.map.tiles[self.map.position].unhide()
+				
 				self.lose_life()
 
 			if self.map.on_life():
@@ -704,8 +706,11 @@ class Game (Scene):
 			
 			self.next_level()
 		
-	def new_game(self, level=1, tutorial=False):
+	def new_game(self, level=None, tutorial=False):
 		
+		if level is None:
+			level = levels.START_LEVEL
+			
 		self.music.play_game()
 		
 		self.shake.start()

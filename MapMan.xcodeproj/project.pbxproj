@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1769DD1D1F2FCC38008AB896 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1769DD1C1F2FCC38008AB896 /* StoreKit.framework */; };
 		7F918BBC1C721C1F0064E744 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F918BBB1C721C1F0064E744 /* main.m */; };
 		7F918BBF1C721C1F0064E744 /* PAAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F918BBE1C721C1F0064E744 /* PAAppDelegate.m */; };
 		7F918BC21C721C1F0064E744 /* PAAppViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F918BC11C721C1F0064E744 /* PAAppViewController.m */; };
@@ -35,6 +36,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1769DD1C1F2FCC38008AB896 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		7F918BB71C721C1F0064E744 /* MapMan.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapMan.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7F918BBB1C721C1F0064E744 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		7F918BBD1C721C1F0064E744 /* PAAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PAAppDelegate.h; sourceTree = "<group>"; };
@@ -57,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1769DD1D1F2FCC38008AB896 /* StoreKit.framework in Frameworks */,
 				7FA4BBCA1C7664E8001C9481 /* PythonistaKit.framework in Frameworks */,
 				7F918C401C729E400064E744 /* libpythonista_appui.a in Frameworks */,
 			);
@@ -65,12 +68,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1769DD1B1F2FCC38008AB896 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1769DD1C1F2FCC38008AB896 /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		7F918BAE1C721C1F0064E744 = {
 			isa = PBXGroup;
 			children = (
 				7F918C451C7393A40064E744 /* Script */,
 				7F918BB91C721C1F0064E744 /* PythonistaAppTemplate */,
 				7F918BB81C721C1F0064E744 /* Products */,
+				1769DD1B1F2FCC38008AB896 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -145,6 +157,11 @@
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = QYWWR3K6NN;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};

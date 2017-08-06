@@ -5,19 +5,15 @@ import ctypes
 #http://omz-software.com/pythonista/docs/ios/objc_util.html#objc_util.create_objc_class
 #https://www.tutorialspoint.com/ios/ios_in_app_purchase.htm
 
-def PurchaseController_fetchAvailableProducts(_self, _cmd):
+def fetchAvailableProducts(_self, _cmd):
 
     obj = ObjCInstance(_self)
     
     sk_class = ObjCClass("SKProductsRequest")
-    products_request = sk_class.alloc().init(productIdentifiers=InApp.PRODUCTS)
     
-    products_request.delegate = obj
-    products_request.start()
-
-def PurchaseController_canMakePurchases(_self, _cmd):
-    sk_class = ObjCClass("SKPaymentQueue")
-    return sk_class.canMakePayments()
+    InApp.Instance.products_request = sk_class.alloc().init(productIdentifiers=ns(InApp.PRODUCTS))
+    InApp.Instance.products_request.delegate = obj
+    InApp.Instance.products_request.start()
 
 def productsRequest_didReceiveResponse_(_self, _cmd, request, response):
     #defined here: https://developer.apple.com/documentation/storekit/skproductsrequestdelegate/1506070-productsrequest
@@ -39,7 +35,8 @@ class InAppDummy:
         self.products = []
         self.products.append(Product('Prod01', 'DummyA', 'Dummy', 1.0))
         self.products.append(Product('Prod01', 'DummyB', 'Dummy', 0.25))
-        self.products_received = True
+        self.products_validated = True
+        self.can_make_purchases = True
 
 class InApp:
     
@@ -130,43 +127,61 @@ class InApp:
 
         self.products_validated = True
         self.valid_products = []
+        self.invalid_products = []
         
-        valid_products = ObjCInstance(response).products()
+        obj_response = ObjCInstance(response)
+        valid_products = ObjCInstance(obj_response.products())
+        
+        self.valid_count = len(valid_products)
         
         for valid_product in valid_products:
             
-            if valid_product.productIdentifier in InApp.PRODUCTS:
+            if (valid_product.productIdentifier in InApp.PRODUCTS) or True:
                 
                 product = Product(valid_product.productIdentifier,
                                   valid_product.localizedTitle,
                                   valid_product.localizedDescription,
                                   valid_product.price)
                               
-            self.valid_products.append(product)
-
+                self.valid_products.append(product)
+    
+        for invalid in obj_response.invalidProductIdentifiers():
+            self.invalid_products.append(invalid)
+    
     def __init__(self):
+        
+        self.products_request = None
         
         self.observers = []
         self.log = []
         
         self.products = []
-        self.products_received = False
+        self.products_validated = False
+        
+        self.valid_count = 0
+        self.invalid_products = []
+
+    #@on_main_thread
+    def fetch(self):
+        
+        self.check_purchases_enabled()
         
         ObjCClass('NSBundle').bundleWithPath_('/System/Library/Frameworks/StoreKit.framework').load()
         
         superclass = ObjCClass("NSObject")
         
-        methods = [PurchaseController_fetchAvailableProducts,
-                   PurchaseController_canMakePurchases,
+        methods = [fetchAvailableProducts,
                    productsRequest_didReceiveResponse_,
                    paymentQueue_updatedTransactions_]
-        
+            
         protocols = ['SKProductsRequestDelegate', 'SKPaymentTransactionObserver']
         
         purchase_controller_class = create_objc_class('PurchaseController', superclass, methods=methods, protocols=protocols)
-
+          
         self.purchase_controller = purchase_controller_class.alloc().init()
-        
-        self.can_make_purchases = purchase_controller.canMakePurchases()
-        
+
         self.purchase_controller.fetchAvailableProducts()
+    
+    def check_purchases_enabled(self):
+        sk_payment_queue_class = ObjCClass("SKPaymentQueue")
+        self.can_make_purchases = sk_payment_queue_class.canMakePayments()

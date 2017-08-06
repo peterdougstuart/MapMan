@@ -50,6 +50,8 @@ class BottomBar (SpriteNode):
 											  size=(parent.size.w, 80 * Scaler.get_scale())
 											  )
 											  
+		self.centre_height = self.size.h*0.5 #- 5*Scaler.get_scale()
+		
 		self.color = '#1c1c1c'
 		self.anchor_point = (0, 0)
 
@@ -76,7 +78,7 @@ class BottomBar (SpriteNode):
 		
 		anchor_point = (0, 0.5)
 		
-		position = (87*Scaler.get_scale(), self.size.h/2)
+		position = (87*Scaler.get_scale(), self.centre_height)
 		
 		target_width = self.size.w * 0.27
 				
@@ -88,7 +90,7 @@ class BottomBar (SpriteNode):
 		
 		x_position = self.controls_message.position.x+self.controls_message.target_width+10*Scaler.get_scale()
 		
-		position = (x_position, self.size.h/2)
+		position = (x_position, self.centre_height)
 		
 		target_width = self.parent.size.w - x_position - 10*Scaler.get_scale()
 		
@@ -96,6 +98,7 @@ class BottomBar (SpriteNode):
 		
 	def add_time_message(self):
 	
-		self.time_message_label_bottom = LabelNode(position=(self.size.w-100*Scaler.get_scale(), 42.5*Scaler.get_scale()), parent=self)
+		self.time_message_label_bottom = LabelNode(position=(self.size.w * 0.75 + 10 * Scaler.get_scale(), self.centre_height), parent=self)
+		self.time_message_label_bottom.anchor_point = (0.5, 0.5)
 	
 

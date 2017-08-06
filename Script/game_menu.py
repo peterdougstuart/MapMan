@@ -39,22 +39,45 @@ class ScoreLabelNode(LabelNode):
 		
 class EmphasiseText:
 	
-	def __init__(self, node, index):
-		self.node = node
+	def __init__(self, nodes, index):
+		
+		if isinstance(nodes, list):
+			self.nodes = nodes
+		else:
+			self.nodes = [nodes]
+		
 		self.on = False
-		self.base_color = self.node.color
-		self.base_font = self.node.font
+		
+		self.base_colors = []
+		self.base_fonts = []
+		
+		for i in range(len(self.nodes)):
+			node = self.nodes[i]
+			self.base_colors.append(node.color)
+			self.base_fonts.append(node.font)
+		
 		self.index = index
 		
 	def __call__(self):
+		
 		if not self.on:
+			
 			sound.play_effect('arcade:Powerup_3', 1, 1 + 1.0/8.0 * self.index)
-			#self.node.color = '#e28c9b'
-			self.node.font = (self.node.font[0], int(30*Scaler.get_scale()))
+			
+			for i in range(len(self.nodes)):
+				node = self.nodes[i]
+				#node.color = '#e28c9b'
+				node.font = (node.font[0], int(30*Scaler.get_scale()))
+			
 			self.on = True
+			
 		else:
-			self.node.color = self.base_color
-			self.node.font = self.base_font
+			
+			for i in range(len(self.nodes)):
+				node = self.nodes[i]
+				node.color = self.base_colors[i]
+				node.font = self.base_fonts[i]
+				
 			self.on = False
 		
 class StartFade:
@@ -334,13 +357,18 @@ class PurchaseMenu(MenuScene):
 		if InApp.Instance.can_make_purchases:
 			infos.append(('purchases enabled', ''))
 		else:
-			infos.append(('purchases disabled', ''))
-		
-		if InApp.Instance.products_received:
-			for product in InApp.Instance.products:
-				buttons.append(product.description)
+			infos.append(('purchases disbled', ''))
+			
+		if InApp.Instance.products_validated:
+			if len(InApp.Instance.products) > 0:
+				for product in InApp.Instance.products:
+					buttons.append(product.description)
+			else:
+				infos.append(('no items available', 'try again later'))
+			for invalid in InApp.Instance.invalid_products:
+				infos.append(('invalid', invalid))
 		else:
-			infos.append(('no items available', 'try again later'))
+			infos.append(('could not validate', 'try again later'))
 		
 		buttons.append('main menu')
 		
@@ -351,6 +379,8 @@ class EndLevelMenu(MenuScene):
 	def __init__(self, level, score, level_points, time_bonus, stars, check_point):
 		
 		self.score = score
+		self.check_point = check_point
+		self.stars = stars
 		
 		buttons = []
 		infos = []
@@ -358,11 +388,12 @@ class EndLevelMenu(MenuScene):
 		infos.append(('level bonus', font.STAR * level_points))
 		
 		infos.append(('time bonus', font.STAR * time_bonus))
-
-		infos.append(('collected', font.STAR * stars))
 		
-		if check_point:
-			infos.append(('checkpoint passed', ''))
+		if self.stars > 0:
+			infos.append(('collected', font.STAR * stars))
+		
+		if self.check_point:
+			infos.append(('checkpoint', 'passed'))
 
 		MenuScene.__init__(self, 'Level {0} Clear'.format(level), buttons, infos=infos, title_size=40)
 
@@ -395,7 +426,22 @@ class EndLevelMenu(MenuScene):
 
 		actions += self.add_star_action(1)
 		
-		actions += self.add_star_action(2)
+		if self.stars > 0:
+			actions += self.add_star_action(2)
+		
+		if self.check_point:
+			
+			index = len(self.info_nodes) - 1
+			
+			self.info_nodes[index].info_label.color = '#71c0e2'
+			
+			items = [self.info_nodes[index].heading_label, self.info_nodes[index].info_label]
+			
+			emphasise = EmphasiseText(items, index)
+			
+			actions.append(Action.call(emphasise))
+			actions.append(Action.wait(0.2))
+			actions.append(Action.call(emphasise))
 		actions.append(Action.call(StartFade(next_level_button)))
 		self.info_nodes[0].run_action(Action.sequence(actions))
 	

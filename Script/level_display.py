@@ -8,37 +8,31 @@ import font
 class LevelDisplay(object):
 	
 	def __init__(self, parent):
-		
 		self.reset()
-		
 		self.parent = parent
-		
-		self.add_score()
+		self.add_level()
+		self.level_count = len(levels.levels)
 	
 	def reset(self):
 		self.level = levels.START_LEVEL
-		self.score = 0
-		
-	def blank_score(self):
-		self.score_label.text = ''
 		
 	def update(self):
 		
 		if not self.parent.tutorial:
-			self.score_label.text = self.score_text()
+			self.level_label.text = self.level_text()
 		else:
-			self.score_label.text = ''
+			self.level_label.text = ''
 		
-	def add_score(self):
+	def add_level(self):
 		
-		self.score_label = LabelNode('', font=(font.LEVEL_DISPLAY, 40), position=(10, self.parent.size.h-30), parent=self.parent)
+		self.level_label = LabelNode('', font=(font.LEVEL_DISPLAY, 40), position=(10, self.parent.size.h-30), parent=self.parent)
 		
-		self.score_label.anchor_point = (0, 0.5)
+		self.level_label.anchor_point = (0, 0.5)
 
-	def score_text(self):
+	def level_text(self):
 		
 		if not self.parent.tutorial:
-			return "L{0}-{1}".format(self.level, self.score)
+			return "L{0}/{1}".format(self.level, self.level_count)
 		else:
 			return ''
 	

@@ -24,6 +24,6 @@ class Countdown(object):
 			return 999
 			
 		elapsed = datetime.datetime.now() - self.start
-		elapsed_seconds = int(elapsed.total_seconds())
+		elapsed_seconds = elapsed.total_seconds()
 		return self.initial_seconds - elapsed_seconds
 		

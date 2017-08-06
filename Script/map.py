@@ -9,13 +9,13 @@ from check_point import CheckPoint
 
 A = Action
 
-def get_vanish(tile_type):
+def get_vanish(tile_type, x_hides):
 	if tile_type.isdigit():
 		return int(tile_type)
 	elif tile_type == 'v':
 		return 5
 	elif tile_type == 'x':
-		return 25
+		return x_hides
 	else:
 		return 0
 			
@@ -23,9 +23,10 @@ class Tile:
 	
 	def __init__(self, map, brick_type, x, y):
 		
+		self.x_hides = map.x_hides
 		self.key = (x, y)
 		
-		self.position = Point(map.min_x + x * map.tile_w, map.min_y + y * map.tile_h)
+		self.position = Point(map.min_x + x * map.tile_w, map.min_y + (y-1) * map.tile_h)
 		
 		self.brick_type = brick_type
 		self.size = (map.tile_w, map.tile_h)
@@ -90,7 +91,7 @@ class Tile:
 	def get_path(self, tile_type):
 		
 		folder = 'Tiles'
-		vanish = get_vanish(tile_type)
+		vanish = get_vanish(tile_type, self.x_hides)
 		
 		if vanish > 0:
 			return self.get_tile_path("vanish.png")
@@ -422,7 +423,7 @@ class Map:
 			self.vanishes[self.position] = False
 			self.tiles[self.position].normalise()
 			
-	def load_level(self, level_str, loading_str=None, delay=0.05, check_point=False):
+	def load_level(self, level_str, loading_str, delay, check_point, x_hides):
 		
 		for tile in self.tiles.values():
 			if tile.node != None:
@@ -450,6 +451,7 @@ class Map:
 		self.loadings = {}
 		
 		self.hidden = False
+		self.x_hides = x_hides
 		
 		self.end = None
 		
@@ -576,7 +578,7 @@ class Map:
 				
 			self.loadings[loading].append(tile)
 		
-		vanish = get_vanish(tile_type)
+		vanish = get_vanish(tile_type, self.x_hides)
 		
 		if vanish > 0:
 			self.vanishes[tile.key] = True

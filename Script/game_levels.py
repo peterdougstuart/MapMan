@@ -3,9 +3,14 @@
 loadings = {}
 levels = {}
 delays = {}
+x_hides = {}
+level_messages = {}
+
 check_points = [10, 20, 30]
 
 START_LEVEL = 1
+DEFAULT_X_HIDES = 25
+DEFAULT_DELAY = 0.05
 
 def next():
 	current = this()
@@ -21,28 +26,14 @@ def this():
 		return max(levels.keys())
 
 levels[next()] = '''
--wccuci-------
---!!--i-------
--iiiiiii!-----
---i--!--------
--iiiiiicchcccb
-'''
-
-loadings[this()] = '''
--dcba98-------
---cb--8-------
--dcba9876-----
---c--9--------
--dcba987654321
-'''
-	
-levels[next()] = '''
  wccccccc
         c
  cccccccc
  c
  cccccccb
 '''
+
+level_messages[this()] = 'tilt to move'
 
 loadings[this()] = '''
  zyxwvuts
@@ -65,6 +56,8 @@ levels[next()] = '''
    ----------------
 '''
 
+level_messages[this()] = 'which way?'
+
 loadings[this()] = '''
    ----------------
    --abcdefghi-----
@@ -79,27 +72,29 @@ loadings[this()] = '''
 
 
 levels[next()] = '''
-p----ccccccccccc---
-p----c---------c---
-p----c-ccccccc-c---
-p----c-c-----c-c---
-uccccc-c--bccc-c---
-p----c-c-------c---
-p----c-ccccccccc---
-p----c-------------
-p----cccccccccccce-
+p--ccccccccccc---
+p--c---------c---
+p--c-ccccccc-c---
+p--c-c-----c-c---
+uccc-c--bccc-c---
+p--c-c-------c---
+p--c-ccccccccc---
+p--c-------------
+p--cccccccccccce-
 '''
 
+level_messages[this()] = 'round & round'
+
 loadings[this()] = '''
-*----kkjjiihhggf---
-*----l---------f---
-*----l-6655443-e---
-*----m-7-----3-e---
-wvvuum-7--1122-d---
-*----n-8-------d---
-*----n-899aabbcc---
-*----o-------------
-*----oppqqrrssttuu-
+*--kkjjiihhggf---
+*--l---------f---
+*--l-6655443-e---
+*--m-7-----3-e---
+wvvm-7--1122-d---
+*--n-8-------d---
+*--n-899aabbcc---
+*--o-------------
+*--oppqqrrssttuu-
 '''
 
 levels[next()] = '''
@@ -113,6 +108,8 @@ levels[next()] = '''
    -wccccccccccccc-
    ----------------
 '''
+
+level_messages[this()] = 'get points'
 
 loadings[this()] = '''
    ----------------
@@ -261,6 +258,8 @@ levels[next()] = '''
    ----------------
 '''
 
+x_hides[this()] = 17
+
 loadings[this()] = '''
    ----------------
    ----------------
@@ -356,6 +355,22 @@ loadings[this()] = '''
  i opqr
  h
  gfedcba
+'''
+
+levels[next()] = '''
+-wccuci-------
+--!!--i-------
+-iiiiiii!-----
+--i--!--------
+-iiiiiicchcccb
+'''
+
+loadings[this()] = '''
+-dcba98-------
+--cb--8-------
+-dcba9876-----
+--c--9--------
+-dcba987654321
 '''
 
 levels[next()] = '''

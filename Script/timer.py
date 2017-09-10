@@ -13,35 +13,38 @@ import palette
 class Timer (LabelNode):
 	
 	FONT_SIZE = 50
+	INITIAL_SECONDS = 20
 	
 	def __init__(self, parent):
 		
-		self.countdown = clock.Countdown(parent, 20)
+		self.countdown = clock.Countdown(parent, Timer.INITIAL_SECONDS)
 				
 		LabelNode.__init__(self, '0', font=self.get_font(), position=(parent.size.w*0.5, parent.centre_height), parent=parent)
 		
 		self.anchor_point = (0.5, 0.5)
 		
-		self.player = sound.Player('game:Clock_1')
+		self.player = sound.Player('Clock_1.caf')
 		self.player.number_of_loops = -1
 		
 		self.playing = False
 		self.low_time = False
-		self.dead = False
 	
-	def get_font(self, seconds=None):
+	def active(self):
+		return self.countdown.started
 		
-		if seconds < 1:
-			seconds = 1
+	def get_font(self):
+		
+		if self.active():
+			seconds = self.countdown.seconds_remaining(True)
+		else:
+			seconds = Timer.INITIAL_SECONDS
 			
-		if (seconds is None) or seconds >= 4 or seconds < 0:
+		if (seconds is None) or seconds > 3 or seconds < 0:
 			multiplier = 1
 		else:
 			int_seconds = int(seconds)
 			remainder_seconds = seconds - int_seconds
-			multiplier = 1.1 + (3.0 - int_seconds + remainder_seconds*2) * 0.2
-		
-		#multiplier *= multiplier
+			multiplier = 1.0 + (3.0 - int_seconds + remainder_seconds*2) * 0.2
 		
 		font_size = multiplier*Timer.FONT_SIZE*Scaler.get_scale()
 		
@@ -55,72 +58,57 @@ class Timer (LabelNode):
 	def show(self):
 		self.scale = 1
 		
-	def blank_timer(self):
+	def blank(self):
 		self.text = ''
 		
 	def update(self):
 		
-		if self.dead:
+		if self.parent.parent.tutorial:
+			self.blank()
+			
+		if not self.active():
 			return
+		
+		seconds = self.countdown.seconds_remaining()
 			
-		if not self.parent.parent.tutorial:
-			
-			seconds = self.countdown.seconds_remaining()
-			
-			self.font = self.get_font(seconds)
-			
-			if seconds > 0:
+		self.font = self.get_font()
+		self.text = str(seconds)
+		
+		if seconds > 0:
 				
-				int_seconds = int(seconds)
-				self.text = str(int_seconds)
-				
-				if seconds < 4:
+			if seconds <= 3:
 					
-					self.player.play()
-					self.playing = True
-					
-					if int_seconds > 0:
-						self.color = palette.LOW_TIME
-					else:
-						self.color = palette.DEATH_BG
-						
-					self.low_time = True
-					
-				else:
-					
-					self.color = palette.NORMAL_TIME
-					self.low_time = False
+				self.player.play()
+				self.playing = True
+				self.color = palette.LOW_TIME
+				self.low_time = True
 					
 			else:
-				
-				self.text = ''
+					
+				self.stop_player()
+				self.color = palette.NORMAL_TIME
 				self.low_time = False
-				
-				if self.playing:
-					self.player.stop()
-				
+					
 		else:
 			
-			self.text = ''
-	
-	def lose_life(self):
+			self.stop_player()
+			self.color = palette.DEATH_BG
+			self.low_time = False
 		
-		self.dead = True
+	def seconds_remaining(self):
+		return self.countdown.seconds_remaining()
 		
+	def stop_player(self):
 		if self.playing:
 			self.player.stop()
 			
-	def complete_level(self):
-		
-		if self.playing:
-			self.player.stop()
-		
+	def stop(self):
+		self.countdown.stop()
+		self.stop_player()
+			
+	def start(self):
+		self.countdown.start()
+	
+	def reset(self):
+		self.countdown.reset()
 		self.low_time = False
-		self.dead = False
-			
-	def advance_level(self):
-		self.reset()
-	
-	def reset(self, reset_initial_seconds=False):
-		self.countdown.reset(reset_initial_seconds)
-		self.dead = False

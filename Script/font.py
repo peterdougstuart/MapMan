@@ -14,3 +14,9 @@ try:
 	STAR = unichr(9733)
 except:
 	STAR = '*'
+	
+try:
+	#TICK = unichr(2713)
+	TICK = u'\u2713'
+except:
+	TICK = 'ok'

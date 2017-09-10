@@ -10,7 +10,13 @@ class PointsDisplay(object):
 		self.reset()
 		self.parent = parent
 		self.add_score()
-	
+
+	def hide(self):
+		self.score_label.scale = 0
+		
+	def show(self):
+		self.score_label.scale = 1
+		
 	def reset(self):
 		self.score = 0
 		

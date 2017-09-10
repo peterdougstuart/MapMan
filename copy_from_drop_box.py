@@ -2,13 +2,20 @@ import os
 import datetime
 from shutil import copyfile
 
+in_app_from_drop_box = True
+
 drop_box_folder = r"/Users/stuart/Dropbox/Apps/MapMan/MapMan"
 xcode_folder = r"/Users/stuart/MapMan/Script"
 
 file_name = 'in_app.py'
 drop_box_path = os.path.join(drop_box_folder, file_name)
 xcode_path = os.path.join(xcode_folder, file_name)
-copyfile(xcode_path, drop_box_path)
+
+if in_app_from_drop_box:
+    copyfile(drop_box_path, xcode_path)
+else:
+    copyfile(xcode_path, drop_box_path)
+
 print "in_app.py synced"
 
 for file_name in os.listdir(drop_box_folder):

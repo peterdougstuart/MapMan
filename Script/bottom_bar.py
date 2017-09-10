@@ -5,40 +5,7 @@ from effect import Effect
 from timer import Timer
 import font
 from scaler import Scaler
-
-class WrappingLabelNode(LabelNode):
-	
-	def __init__(self, parent, target_width, position, anchor_point):
-		
-		LabelNode.__init__(self, parent=parent, position=position, text='')
-		
-		self.anchor_point=anchor_point
-		
-		self.target_width = target_width
-		
-	def set_text(self, text, size):
-		
-		text = text.replace('\n',' ')
-		multi = ''
-		
-		self.font = (font.BOTTOM_BAR, size)
-		
-		words = text.split(' ')
-			
-		for word in words:
-			
-			if len(multi) > 0:
-				trial = multi + ' ' + word
-			else:
-				trial = word
-			
-			self.text  = trial
-			
-			if self.bbox.w > self.target_width:
-				multi += ('\n' + word)
-				self.text = multi
-			else:
-				multi = trial
+from wrapping import WrappingLabelNode
 				
 class BottomBar (SpriteNode):
 	
@@ -60,7 +27,13 @@ class BottomBar (SpriteNode):
 		self.add_time_message()
 		self.timer = Timer(self)
 		self.effect = Effect(self)
-				
+	
+	def hide(self):
+		self.scale = 0
+		
+	def show(self):
+		self.scale = 1
+		
 	def set_tutorial_text(self, text):
 		self.tutorial_message.set_text(text, int(15*Scaler.get_scale()))
 
@@ -82,7 +55,8 @@ class BottomBar (SpriteNode):
 		
 		target_width = self.size.w * 0.27
 				
-		self.controls_message = WrappingLabelNode(parent=self, anchor_point=anchor_point, position=position, target_width=target_width)
+		self.controls_message = WrappingLabelNode(parent=self, anchor_point=anchor_point, position=position, target_width=target_width,
+		font_type=font.BOTTOM_BAR)
 
 	def add_tutorial_message(self):
 		
@@ -94,7 +68,8 @@ class BottomBar (SpriteNode):
 		
 		target_width = self.parent.size.w - x_position - 10*Scaler.get_scale()
 		
-		self.tutorial_message = WrappingLabelNode(parent=self, anchor_point=anchor_point, position=position, target_width=target_width)
+		self.tutorial_message = WrappingLabelNode(parent=self, anchor_point=anchor_point, position=position, target_width=target_width,
+		font_type=font.BOTTOM_BAR)
 		
 	def add_time_message(self):
 	

@@ -55,6 +55,7 @@ class Tile:
 	
 	def set_start_hidden(self):
 		self.start_hidden = True
+		self.can_hide = True
 		self.hide()
 		
 	def hide(self):
@@ -151,7 +152,7 @@ class Map:
 		
 		self.game = game
 		self.start_position = None
-		self.end = None
+		self.end = []
 		self.check_point = False
 		self.check_point_flag = None
 		self.position = None
@@ -178,6 +179,12 @@ class Map:
 		
 		self.tile_w = 32 * Scaler.get_scale()
 		self.tile_h = 23 * Scaler.get_scale()
+	
+	def unload(self):
+		
+		for tile in self.tiles.values():
+			if tile.node != None:
+				tile.node.run_action(A.remove())
 		
 	def hide(self):
 			
@@ -308,7 +315,13 @@ class Map:
 		return (self.tiles[self.position].node != None)
 		
 	def at_end(self):
-		return (self.position == self.end.key)
+		
+		for end in self.end:
+			if self.position == end.key:
+				return True
+				
+		return False
+		
 
 	def on_points(self):
 		if self.position in self.points:
@@ -425,9 +438,7 @@ class Map:
 			
 	def load_level(self, level_str, loading_str, delay, check_point, x_hides):
 		
-		for tile in self.tiles.values():
-			if tile.node != None:
-				tile.node.run_action(A.remove())
+		self.unload()
 		
 		if self.check_point:
 			self.check_point_flag.node.run_action(A.remove())
@@ -453,7 +464,7 @@ class Map:
 		self.hidden = False
 		self.x_hides = x_hides
 		
-		self.end = None
+		self.end = []
 		
 		lines = level_str.splitlines()[1:]
 		
@@ -586,9 +597,12 @@ class Map:
 		elif self.is_start(tile_type):
 				self.start_position = tile.key
 		elif self.is_end(tile_type):
-				self.end = tile
-				if self.check_point:
+			
+				self.end.append(tile)
+				
+				if self.check_point and self.check_point_flag is None:
 					self.check_point_flag = CheckPoint(tile)
+					
 		elif tile_type == 'r':
 			self.reverses[tile.key] = True
 		elif tile_type in ['d','!']:

@@ -1,5 +1,7 @@
 from objc_util import *
 import ctypes
+import time
+from random import randint
 
 #http://omz-software.com/pythonista/docs/ios/objc_util.html
 #http://omz-software.com/pythonista/docs/ios/objc_util.html#objc_util.create_objc_class
@@ -24,20 +26,48 @@ def paymentQueue_updatedTransactions_(_self, _cmd, queue, transactions):
 
 class Product:
 	
-    def __init__(self, identifer, title, description, price):
-        self.identifer = identifer
+    def __init__(self, identifier, title, description, price):
+        self.identifier = identifier
         self.title = title
         self.description = description
         self.price = price
 	
 class InAppDummy:
     def __init__(self):
+    	
+        self.observers = []
         self.products = []
-        self.products.append(Product('Prod01', 'DummyA', 'Dummy', 1.0))
-        self.products.append(Product('Prod01', 'DummyB', 'Dummy', 0.25))
+        self.products.append(Product('com.mapman.checkpoints', 'Checkpoints', 'Enable continuation from checkpoints', 0.5))
+        self.products.append(Product('com.mapman.l26-50', 'Levels 26-50', 'Enable levels 26 to 50', 0.25))
+        self.products.append(Product('com.mapman.l51-75', 'Levels 51-75', 'Enable levels 51 to 75', 0.25))
+        self.products.append(Product('com.mapman.l76-100', 'Levels 76-100', 'Enable levels 76 to 100', 0.25))
+        
+        self.products.append(Product('com.mapman.everything', 'Everything', 'Everything', 1.00))
+        
+        self.invalid_products = []
+        
         self.products_validated = True
         self.can_make_purchases = True
 
+    def purchase(self, product_identifier):
+    	
+        time.sleep(1.0)
+        
+        outcome = (randint(0, 2) == 0)
+        
+        for observer in self.observers:
+            if outcome == 0:
+                observer.purchase_successful(product_identifier)
+            elif outcome == 1:
+                observer.purchase_failed(product_identifier)
+            elif outcome == 2:
+                observer.purchase_restored(product_identifier)
+            else:
+                raise Exception('Unknown outcome')
+              
+    def add_observer(self, observer):
+    	self.observers.append(observer)
+    	
 class InApp:
     
     PRODUCTS = ["MapManPurchase001"]
@@ -160,7 +190,10 @@ class InApp:
         
         self.valid_count = 0
         self.invalid_products = []
-
+		
+    def add_observer(self, observer):
+        self.observers.append(observer)
+			
     #@on_main_thread
     def fetch(self):
         

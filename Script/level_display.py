@@ -12,7 +12,13 @@ class LevelDisplay(object):
 		self.parent = parent
 		self.add_level()
 		self.level_count = len(levels.levels)
-	
+
+	def hide(self):
+		self.level_label.scale = 0
+		
+	def show(self):
+		self.level_label.scale = 1
+		
 	def reset(self):
 		self.level = levels.START_LEVEL
 		
@@ -39,16 +45,4 @@ class LevelDisplay(object):
 	def advance_level(self):
 		
 		self.level += 1
-		
-		if not self.parent.tutorial:
-			number_of_levels = len(levels.levels)
-		else:
-			number_of_levels = len(tutorial.levels)
-			
-		if self.level > number_of_levels:
-			
-			if self.parent.tutorial:
-				self.parent.tutorial = False
-				self.level = 1
-			else:
-				self.level = 1
+		self.update()

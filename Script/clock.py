@@ -6,24 +6,42 @@ class Countdown(object):
 	def __init__(self, parent, initial_seconds):
 		
 		self.parent = parent
-		self.base_initial_seconds = initial_seconds
 		self.initial_seconds = initial_seconds
+		self.base_initial_seconds = initial_seconds
 		self.reset()
+		self.started = False
 	
 	def add_time(self, time):
-		self.start += datetime.timedelta(seconds=time)
+		self.start_time += datetime.timedelta(seconds=time)
 		
-	def reset(self, reset_initial_seconds = False):
-		self.start = datetime.datetime.now()
-		if reset_initial_seconds:
-			self.initial_seconds = self.base_initial_seconds
-			
-	def seconds_remaining(self):
+	def reset(self):
+		self.start_time = datetime.datetime.now()
+		self.initial_seconds = self.base_initial_seconds
 		
-		if self.parent.parent.tutorial:
-			return 999
+	def stop(self):
+		self.initial_seconds = self.seconds_remaining(True)
+		self.started = False
+
+	def start(self):
+		self.start_time = datetime.datetime.now()
+		self.started = True
+		
+	def seconds_remaining(self, fractional=False):
+		
+		if not self.started:
+			return self.initial_seconds
 			
-		elapsed = datetime.datetime.now() - self.start
+		elapsed = datetime.datetime.now() - self.start_time
+		
 		elapsed_seconds = elapsed.total_seconds()
-		return self.initial_seconds - elapsed_seconds
 		
+		if not fractional:
+			elapsed_seconds = int(elapsed_seconds)
+		
+		countdown = self.initial_seconds - elapsed_seconds
+		
+		if countdown < 0:
+			return 0
+		else:
+			return countdown
+

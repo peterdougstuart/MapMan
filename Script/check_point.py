@@ -21,6 +21,8 @@ class CheckPoint(object):
 		self.node.anchor_point = (0.1, 0.05)
 		self.node.position = (tile.node.position[0], tile.node.position[1] + tile.node.size.h/2)
 		
+		self.node.z_position = 1000.0
+		
 		self.parent = tile.node.parent
 		self.parent.add_child(self.node)
 		

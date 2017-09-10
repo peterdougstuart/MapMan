@@ -15,7 +15,13 @@ class LivesDisplay(object):
 		self.parent = parent
 		
 		self.add_lives()
-	
+
+	def hide(self):
+		self.lives_label.scale = 0
+		
+	def show(self):
+		self.lives_label.scale = 1
+		
 	def reset(self):
 		self.lives = LivesDisplay.INITIAL_LIVES
 		self.update()

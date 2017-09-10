@@ -21,6 +21,11 @@ from game_menu import EndLevelMenu
 from game_menu import LoseLifeMenu
 from game_menu import ContinueMenu
 from game_menu import PurchaseMenu
+from game_menu import FirstPlayMenu
+from game_menu import ConfirmProductMenu
+from game_menu import MakePurchaseMenu
+from game_menu import PurchaseToPlayMenu
+from game_menu import PurchaseToCheckpointMenu
 
 from score_tweet import ScoreTweet
 from shake import ShakeAndTilt
@@ -31,6 +36,7 @@ from points_display import PointsDisplay
 from gradient import Gradient
 from scaler import Scaler
 from in_app import InApp
+from products_controller import ProductsController
 
 import palette
 
@@ -104,19 +110,22 @@ class Game (Scene):
 			self.simulate_tilt = False
 		
 	def setup(self):
+
+		self.purchase_to_play = False
+		self.game_active = False
+		
+		self.set_background()
+		self.load_first_play()
 		
 		self.simulated_tilt = None
 		self.load_simulated()
 
 		Scaler.initialize(self)
 		
-		self.game_active = False
-		
 		self.music = Music()
 		self.shake = ShakeAndTilt()
 		
 		self.tutorial = False
-		self.started = False
 		
 		self.last_points_time = None
 		self.last_less_time_time = None
@@ -131,7 +140,9 @@ class Game (Scene):
 		self.sound = 0
 		self.stars = 0
 		
-		self.bottom_bar = bottom_bar.BottomBar(parent=self)		
+		self.bottom_bar = bottom_bar.BottomBar(parent=self)
+		self.bottom_bar.hide()
+		
 		self.level_display = LevelDisplay(parent=self)
 		self.lives_display = LivesDisplay(parent=self)
 		self.points_display = PointsDisplay(parent=self)
@@ -149,7 +160,9 @@ class Game (Scene):
 
 	def set_background(self):
 		
-		if self.map.hidden:
+		if not self.game_active:
+			self.background_color = palette.BASE_BG
+		elif self.map.hidden:
 			self.background_color = palette.HIDDEN_BG
 		elif self.dead:
 			self.background_color = palette.DEATH_BG
@@ -164,19 +177,7 @@ class Game (Scene):
 	
 	def set_controls_message(self):
 		
-		if self.stuck:
-			self.bottom_bar.set_controls_message('Stuck, shake to release', 20)
-			self.bottom_bar.effect.sticky()
-		elif self.reverse and self.vanish > 0:
-			self.bottom_bar.set_controls_message('Controls reversed &\nsee you again in {0} moves'.format(self.vanish), 18)
-			self.bottom_bar.effect.reverse_and_vanish()
-		elif self.reverse:
-			self.bottom_bar.set_controls_message('Controls reversed', 20)
-			self.bottom_bar.effect.reverse()
-		elif self.vanish > 0:
-			self.bottom_bar.set_controls_message('See you again in {0} moves'.format(self.vanish), 18)
-			self.bottom_bar.effect.vanish()
-		elif not self.last_points_time is None:
+		if not self.last_points_time is None:
 			self.bottom_bar.effect.points()
 			self.bottom_bar.set_controls_message('Bonus Points', 20)
 		elif not self.last_more_time_time is None:
@@ -188,6 +189,19 @@ class Game (Scene):
 		elif not self.last_life_time is None:
 			self.bottom_bar.effect.life()
 			self.bottom_bar.set_controls_message('Extra Life', 20)
+		elif self.stuck:
+			self.bottom_bar.set_controls_message('Stuck, shake to release', 20)
+			self.bottom_bar.effect.sticky()
+		elif self.reverse and self.vanish > 0:
+			self.bottom_bar.set_controls_message('Controls reversed &\nsee you again in {0} moves'.format(self.vanish), 18)
+			self.bottom_bar.effect.reverse_and_vanish()
+		elif self.reverse:
+			self.bottom_bar.set_controls_message('Controls reversed', 20)
+			self.bottom_bar.effect.reverse()
+		elif self.vanish > 0:
+			self.bottom_bar.set_controls_message('See you again in {0} moves'.format(self.vanish), 18)
+			self.bottom_bar.effect.vanish()
+			
 		elif not self.last_hide_time is None:
 			
 			if self.map.hidden:
@@ -203,22 +217,29 @@ class Game (Scene):
 
 	def loaded(self):
 		
-		if self.started:
+		if self.started():
 			return
-		
-		self.started = True
 		
 		self.update_player_location()
 		self.player.show()
 		
-		self.bottom_bar.timer.show()
-		self.bottom_bar.timer.reset(True)
+		if not self.tutorial:
+			self.bottom_bar.timer.start()
+	
+	def started(self):
+		
+		if self.tutorial:
+			return self.map.loaded()
+		else:
+			return self.bottom_bar.timer.active()
 		
 	def load_level(self):
 		
-		self.bottom_bar.timer.hide()
+		self.bottom_bar.timer.stop()
+		self.bottom_bar.timer.reset()
+		self.bottom_bar.timer.show()
+		
 		self.player.hide()
-		self.started = False
 		
 		level = self.level_display.level
 		delay = levels.DEFAULT_DELAY
@@ -240,8 +261,8 @@ class Game (Scene):
 			else:
 				check_point = False
 			
-			self.bottom_bar.timer.blank_timer()
-			self.bottom_bar.set_time_message('get ready!!!')
+			self.bottom_bar.timer.blank()
+			self.bottom_bar.set_time_message('get ready...')
 			
 			self.bottom_bar.set_tutorial_text('')
 			
@@ -261,7 +282,8 @@ class Game (Scene):
 		self.map.load_level(selected_levels[level], loading, delay, check_point, x_hides)
 		
 	def update(self):
-		
+			
+		self.bottom_bar.timer.update()
 		self.music.restart()
 		
 		if not self.game_active:
@@ -270,25 +292,27 @@ class Game (Scene):
 		if self.menu is not None:
 			return
 
-		if self.started:
+		if self.dead:
+			
+			self.update_player()
+			
+			if self.player.on_last_frame():
+				self.finish_lose_life()
+				
+		elif self.started():
 			
 			self.move_player()
 			self.update_player()
 		
-			self.bottom_bar.timer.update()
 			self.level_display.update()
 			self.points_display.update()
 			
-			time_left = self.bottom_bar.timer.countdown.seconds_remaining()
+			time_left = self.bottom_bar.timer.seconds_remaining()
 			
 			self.set_time_message(time_left)
 			
 			if time_left < 1 and not (self.dead):
 				self.lose_life()
-				
-			if self.dead:
-				if self.player.on_last_frame():
-					self.finish_lose_life()
 			
 		else:
 			
@@ -355,7 +379,7 @@ class Game (Scene):
 			self.map.update_move()
 			return
 		else:
-			can_move = self.started and (not self.stuck) 
+			can_move = self.started() and (not self.stuck) 
 		
 		if self.simulate_tilt:
 			if self.simulated_tilt is None:
@@ -479,11 +503,11 @@ class Game (Scene):
 		if self.tutorial:
 			self.bottom_bar.set_time_message('')
 		elif time_left > 19:
-			self.bottom_bar.set_time_message('go!!!')
+			self.bottom_bar.set_time_message('go!')
 		elif self.bottom_bar.timer.low_time:
-			self.bottom_bar.set_time_message('hurry up!!!')
+			self.bottom_bar.set_time_message('hurry up!')
 		elif time_left < 0:
-			self.bottom_bar.set_time_message('time up!!!')
+			self.bottom_bar.set_time_message('time up!')
 		elif time_left > 15 and self.level_display.level in levels.level_messages and not self.tutorial:
 			message = levels.level_messages[self.level_display.level]
 			self.bottom_bar.set_time_message(message)
@@ -493,9 +517,11 @@ class Game (Scene):
 	#def touch_began(self, touch):
 	#	self.background_gradient.scale = 0
 				
-	def reset_all(self):
+	def reset_all(self, reset_stars=True):
 			
-			self.stars = 0
+			if reset_stars:
+				self.stars = 0
+			
 			self.map.reset()
 			self.dead = False
 			self.reverse = False
@@ -503,10 +529,11 @@ class Game (Scene):
 			self.map.clear_reverse()
 			self.map.clear_hide()
 			self.map.reset_hide()
+			self.bottom_bar.timer.reset()
 			self.bottom_bar.effect.clear()
 			self.bottom_bar.set_controls_message('')
 			self.vanish = 0
-			self.started = False
+
 			self.set_background()
 			self.bottom_bar.timer.update()
 			self.level_display.update()
@@ -623,12 +650,12 @@ class Game (Scene):
 
 	def advance_level(self, check_point):
 		
-		self.bottom_bar.timer.complete_level()
+		self.bottom_bar.timer.stop()
 		
 		if not check_point:
 			sound.play_effect('rpg:DoorClose_1')
 		else:
-			sound.play_effect('arcade:Coin_5')
+			sound.play_effect('game:Crashing', 1.0)
 			
 		self.show_level_complete(check_point)
 	
@@ -646,15 +673,51 @@ class Game (Scene):
 				self.check_points[check_point.level] = check_point
 				
 				self.save_check_points()
-
+		
 		self.level_display.advance_level()
 		
-		self.bottom_bar.timer.advance_level()
-		self.lives_display.update() #to ensure lives display when entering game from turorial
+		if not self.can_play_level():
+			self.show_purchase_to_play_menu()
+		else:
+			self.finish_advancing_level()
+
+	def finish_advancing_level(self):
+		
+		if not self.tutorial:
+			number_of_levels = len(levels.levels)
+		else:
+			number_of_levels = len(tutorial.levels)
+			
+		if self.level_display.level > number_of_levels:
+			
+			if self.tutorial:
+				self.tutorial = False
+				self.level_display.level = 1
+				self.lives_display.update()
+			else:
+				self.level_display.level = 1
+		
+		self.bottom_bar.timer.stop()
 		
 		self.load_level()
 		self.reset_all()
-				
+	
+	def can_play_level(self):
+		
+		level = self.level_display.level
+		pc = ProductsController.get()
+		
+		if level <= 25:
+			return True
+		elif level >= 26 and level <= 50 and pc.l26_l50.purchased:
+			return True
+		elif level >= 51 and level <= 75 and pc.l51_l75.purchased:
+			return True
+		elif level >= 76 and level <= 100 and pc.l76_l100.purchased:
+			return True
+		else:
+			return False
+		
 	def move(self, step_x, step_y, move_seconds):
 		
 		if self.map.moving:
@@ -679,21 +742,59 @@ class Game (Scene):
 
 	def set_up_player(self):
 		self.player = player.Player(self)
+	
+	def show_purchase_to_play_menu(self):
+		
+		self.bottom_bar.hide()
+		self.player.hide()
+		self.map.unload()
+		self.level_display.hide()
+		self.points_display.hide()
+		self.lives_display.hide()
+		
+		self.bottom_bar.timer.stop()
+	
+		self.purchase_to_play = True
+		self.menu = PurchaseToPlayMenu()
+		self.present_modal_scene(self.menu)
+
+	def show_purchase_to_checkpoint_menu(self):
+		self.menu = PurchaseToCheckpointMenu()
+		self.present_modal_scene(self.menu)
+	
+	def can_use_checkpoints(self):
+		return ProductsController.get().checkpoints.purchased
 		
 	def show_start_menu(self):
 		
 		self.music.play_menu()
 		
-		self.menu = MainMenu(self.highscore)
+		self.menu = MainMenu(self.highscore, self.purchase_to_play)
 		self.present_modal_scene(self.menu)
 		
 	def show_continue_menu(self):
 		
 		self.music.play_menu()
-		
 		self.menu = ContinueMenu(self.check_points)
 		self.present_modal_scene(self.menu)
+
+	def load_first_play(self):
+		try:
+			with open('.map_man_first_play', 'r') as f:
+				self.first_play = False
+		except:
+			self.first_play = True
+
+	def save_first_play(self):
 		
+		if not self.first_play:
+			return
+			
+		with open('.map_man_first_play', 'w') as f:
+			f.write(str(datetime.datetime.now()))
+			
+		self.first_play = False
+			
 	def load_highscore(self):
 		try:
 			with open('.map_man_highscore', 'r') as f:
@@ -727,31 +828,73 @@ class Game (Scene):
 		except:
 			
 			pass
-			
+
+	def purchase_product(self, product):
+		
+		self.dismiss_modal_scene()
+		self.menu = MakePurchaseMenu(product, self.purchase_to_play)
+		self.present_modal_scene(self.menu)
+		
+	def product_selected(self, product):
+		
+		self.dismiss_modal_scene()
+		self.menu = ConfirmProductMenu(product)
+		self.present_modal_scene(self.menu)
+	
 	def menu_button_selected(self, title):
 		
 		title = title.lower()
 		
-		if title in ['play','new game']:
+		
+		if title in ['play','new game', 'play game']:
+			
 			self.dismiss_modal_scene()
-			self.menu = None
-			self.new_game()
+			
+			if self.first_play and title != 'play game':
+				self.show_first_play()
+			else:
+				self.menu = None
+				self.new_game()
+				
+		elif title in ['resume', 'resume game']:
+			
+			if self.can_play_level():
+				self.dismiss_modal_scene()
+				self.menu = None
+				self.purchase_to_play = False
+				self.bottom_bar.show()
+				self.lives_display.show()
+				self.points_display.show()
+				self.level_display.show()
+				self.bottom_bar.timer.start()
+				self.finish_advancing_level()
+			else:
+				self.dismiss_modal_scene()
+				self.show_purchase_to_play_menu()
+			
 		elif title == 'continue':
 			self.dismiss_modal_scene()
 			self.show_continue_menu()
-		elif 'checkpoint' in title:
-			self.dismiss_modal_scene()
-			self.menu = None
-			data = title.replace(' ','').split('-l')
-			level = int(data[1])+1
-			self.new_game(level=level)
-		elif title == 'tutorial':
+		elif 'checkpoint' in title and not 'checkpoints' in title:
+			
+			if self.can_use_checkpoints():
+				
+				self.dismiss_modal_scene()
+				self.menu = None
+				data = title.replace(' ','').split('-l')
+				level = int(data[1])+1
+				self.new_game(level=level)
+				
+			else:
+				self.show_purchase_to_checkpoint_menu()
+				
+		elif title in ['tutorial', 'take tutorial']:
 			self.dismiss_modal_scene()
 			self.menu = None
 			self.new_tutorial()
 		elif title == 'credits':
 			self.show_credits()
-		elif title == 'purchase':
+		elif title in ['purchase', 'purchase menu', 'okay']:
 			self.show_purchase()
 		elif title == 'tweet pb':
 			ScoreTweet(self.highscore)
@@ -761,16 +904,21 @@ class Game (Scene):
 			self.dismiss_modal_scene()
 			self.show_start_menu()
 		elif title in ['next level','play next level']:
-			self.next_level()
 			self.menu = None
 			self.dismiss_modal_scene()
+			self.next_level()
 		elif title == 'try again':
-			self.reset_all()
+			self.reset_all(False)
 			self.menu = None
 			self.dismiss_modal_scene()
 		elif title == 'exit':
 			sys.exit()
-				
+		
+	def show_first_play(self):
+		
+		self.menu = FirstPlayMenu()
+		self.present_modal_scene(self.menu)
+		
 	def show_credits(self):
 		
 		self.menu = CreditsMenu()
@@ -783,11 +931,11 @@ class Game (Scene):
 		
 	def show_level_complete(self, check_point):
 		
-		self.started = False
+		self.bottom_bar.timer.stop()
 		
 		if not self.tutorial:
 			
-			time_bonus = int(round(self.bottom_bar.timer.countdown.seconds_remaining() / 2, 0))
+			time_bonus = int(round(self.bottom_bar.timer.seconds_remaining() / 2, 0))
 		
 			self.end_of_level_points = Game.POINTS_PER_LEVEL + time_bonus + self.stars
 
@@ -800,7 +948,9 @@ class Game (Scene):
 			self.next_level()
 		
 	def new_game(self, level=None, tutorial=False):
-			
+		
+		self.save_first_play()
+		
 		if level is None:
 			level = levels.START_LEVEL
 			
@@ -816,6 +966,17 @@ class Game (Scene):
 		self.reset_all()
 		self.lives_display.reset()
 		self.game_active = True
+
+		self.level_display.show()
+		self.points_display.show()
+		self.lives_display.show()
+		
+		self.bottom_bar.show()
+		
+		if self.tutorial:
+			self.bottom_bar.timer.hide()
+		else:
+			self.bottom_bar.timer.show()
 	
 	def new_tutorial(self):
 		self.new_game(tutorial=True)
@@ -837,14 +998,14 @@ class Game (Scene):
 					f.write('{0},{1}\n'.format(check_point.level, check_point.score))
 			
 	def lose_life(self):
-		self.bottom_bar.timer.lose_life()
+		self.bottom_bar.timer.stop()
 		sound.play_effect('arcade:Explosion_2')
 		self.player.show()
 		self.player.face_death()
 		self.dead = True
 	
 	def finish_lose_life(self):
-		
+
 		if not self.tutorial:
 			self.lives_display.lives -= 1
 		
@@ -861,9 +1022,18 @@ class Game (Scene):
 				
 	def game_over(self):
 		
+		self.bottom_bar.hide()
+		self.map.unload()
+		self.player.hide()
+		
 		self.music.play_end()
-		self.game_active = True
+		self.game_active = False
+		self.set_background()
 		self.shake.stop()
+		
+		self.level_display.hide()
+		self.points_display.hide()
+		self.lives_display.hide()
 		
 		if self.points_display.score > self.highscore:
 			self.highscore = self.points_display.score

@@ -33,6 +33,7 @@ class Player (object):
 		self.death = self.load_death()
 		
 		self.node = SpriteNode(self.idle[0])
+		self.node.z_position = 1001.0
 		
 		self.hide()
 		

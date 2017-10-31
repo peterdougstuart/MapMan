@@ -2,11 +2,12 @@
 
 from scene import *
 import font
+from scaler import Scaler
 
 class LivesDisplay(object):
 	
 	INITIAL_LIVES = 3
-	SCALE = 0.18
+	SCALE = 1.0
 	
 	def __init__(self, parent):
 		
@@ -46,7 +47,7 @@ class LivesDisplay(object):
 		self.lives_label = LabelNode('', font=(font.LIVES_DISPLAY, 40), position=(x, y), parent=self.parent)
 		self.lives_label.anchor_point=(1, 0.5)
 
-		heart = Texture('heart.png')
+		heart = Scaler.get_heart_path('heart.png')
 		
 		self.heart = SpriteNode(heart)
 		self.heart.anchor_point = (0.5, 0.5)
@@ -62,3 +63,8 @@ class LivesDisplay(object):
 		else:
 			return ''
 	
+	def create_texture(self, image):
+		try:
+			return Texture(image)
+		except:
+			raise Exception('Image not found: {0}'.format(image))

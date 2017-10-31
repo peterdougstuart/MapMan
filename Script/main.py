@@ -5,9 +5,9 @@ from in_app import InApp
 
 if __name__ == '__main__':
     
-    InApp.initialize()
-    InApp.Instance.fetch()
-
+    #InApp.initialize()
+    InApp.initialize_dummy()
+    
     game = Game()
 
     main_view = ui.View()

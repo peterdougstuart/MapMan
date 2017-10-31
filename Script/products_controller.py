@@ -14,6 +14,7 @@ class NullProduct(object):
 		self.title = ''
 		self.description = ''
 		self.price = 0.0
+		self.consumable = False
 		
 class ProductsController(object):
 	
@@ -39,7 +40,9 @@ class ProductsController(object):
 		self.l26_l50 = NullProduct()
 		self.l51_l75 = NullProduct()
 		self.l76_l100 = NullProduct()
-		self.everything = NullProduct()
+		self.all_levels_and_checkpoints = NullProduct()
+		self.one_continue = NullProduct()
+		self.three_continues = NullProduct()
 		
 		if InApp.Instance.products_validated:
 			
@@ -62,14 +65,17 @@ class ProductsController(object):
 		self.products.append(self.l26_l50)
 		self.products.append(self.l51_l75)
 		self.products.append(self.l76_l100)
-		self.products.append(self.everything)
+		self.products.append(self.all_levels_and_checkpoints)
+		
+		self.products.append(self.one_continue)
+		self.products.append(self.three_continues)
 		
 		self.dict = {}
 		
 		for product in self.products:
 			self.dict[product.identifier] = product
 		
-		self.update_purchase_everything()
+		self.update_purchase_all_levels_and_checkpoints()
 		
 	def get_products(self):
 		
@@ -79,7 +85,7 @@ class ProductsController(object):
 					
 			if product.valid:
 						
-				if product.title.lower() != 'everything' or product.can_purchase:
+				if product.identifier.lower() != 'com.mapman.all_levels_and_checkpoints' or product.can_purchase:
 					
 					products.append(product)
 		
@@ -95,26 +101,34 @@ class ProductsController(object):
 			self.l51_l75 = self.extend(product)
 		elif product.identifier == 'com.mapman.l76-100':
 			self.l76_l100 = self.extend(product)
-		elif product.identifier == 'com.mapman.everything':
-			self.everything = self.extend(product)
+		elif product.identifier == 'com.mapman.all_levels_and_checkpoints':
+			self.all_levels_and_checkpoints = self.extend(product)
+		elif product.identifier == 'com.mapman.one_continue':
+			self.one_continue = self.extend(product, True)
+		elif product.identifier == 'com.mapman.three_continues':
+			self.three_continues = self.extend(product, True)
 			
-	def extend(self, product):
+	def extend(self, product, consumable=False):
 		
 		product.purchased = ProductRegistry.get().is_purchased(product.identifier)
 		
 		product.can_purchase = False
 		product.valid = True
 		product.why_cant_purchase = ''
+		product.consumable = consumable
 		
 		return product
 		
 	def check_can_purchase(self):
 		
 		self.check_can_purchase_checkpoints()
-		self.check_can_purchase_everything()
+		self.check_can_purchase_all_levels_and_checkpoints()
 		self.check_can_purchase_l26_l50()
 		self.check_can_purchase_l51_l75()
 		self.check_can_purchase_l76_l100()
+		
+		self.check_can_purchase_one_continue()
+		self.check_can_purchase_three_continues()
 	
 	def base_can_purchase(self, product):
 		
@@ -122,9 +136,9 @@ class ProductsController(object):
 			product.can_purchase = False
 			product.why_cant_purchase = 'Item already purchased'
 			return False
-		elif self.everything.purchased:
+		elif self.all_levels_and_checkpoints.purchased:
 			product.can_purchase = False
-			product.why_cant_purchase = 'Everything already purchased'
+			product.why_cant_purchase = 'All levels & checkpoints already purchased'
 			return False
 		else:
 			product.can_purchase = True
@@ -140,9 +154,9 @@ class ProductsController(object):
 	def check_can_purchase_checkpoints(self):
 		self.base_can_purchase(self.checkpoints)
 		
-	def check_can_purchase_everything(self):
+	def check_can_purchase_all_levels_and_checkpoints(self):
 		
-		if not self.base_can_purchase(self.everything):
+		if not self.base_can_purchase(self.all_levels_and_checkpoints):
 			return
 			
 		remaining = 0.0
@@ -151,11 +165,11 @@ class ProductsController(object):
 		remaining += self.remaining_price(self.l51_l75)
 		remaining += self.remaining_price(self.l76_l100)
 			
-		if remaining >= self.everything.price:
-			self.everything.can_purchase = True
+		if remaining >= self.all_levels_and_checkpoints.price:
+			self.all_levels_and_checkpoints.can_purchase = True
 		else:
-			self.everything.can_purchase = False
-			self.everything.why_cant_purchase = 'It is cheaper to purchase remaining non-purchased items individually'
+			self.all_levels_and_checkpoints.can_purchase = False
+			self.all_levels_and_checkpoints.why_cant_purchase = 'It is cheaper to purchase remaining non-purchased items individually'
 		
 	def check_can_purchase_l26_l50(self):
 		self.base_can_purchase(self.l26_l50)
@@ -182,6 +196,14 @@ class ProductsController(object):
 			self.l76_l100.can_purchase = False
 			self.l76_l100.why_cant_purchase = 'You must first purchase levels 51-75'
 
+	def check_can_purchase_one_continue(self):
+		
+		self.one_continue.can_purchase = True
+	
+	def check_can_purchase_three_continues(self):
+		
+		self.three_continues.can_purchase = True
+		
 	def purchase(self, product, caller):
 		
 		if not product.can_purchase:
@@ -195,9 +217,11 @@ class ProductsController(object):
 		self.caller.purchase_successful(product_identifier)
 		self.caller = None
 		
-		self.dict[product_identifier].purchased = True
+		product = self.dict[product_identifier]
 		
-		self.update_purchase_everything()
+		if not product.consumable:
+			product.purchased = True
+		self.update_purchase_all_levels_and_checkpoints()
 		self.check_can_purchase()
 		
 	def purchase_restored(self, product_identifier):
@@ -205,21 +229,24 @@ class ProductsController(object):
 		self.caller.purchase_restored(product_identifier)
 		self.caller = None
 		
-		self.dict[product_identifier].purchased = True
+		product = self.dict[product_identifier]
 		
-		self.update_purchase_everything()
+		if not product.consumable:
+			product.purchased = True
+		self.update_purchase_all_levels_and_checkpoints()
 		self.check_can_purchase()
 		
 	def purchase_failed(self, product_identifier):
 		self.caller.purchase_failed(product_identifier)
 		self.caller = None
 	
-	def update_purchase_everything(self):
+	def update_purchase_all_levels_and_checkpoints(self):
 		
-		if not self.everything.purchased:
+		if not self.all_levels_and_checkpoints.purchased:
 			return
 			
 		for product in self.products:
-			product.purchased = True
-			product.can_purchase = False
+			if not product.consumable:
+				product.purchased = True
+				product.can_purchase = False
 		

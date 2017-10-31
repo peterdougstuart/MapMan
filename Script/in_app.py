@@ -42,7 +42,11 @@ class InAppDummy:
         self.products.append(Product('com.mapman.l51-75', 'Levels 51-75', 'Enable levels 51 to 75', 0.25))
         self.products.append(Product('com.mapman.l76-100', 'Levels 76-100', 'Enable levels 76 to 100', 0.25))
         
-        self.products.append(Product('com.mapman.everything', 'Everything', 'Everything', 1.00))
+        self.products.append(Product('com.mapman.all_levels_and_checkpoints', 'All levels & checkpoints', 'All levels & checkpoints', 1.00))
+        
+        self.products.append(Product('com.mapman.one_continue', 'One Continue', 'One Continue', 0.50))
+        
+        self.products.append(Product('com.mapman.three_continues', 'Three Continues', 'Three Continues', 1.00))
         
         self.invalid_products = []
         

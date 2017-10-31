@@ -5,7 +5,7 @@ from scaler import Scaler
 
 class Player (object):
 	
-	SCALE = 0.4
+	SCALE = 1.0
 	FOLDER = 'Man'
 	FRAMES_FOLDER = 'Frames'
 	IDLE_FOLDER = 'Idle'
@@ -13,22 +13,22 @@ class Player (object):
 	
 	def __init__(self, parent):
 		
-		self.base_scale = Player.SCALE * Scaler.get_scale()
+		self.base_scale = Player.SCALE * Scaler.Player
 		
 		self.x_scale = self.base_scale
 		self.y_scale = self.base_scale
 		
-		self.up_idle = [Texture(os.path.join(Player.FOLDER, Player.IDLE_FOLDER, 'MapMan-idle-BACK-2.png'))]
+		self.up_idle = [self.create_texture(Scaler.get_idle_path('back.png'))]
 		
-		self.down_idle = [Texture(os.path.join(Player.FOLDER, Player.IDLE_FOLDER, 'MapMan-idle-FRONT-2.png'))]
+		self.down_idle = [self.create_texture(Scaler.get_idle_path('front.png'))]
 		
-		self.side_idle = [Texture(os.path.join(Player.FOLDER, Player.IDLE_FOLDER, 'MapMan-idle-SIDE-2.png'))]
+		self.side_idle = [self.create_texture(Scaler.get_idle_path('side.png'))]
 		
 		self.idle = self.down_idle
 		
-		self.up = self.load_frames('BACK')
-		self.down =  self.load_frames('FORWARD')
-		self.side = self.load_frames('SIDE')
+		self.up = self.load_frames('back')
+		self.down =  self.load_frames('forward')
+		self.side = self.load_frames('side')
 		
 		self.death = self.load_death()
 		
@@ -54,9 +54,8 @@ class Player (object):
 		
 		for index in range(21):
 			frame = index
-			image = "MapMan-death-2x-FRONT-_000{0:02d}.png".format(frame)
-			folder = os.path.join(Player.FOLDER, 'Death')
-			texture = Texture(os.path.join(folder, image))
+			image = "death{0:02d}.png".format(frame)
+			texture = self.create_texture(Scaler.get_death_path(image))
 			frames.append(texture)
 			frames.append(texture)
 			
@@ -68,13 +67,18 @@ class Player (object):
 		
 		for index in range(Player.FRAMES):
 			frame = index + 1
-			image = "MapMan-walkcycle-{0}-2{1:02d}.png".format(tag, frame)
-			folder = os.path.join(Player.FOLDER, Player.FRAMES_FOLDER)
-			texture = Texture(os.path.join(folder, image))
+			image = "{0}{1:02d}.png".format(tag, frame)
+			texture = self.create_texture(Scaler.get_man_frames_path(image))
 			frames.append(texture)
 			
 		return frames
-		
+
+	def create_texture(self, image):
+		try:
+			return Texture(image)
+		except:
+			raise Exception('Image not found: {0}'.format(image))
+			
 	def face(self, frames, x_scale=None, y_scale=None):
 		
 		if x_scale is None:
@@ -93,7 +97,7 @@ class Player (object):
 		self.draw()
 
 	def face_death(self):
-		self.face(self.death, self.base_scale/2, self.base_scale/2)
+		self.face(self.death, self.base_scale, self.base_scale)
 		
 	def face_up(self):
 		self.face(self.up)

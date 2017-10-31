@@ -7,8 +7,7 @@ A = Action
 class CheckPoint(object):
 	
 	SCALE = 0.2
-	FRAMES_FOLDER = 'CheckPoint'
-	FRAMES = 100
+	FRAMES = 117
 	
 	def __init__(self, tile):
 
@@ -34,16 +33,22 @@ class CheckPoint(object):
 			
 			frame = index + 1
 			
-			image = "MapMan-checkpoint-animated{0:02d}.png".format(frame)
+			image = "checkpoint{0:03d}.png".format(frame)
 			
-			path = os.path.join(CheckPoint.FRAMES_FOLDER, image)
+			path = Scaler.get_checkpoint_path(image)
 			
-			texture = Texture(path)
+			texture = self.create_texture(path)
 			
 			frames.append(texture)
 			
 		return frames
-	
+
+	def create_texture(self, image):
+		try:
+			return Texture(image)
+		except:
+			raise Exception('Cannot load image: {0}'.format(image))
+			
 	def __call__(self):
 		self.advance_frame()
 		

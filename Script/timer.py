@@ -46,7 +46,7 @@ class Timer (LabelNode):
 			remainder_seconds = seconds - int_seconds
 			multiplier = 1.0 + (3.0 - int_seconds + remainder_seconds*2) * 0.2
 		
-		font_size = multiplier*Timer.FONT_SIZE*Scaler.get_scale()
+		font_size = multiplier*Timer.FONT_SIZE*Scaler.Timer
 		
 		font_size = max([font_size, 1])
 		

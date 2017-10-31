@@ -47,7 +47,7 @@ def verify_levels(levels, loadings):
 		
 	print 'all ok'
 
-check_points = [10, 20, 30, 40]
+check_points = [15, 30, 40, 50, 60, 70, 80, 90]
 
 START_LEVEL = 1
 
@@ -70,6 +70,351 @@ loadings[this()] = '''
  jklmnopq
  i
  hgfedcba
+'''
+
+levels[next()] = '''
+-------------b
+-------------c
+-p--p--p--p--c
+-c--c--c--c--c
+-c--c--c--c--c
+-c--c--c--c--c
+wccccccccccccc
+'''
+
+loadings[this()] = '''
+-------------a
+-------------b
+-w--t--q--n--c
+-v--s--p--m--d
+-u--r--o--l--e
+-t--q--n--k--f
+tsrqponmlkjihg
+'''
+
+levels[next()] = '''
+-bc----------
+--cc---------
+---cc--------
+----ccccccccp
+-----cc------
+------cc-----
+pcccccccc----
+--------cc---
+---------cs--
+'''
+
+loadings[this()] = '''
+-ab----------
+--cd---------
+---ef--------
+----ghijklmno
+-----ij------
+------kl-----
+tsrqponmn----
+--------op---
+---------qr--
+'''
+
+levels[next()] = '''
+p--ccccccccccc--
+p--c---------c--
+p--c-ccccccc-c--
+p--c-c-----c-c--
+uccc-c--bccc-c--
+p--c-c-------c--
+p--c-ccccccccc--
+p--c------------
+p--cccccccccccce
+'''
+
+loadings[this()] = '''
+*--kkjjiihhggf--
+*--l---------f--
+*--l-6655443-e--
+*--m-7-----3-e--
+wvvm-7--1122-d--
+*--n-8-------d--
+*--n-899aabbcc--
+*--o------------
+*--oppqqrrssttuu
+'''
+
+levels[next()] = '''
+ ccz Wc
+ c c  z
+ z zczc
+ c
+ rzcrccb
+'''
+
+loadings[this()] = '''
+ klm ut
+ j n  s
+ i opqr
+ h
+ gfedcba
+'''
+
+levels[next()] = '''
+---------cccc--
+---------c--c--
+-----ccccc--ccE
+-pcccc---------
+-----cr-----b--
+------cr----c--
+-------ccc3cc--
+'''
+
+loadings[this()] = '''
+---------opqr--
+---------n--s--
+-----ijklm--tuv
+-12345---------
+-----67-----h--
+------89----g--
+-------abcdef--
+'''
+
+levels[next()] = '''
+-----------
+bccccccchii
+----------i
+iihcccccuii
+i----------
+iiuccccchii
+----------i
+wcccccccuii
+-----------
+'''
+
+loadings[this()] = '''
+-----------
+aabbccddeef
+----------f
+lkkjjiihhgg
+l----------
+mmnnooppqqr
+----------r
+xwwvvuuttss
+-----------
+'''
+
+levels[next()] = '''
+--iiucncccc
+--i-------c
+--i-------c
+--i-------c
+--iiihc9ccc
+------c----
+bcccccc----
+'''
+
+loadings[this()] = '''
+--qrstutsrq
+--p-------p
+--o-------o
+--n-------n
+--mlkjijklm
+------h----
+abcdefg----
+'''
+
+levels[next()] = '''
+  pp   rr
+ ppppcrrrE
+ pppp rrrr
+  pp   rr
+  c
+  c
+  c
+  ccccyyyb
+'''
+
+loadings[this()] = '''
+  oo   qr
+ nnnnopqrs
+ mmmm pqrs
+  ll   qr
+  k
+  j
+  i
+  hgfedcba
+'''
+
+levels[next()] = '''
+pccccccccccccccp
+-------cc-------
+-----cccccc-----
+-----c----c-----
+----cc----cc----
+----c------c----
+---cc------xc---
+--wc--------cb--
+'''
+
+x_hides[this()] = 17
+
+loadings[this()] = '''
+utsrqponnopqrstu
+-------mm-------
+-----nmlkji-----
+-----o----h-----
+----qp----gf----
+----r------e----
+---ts------dc---
+--vu--------ba--
+'''
+
+
+levels[next()] = '''
+      cccc
+     8c--cc
+bccccc----ccccE
+     c-----c
+     rc--rcc
+      cccc
+'''
+
+loadings[this()] = '''
+      ijkl
+     gh--mn
+abcdef----opqrs
+     g-----p
+     hi--nop
+      jklm
+'''
+
+levels[next()] = '''
+ccc ccc ccc ccc
+c c c c c c c c
+r c c c c c c c
+c c c c c c c c
+c c c c c c c c
+b ccc ccc ccc S
+'''
+
+loadings[this()] = '''
+fgh fgh fgh fgh
+e e e e e e e e
+d d d d d d d d
+c c c c c c c c
+b b b b b b b b
+a fgh fgh fgh a
+'''
+
+delays[this()] = 0.1
+
+levels[next()] = '''
+-bc----------
+--hi---------
+---ii--------
+----iiccccccp
+-----ii------
+------ii-----
+pccccccii----
+--------iu---
+---------cs--
+'''
+
+loadings[this()] = '''
+-ab----------
+--cd---------
+---ef--------
+----ghijklmno
+-----ij------
+------kl-----
+tsrqponmn----
+--------op---
+---------qr--
+'''
+
+levels[next()] = '''
+ccc ccc ccc
+c c c c c c
+x c c c c c
+c c c c c c
+c c c c c c
+b ccc ccc S
+'''
+
+delays[this()] = 0.1
+
+loadings[this()] = '''
+fgh fgh fgh
+e e e e e e
+d d d d d d
+c c c c c c
+b b b b b b
+a fgh fgh a
+'''
+
+levels[next()] = '''
+-br----------
+--cc---------
+---cc--------
+----ccccccccp
+-----cc------
+------cc-----
+lcccccccc----
+--------cc---
+---------cs--
+'''
+
+loadings[this()] = '''
+-ab----------
+--cd---------
+---ef--------
+----ghijklmno
+-----ij------
+------kl-----
+tsrqponmn----
+--------op---
+---------qr--
+'''
+
+levels[next()] = '''
+---ccccccccccc--
+---c---------c--
+---c-ccccccc-c--
+---c-c-----c-c--
+cccc-c--bccr-c--
+c--c-c-------c--
+c--c-ccccccccc--
+c--c------------
+l--cccccccccccce
+'''
+
+loadings[this()] = '''
+---kkjjiihhggf--
+---l---------f--
+---l-6655443-e--
+---m-7-----3-e--
+***m-7--1122-d--
+*--n-8-------d--
+*--n-899aabbcc--
+*--o------------
+*--oppqqrrssttuu
+'''
+
+levels[next()] = '''
+ccccccchccb
+--i--------
+ccccccccccc
+------i----
+ccccccccccc
+i----------
+cccccccucce
+'''
+
+loadings[this()] = '''
+feeddccbbaa
+--f--------
+ggfgghhiijj
+------i----
+llkkjjijjkk
+m----------
+mnnooppqqrr
 '''
 
 levels[next()] = '''
@@ -142,6 +487,413 @@ loadings[this()] = '''
 ------n-----f---
 ------mlkjihg---
 ----------------
+----------------
+'''
+
+levels[next()] = '''
+-ddddddddddd-
+bccccccccccce
+-ddddddddddd-
+'''
+
+loadings[this()] = '''
+-efghijklmno-
+abcdefghijklm
+-efghijklmno-
+'''
+
+
+levels[next()] = '''
+-ddddddddddd-
+bcycycycycyce
+-ddddddddddd-
+'''
+
+loadings[this()] = '''
+-efghijklmno-
+abcdefghijklm
+-efghijklmno-
+'''
+
+levels[next()] = '''
+-ddddddddddd-
+brycycycycyce
+-ddddddddddd-
+'''
+
+loadings[this()] = '''
+-efghijklmno-
+abcdefghijklm
+-efghijklmno-
+'''
+
+levels[next()] = '''
+bchiiiiiiiid
+----------i-
+--n-------i-
+--i----diiii
+--i-----i--d
+-diiiiiii---
+--------d---
+'''
+
+loadings[this()] = '''
+aabbccddeeff
+----------f-
+--o-------g-
+--o----iihhg
+--n-----j--h
+-nmmllkkj---
+--------k---
+'''
+
+levels[next()] = '''
+    cccd
+  ccc cp
+  c   cd
+bcc   cp
+      cd
+      cp
+  wccccd
+   dpdp
+'''
+
+levels[next()] = '''
+-wccuci-------
+--!!--i-------
+-iiiiiii!-----
+--i--!--------
+-iiiiiicchcccb
+'''
+
+loadings[this()] = '''
+-dcba98-------
+--cb--8-------
+-dcba9876-----
+--c--9--------
+-dcba987654321
+'''
+
+levels[next()] = '''
+ Wrrrrr
+      r
+ rccccr
+ r
+ rrrrrb
+'''
+
+loadings[this()] = '''
+ jihgfe
+      d
+ cbaabc
+ d
+ efghuj
+'''
+
+levels[next()] = '''
+ Wccctccc
+    dmd ccttl
+ cccccccc
+ c
+ cccccccb
+'''
+
+loadings[this()] = '''
+ qponmlkj
+    vwv irstu
+ abcdefgh
+ 9
+ 87654321
+'''
+
+levels[next()] = '''
+----------------
+----------------
+--dpppnpppd-----
+--ppppppppp-----
+--wppdpdpppxccb-
+--ppppppppp-----
+--doppspppd-----
+----------------
+----------------
+'''
+
+x_hides[this()] = 50
+
+loadings[this()] = '''
+----------------
+----------------
+--utsrqppon-----
+--efghijklm-----
+--dcba987654321-
+--efghijklm-----
+--utsrqppon-----
+----------------
+----------------
+'''
+
+levels[next()] = '''
+ccrccrccrccE
+c
+crcrcrccrcrc
+-----------c
+bcrcrcrcrccc
+'''
+
+loadings[this()] = '''
+312312312345
+2
+132132132132
+-----------1
+123123123123
+'''
+
+levels[next()] = '''
+ Wyyyyyyy
+        y
+ yyyyyyyy
+ y
+ yyyyyyyb
+'''
+
+loadings[this()] = '''
+ qdpcobna
+        m
+ i6j7k8l9
+ 5
+ h4g3f2e1
+'''
+
+levels[next()] = '''
+ N
+ t      
+ t    m
+ t    c
+ t    c
+ ccccccb
+'''
+
+loadings[this()] = '''
+ k
+ j      
+ i    n
+ h    m
+ g    l
+ fedcba0
+'''
+
+levels[next()] = '''
+ Wtcccc        l
+      c    d   y
+      c----m   y
+      cccccccccm
+        tt
+        tt
+        c
+     byyy
+'''
+
+loadings[this()] = '''
+ fedcba        f
+      9    a   e
+      8----9   d
+      7656789abc
+        41
+        32
+        4
+     8765
+'''
+
+levels[next()] = '''
+bcpccpccpccp----
+--c--c--c--c----
+-cvccvccvccvc---
+--c--c--c--c----
+--pccpccpccpcp--
+-----c--c--c----
+---ccvccvccvccv-
+-----c--c--c--c-
+----cdccdccdccpe
+'''
+
+loadings[this()] = '''
+123456789abc----
+--p--p--o--p----
+-onmlkjihgfed---
+--q--q--q--q----
+--123456789abc--
+-----r--r--r----
+---onmlkjihgfed-
+-----s--s--s--s-
+----123456789abc
+'''
+
+levels[next()] = '''
+bcpccpccpccp----
+--c--c--c--c----
+-cyccyccyccyc---
+--c--c--c--c----
+--pccpccpccpcp--
+-----c--c--c----
+---ccrccrccrccr-
+-----c--c--c--c-
+----cdccdccdccre
+'''
+
+loadings[this()] = '''
+123456789abc----
+--p--p--o--p----
+-onmlkjihgfed---
+--q--q--q--q----
+--123456789abc--
+-----r--r--r----
+---onmlkjihgfed-
+-----s--s--s--s-
+----123456789abc
+'''
+
+levels[next()] = '''
+----------------
+--bccccccccccx--
+--c----------p--
+--c----------p--
+--c----------p--
+--c----------p--
+--c----------p--
+--s----------d--
+----------------
+'''
+
+loadings[this()] = '''
+----------------
+--189abcdefghi--
+--2----------j--
+--3----------k--
+--4----------l--
+--5----------m--
+--6----------n--
+--7----------o--
+----------------
+'''
+
+levels[next()] = '''
+-----clc--------
+----cc-c--------
+---cc--c--------
+--tc---t--------
+-bc----mccccce--
+--tp---t--------
+---pp--p--------
+----pp-p--------
+-----ppp--------
+'''
+
+loadings[this()] = '''
+-----9ab--------
+----78-c--------
+---56--d--------
+--34---e--------
+-12----fghijkl--
+--34---e--------
+---56--d--------
+----78-c--------
+-----9ab--------
+'''
+
+levels[next()] = '''
+----------------
+---ccccccccc----
+---h-------c----
+---b-------c----
+-----------c----
+-------ccccc----
+-------ciiii----
+-------!!!i!----
+-------siiii----
+'''
+
+loadings[this()] = '''
+----------------
+---3456789ab----
+---2-------c----
+---1-------d----
+-----------e----
+-------jihgf----
+-------kjihg----
+-------lkjih----
+-------mlkji----
+'''
+
+
+levels[next()] = '''
+n---------------
+c-bccccccccccc--
+ccc----------c--
+---cccccccc--c--
+-ppc------c--ccc
+pp------ccc----c
+p--cccccc------c
+p--c--------cccc
+---cccccccccc---
+'''
+
+loadings[this()] = '''
+6---------------
+5-1789abcdefgh--
+432----------h--
+---wwvvvuuu--i--
+-xxw------t--ijj
+yx------stt----k
+y--qrrrss------k
+y--q--------mmll
+---qpppooonnn---
+'''
+
+levels[next()] = '''
+----------------
+--wcyccc--------
+-------c--------
+-------ccccccc--
+-------------c--
+-------------c--
+--bctttccccccc--
+----------------
+----------------
+'''
+
+loadings[this()] = '''
+----------------
+--srqpon--------
+-------m--------
+-------lkjihgf--
+-------------e--
+-------------d--
+--123456789abc--
+----------------
+----------------
+'''
+
+levels[next()] = '''
+----------------
+----n------b----
+----c------c----
+----r------y----
+----y------r----
+----c------c----
+----r------y----
+----yccryccr----
+----------------
+'''
+
+loadings[this()] = '''
+----------------
+----k------1----
+----j------2----
+----i------3----
+----h------4----
+----g------5----
+----f------6----
+----edcba987----
 ----------------
 '''
 
@@ -293,6 +1045,31 @@ loadings[this()] = '''
 ----------------
 '''
 
+levels[next()] = '''
+----------------
+----------------
+--dpppnpppd-----
+--ppppppppp-----
+--wppdpdpppxccb-
+--ppppppppp-----
+--doppspppd-----
+----------------
+----------------
+'''
+
+x_hides[this()] = 50
+
+loadings[this()] = '''
+----------------
+----------------
+--utsrqppon-----
+--efghijklm-----
+--dcba987654321-
+--efghijklm-----
+--utsrqppon-----
+----------------
+----------------
+'''
 
 levels[next()] = '''
 ----------------
@@ -417,6 +1194,56 @@ dd--------------
 '''
 
 levels[next()] = '''
+--ddddddddddddddd
+--dccccccccccccxd
+wcccdddddcdddddcd
+--ddd---dld---dcd
+bcccd---ddd---dcd
+--dcd---------dcd
+--dcdddddddddddcd
+--dxccccccccccccd
+--ddddddddddddddd
+'''
+
+x_hides[this()] = 12
+
+loadings[this()] = '''
+--xwvuttssrrqqppo
+--ykjjihhggffeedo
+mllkvuttthrqqpoin
+--yxw---shr---ncn
+1122b---ssr---mcm
+--c3c---------lbm
+--c3cdfgghhiijkbl
+--c44566778899aal
+--ddeffgghhiijjkk
+'''
+
+levels[next()] = '''
+--ddddddddddddddd
+--dcccccccccccccd
+wcccdddddldddddcd
+--ddd---drd---dcd
+bcrcd---ddd---dcd
+--dcd---------dcd
+--dcdddddddddddcd
+--dcccccccccccccd
+--ddddddddddddddd
+'''
+
+loadings[this()] = '''
+--xwvuttssrrqqppo
+--ykjjihhggffeedo
+mllkvuttthrqqpoin
+--yxw---shr---ncn
+1122b---ssr---mcm
+--c3c---------lbm
+--c3cdfgghhiijkbl
+--c44566778899aal
+--ddeffgghhiijjkk
+'''
+
+levels[next()] = '''
 wu--------------
 -cccccccccccccc-
 -c!!!!!!!!!!!!!-
@@ -441,6 +1268,30 @@ dd--------------
 '''
 
 levels[next()] = '''
+-----cup------
+-----c-p------
+-----ccp------
+--ppp-y-ddd---
+--w-cybyc-e---
+--ddd-y-ppp---
+-----pcc------
+-----p-c------
+-----puc------
+'''
+
+loadings[this()] = '''
+-----ccc------
+-----c-c------
+-----ccc------
+--***-c-***---
+--*-*ccc*-*---
+--***-c-***---
+-----ccc------
+-----c-c------
+-----ccc------
+'''
+
+levels[next()] = '''
 bcccccccc---
 --c-----c---
 --c-----ccc-
@@ -458,540 +1309,6 @@ ggfghij---m-
 h-----j--nn-
 h-----l--o--
 iijklmmnopqr
-'''
-
-
-levels[next()] = '''
-p--ccccccccccc--
-p--c---------c--
-p--c-ccccccc-c--
-p--c-c-----c-c--
-uccc-c--bccc-c--
-p--c-c-------c--
-p--c-ccccccccc--
-p--c------------
-p--cccccccccccce
-'''
-
-loadings[this()] = '''
-*--kkjjiihhggf--
-*--l---------f--
-*--l-6655443-e--
-*--m-7-----3-e--
-wvvm-7--1122-d--
-*--n-8-------d--
-*--n-899aabbcc--
-*--o------------
-*--oppqqrrssttuu
-'''
-
-levels[next()] = '''
--------------b
--------------c
--p--p--p--p--c
--c--c--c--c--c
--c--c--c--c--c
--c--c--c--c--c
-wccccccccccccc
-'''
-
-loadings[this()] = '''
--------------a
--------------b
--w--t--q--n--c
--v--s--p--m--d
--u--r--o--l--e
--t--q--n--k--f
-tsrqponmlkjihg
-'''
-
-levels[next()] = '''
--bc----------
---cc---------
----cc--------
-----ccccccccp
------cc------
-------cc-----
-pcccccccc----
---------cc---
----------cs--
-'''
-
-loadings[this()] = '''
--ab----------
---cd---------
----ef--------
-----ghijklmno
------ij------
-------kl-----
-tsrqponmn----
---------op---
----------qr--
-'''
-
-levels[next()] = '''
--bc----------
---hi---------
----ii--------
-----iiccccccp
------ii------
-------ii-----
-pccccccii----
---------iu---
----------cs--
-'''
-
-loadings[this()] = '''
--ab----------
---cd---------
----ef--------
-----ghijklmno
------ij------
-------kl-----
-tsrqponmn----
---------op---
----------qr--
-'''
-
-levels[next()] = '''
--br----------
---cc---------
----cc--------
-----ccccccccp
------cc------
-------cc-----
-lcccccccc----
---------cc---
----------cs--
-'''
-
-loadings[this()] = '''
--ab----------
---cd---------
----ef--------
-----ghijklmno
------ij------
-------kl-----
-tsrqponmn----
---------op---
----------qr--
-'''
-
-levels[next()] = '''
---iiucncccc
---i-------c
---i-------c
---i-------c
---iiihc9ccc
-------c----
-bcccccc----
-'''
-
-loadings[this()] = '''
---qrstutsrq
---p-------p
---o-------o
---n-------n
---mlkjijklm
-------h----
-abcdefg----
-'''
-
-levels[next()] = '''
----ccccccccccc--
----c---------c--
----c-ccccccc-c--
----c-c-----c-c--
-cccc-c--bccr-c--
-c--c-c-------c--
-c--c-ccccccccc--
-c--c------------
-l--cccccccccccce
-'''
-
-loadings[this()] = '''
----kkjjiihhggf--
----l---------f--
----l-6655443-e--
----m-7-----3-e--
-***m-7--1122-d--
-*--n-8-------d--
-*--n-899aabbcc--
-*--o------------
-*--oppqqrrssttuu
-'''
-
-levels[next()] = '''
------------
-bccccccchii
-----------i
-iihcccccuii
-i----------
-iiuccccchii
-----------i
-wcccccccuii
------------
-'''
-
-loadings[this()] = '''
------------
-aabbccddeef
-----------f
-lkkjjiihhgg
-l----------
-mmnnooppqqr
-----------r
-xwwvvuuttss
------------
-'''
-
-levels[next()] = '''
-ccccccchccb
---i--------
-ccccccccccc
-------i----
-ccccccccccc
-i----------
-cccccccucce
-'''
-
-loadings[this()] = '''
-feeddccbbaa
---f--------
-ggfgghhiijj
-------i----
-llkkjjijjkk
-m----------
-mnnooppqqrr
-'''
-
-
-levels[next()] = '''
-pccccccccccccccp
-------cc-------
------cccccc-----
------c----c-----
-----cc----cc----
-----c------c----
----cc------xc---
---wc--------cb--
-'''
-
-x_hides[this()] = 17
-
-loadings[this()] = '''
-utsrqponnopqrstu
--------mm-------
------nmlkji-----
------o----h-----
-----qp----gf----
-----r------e----
----ts------dc---
---vu--------ba--
-'''
-
-levels[next()] = '''
--ddddddddddd-
-bccccccccccce
--ddddddddddd-
-'''
-
-loadings[this()] = '''
--efghijklmno-
-abcdefghijklm
--efghijklmno-
-'''
-
-
-levels[next()] = '''
--ddddddddddd-
-bcycycycycyce
--ddddddddddd-
-'''
-
-loadings[this()] = '''
--efghijklmno-
-abcdefghijklm
--efghijklmno-
-'''
-
-levels[next()] = '''
--ddddddddddd-
-brycycycycyce
--ddddddddddd-
-'''
-
-loadings[this()] = '''
--efghijklmno-
-abcdefghijklm
--efghijklmno-
-'''
-
-levels[next()] = '''
-bchiiiiiiiid
-----------i-
---n-------i-
---i----diiii
---i-----i--d
--diiiiiii---
---------d---
-'''
-
-loadings[this()] = '''
-aabbccddeeff
-----------f-
---o-------g-
---o----iihhg
---n-----j--h
--nmmllkkj---
---------k---
-'''
-
-levels[next()] = '''
-    cccd
-  ccc cp
-  c   cd
-bcc   cp
-      cd
-      cp
-  wccccd
-   dpdp
-'''
-
-levels[next()] = '''
- ccz Wc
- c c  z
- z zczc
- c
- rzcrccb
-'''
-
-loadings[this()] = '''
- klm ut
- j n  s
- i opqr
- h
- gfedcba
-'''
-
-levels[next()] = '''
--wccuci-------
---!!--i-------
--iiiiiii!-----
---i--!--------
--iiiiiicchcccb
-'''
-
-loadings[this()] = '''
--dcba98-------
---cb--8-------
--dcba9876-----
---c--9--------
--dcba987654321
-'''
-
-levels[next()] = '''
----------cccc--
----------c--c--
------ccccc--ccE
--pcccc---------
------cr-----b--
-------cr----c--
--------ccc3cc--
-'''
-
-loadings[this()] = '''
----------opqr--
----------n--s--
------ijklm--tuv
--12345---------
------67-----h--
-------89----g--
--------abcdef--
-'''
-
-levels[next()] = '''
-  pp   rr
- ppppcrrrE
- pppp rrrr
-  pp   rr
-  c
-  c
-  c
-  ccccyyyb
-'''
-
-loadings[this()] = '''
-  oo   qr
- nnnnopqrs
- mmmm pqrs
-  ll   qr
-  k
-  j
-  i
-  hgfedcba
-'''
-
-levels[next()] = '''
-      cccc
-     8c--cc
-bccccc----ccccE
-     c-----c
-     rc--rcc
-      cccc
-'''
-
-loadings[this()] = '''
-      ijkl
-     gh--mn
-abcdef----opqrs
-     g-----p
-     hi--nop
-      jklm
-'''
-
-levels[next()] = '''
-ccc ccc ccc ccc
-c c c c c c c c
-r c c c c c c c
-c c c c c c c c
-c c c c c c c c
-b ccc ccc ccc S
-'''
-
-loadings[this()] = '''
-fgh fgh fgh fgh
-e e e e e e e e
-d d d d d d d d
-c c c c c c c c
-b b b b b b b b
-a fgh fgh fgh a
-'''
-
-delays[this()] = 0.1
-
-levels[next()] = '''
-ccc ccc ccc
-c c c c c c
-x c c c c c
-c c c c c c
-c c c c c c
-b ccc ccc S
-'''
-
-delays[this()] = 0.1
-
-loadings[this()] = '''
-fgh fgh fgh
-e e e e e e
-d d d d d d
-c c c c c c
-b b b b b b
-a fgh fgh a
-'''
-
-levels[next()] = '''
- Wrrrrr
-      r
- rccccr
- r
- rrrrrb
-'''
-
-loadings[this()] = '''
- jihgfe
-      d
- cbaabc
- d
- efghuj
-'''
-
-levels[next()] = '''
- Wccctccc
-    dmd ccttl
- cccccccc
- c
- cccccccb
-'''
-
-loadings[this()] = '''
- qponmlkj
-    vwv irstu
- abcdefgh
- 9
- 87654321
-'''
-
-levels[next()] = '''
-ccrccrccrccE
-c
-crcrcrccrcrc
------------c
-bcrcrcrcrccc
-'''
-
-loadings[this()] = '''
-312312312345
-2
-132132132132
------------1
-123123123123
-'''
-
-levels[next()] = '''
- Wyyyyyyy
-        y
- yyyyyyyy
- y
- yyyyyyyb
-'''
-
-loadings[this()] = '''
- qdpcobna
-        m
- i6j7k8l9
- 5
- h4g3f2e1
-'''
-
-levels[next()] = '''
- N
- t      
- t    m
- t    c
- t    c
- ccccccb
-'''
-
-loadings[this()] = '''
- k
- j      
- i    n
- h    m
- g    l
- fedcba0
-'''
-
-levels[next()] = '''
- Wtcccc        l
-      c    d   y
-      c----m   y
-      cccccccccm
-        tt
-        tt
-        c
-     byyy
-'''
-
-loadings[this()] = '''
- fedcba        f
-      9    a   e
-      8----9   d
-      7656789abc
-        41
-        32
-        4
-     8765
 '''
 
 levels[next()] = '''
@@ -1663,8 +1980,31 @@ dd--------------
 --------------21
 '''
 
-#START_LEVEL = this() - 2
+levels[next()] = '''
+dnd-------ddddd-
+dyd------dcycyd-
+dcdddddddcyddcd-
+dycycycycyd-dyd-
+dddddddddd--dcd-
+------------dyd-
+--dddddddddddcd-
+-bcycycycycycyd-
+--ddddddddddddd
+'''
 
+levels[next()] = '''
+dnd-------ddddd-
+dyd------dcycrd-
+dcdddddddcyddcd-
+dycycycycyd-dyd-
+dddddddddd--dcd-
+------------dyd-
+--dddddddddddcd-
+-bcycycycycycyd-
+--ddddddddddddd
+'''
+
+START_LEVEL = 1
 
 if __name__ == '__main__':
 	verify_levels(levels, loadings)

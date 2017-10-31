@@ -14,12 +14,8 @@ class ShakeAndTilt:
 		
 		if self.active:
 			raise Exception('Cant start, already started')
-		
-		try:
-			motion.start_updates()
-		except Exception as e:
-			raise Exception('Cannot start motion detection: {0}'.format(e))
-		
+			
+		motion.start_updates()
 		self.active = True
 		
 	def stop(self):

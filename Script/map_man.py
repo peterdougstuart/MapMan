@@ -19,7 +19,7 @@ from game_menu import MainMenu
 from game_menu import EndGameMenu
 from game_menu import EndLevelMenu
 from game_menu import LoseLifeMenu
-from game_menu import ContinueMenu
+from game_menu import RestartMenu
 from game_menu import PurchaseMenu
 from game_menu import FirstPlayMenu
 from game_menu import ConfirmProductMenu
@@ -93,6 +93,10 @@ class Game (Scene):
 	POINTS_PER_LEVEL = 10
 	SIMULATE_TILT = 'simulate_tilt.txt'
 	
+	def __init__(self):
+		self.set_up_complete = False
+		Scene.__init__(self)
+		
 	def load_simulated(self):
 		
 		if not os.path.isfile(Game.SIMULATE_TILT):
@@ -112,6 +116,7 @@ class Game (Scene):
 	def setup(self):
 
 		self.purchase_to_play = False
+		self.purchase_to_continue = False
 		self.game_active = False
 		
 		self.set_background()
@@ -152,9 +157,12 @@ class Game (Scene):
 		
 		self.set_up_player()
 		self.load_highscore()
+		self.load_continues()
 		self.load_check_points()
 		self.show_start_menu()
-
+		
+		self.set_up_complete = True
+		
 	def stop(self):
 		self.music.stop()
 
@@ -282,6 +290,9 @@ class Game (Scene):
 		self.map.load_level(selected_levels[level], loading, delay, check_point, x_hides)
 		
 	def update(self):
+		
+		if not self.set_up_complete:
+			return
 			
 		self.bottom_bar.timer.update()
 		self.music.restart()
@@ -513,10 +524,16 @@ class Game (Scene):
 			self.bottom_bar.set_time_message(message)
 		else:
 			self.bottom_bar.set_time_message('')
-	
-	#def touch_began(self, touch):
-	#	self.background_gradient.scale = 0
-				
+
+	def use_continue(self):
+		
+		if self.continues < 1:
+			return
+			
+		self.continues -= 1
+		self.save_contiues()
+		self.new_game(level=self.level_display.level)
+		
 	def reset_all(self, reset_stars=True):
 			
 			if reset_stars:
@@ -769,13 +786,13 @@ class Game (Scene):
 		
 		self.music.play_menu()
 		
-		self.menu = MainMenu(self.highscore, self.purchase_to_play)
+		self.menu = MainMenu(self.highscore, self.continues)
 		self.present_modal_scene(self.menu)
 		
-	def show_continue_menu(self):
+	def show_restart_menu(self):
 		
 		self.music.play_menu()
-		self.menu = ContinueMenu(self.check_points)
+		self.menu = RestartMenu(self.check_points)
 		self.present_modal_scene(self.menu)
 
 	def load_first_play(self):
@@ -802,6 +819,13 @@ class Game (Scene):
 		except:
 			self.highscore = 0
 
+	def load_continues(self):
+		try:
+			with open('.continues', 'r') as f:
+				self.continues = int(f.read())
+		except:
+			self.continues = 0
+			
 	def load_check_points(self):
 		
 		self.check_points = {}
@@ -828,11 +852,18 @@ class Game (Scene):
 		except:
 			
 			pass
-
+	
+	def add_continue(self, number=1):
+		self.continues += number
+		self.save_contiues()
+		
 	def purchase_product(self, product):
 		
 		self.dismiss_modal_scene()
-		self.menu = MakePurchaseMenu(product, self.purchase_to_play)
+		
+		self.menu = MakePurchaseMenu(product, purchase_to_play=self.purchase_to_play, purchase_to_continue=self.purchase_to_continue,
+		add_continue=self.add_continue)
+		
 		self.present_modal_scene(self.menu)
 		
 	def product_selected(self, product):
@@ -846,7 +877,7 @@ class Game (Scene):
 		title = title.lower()
 		
 		
-		if title in ['play','new game', 'play game']:
+		if title in ['play','new game', 'play game','play from start']:
 			
 			self.dismiss_modal_scene()
 			
@@ -862,6 +893,7 @@ class Game (Scene):
 				self.dismiss_modal_scene()
 				self.menu = None
 				self.purchase_to_play = False
+				self.purchase_to_continue = False
 				self.bottom_bar.show()
 				self.lives_display.show()
 				self.points_display.show()
@@ -872,17 +904,17 @@ class Game (Scene):
 				self.dismiss_modal_scene()
 				self.show_purchase_to_play_menu()
 			
-		elif title == 'continue':
+		elif title == 'restart from checkpoint':
 			self.dismiss_modal_scene()
-			self.show_continue_menu()
-		elif 'checkpoint' in title and not 'checkpoints' in title:
+			self.show_restart_menu()
+		elif len(title) == 3 and title[0] == 'l':
 			
 			if self.can_use_checkpoints():
 				
 				self.dismiss_modal_scene()
 				self.menu = None
-				data = title.replace(' ','').split('-l')
-				level = int(data[1])+1
+				data = title.replace('l','')
+				level = int(data)
 				self.new_game(level=level)
 				
 			else:
@@ -898,9 +930,10 @@ class Game (Scene):
 			self.show_purchase()
 		elif title == 'tweet pb':
 			ScoreTweet(self.highscore)
-			self.dismiss_modal_scene()
-			self.show_start_menu()
-		elif title == 'main menu':
+			self.menu.remove_tweet_pb()
+		elif title in ['main menu', 'main menu (end game)']:
+			self.purchase_to_play = False
+			self.purchase_to_continue = False
 			self.dismiss_modal_scene()
 			self.show_start_menu()
 		elif title in ['next level','play next level']:
@@ -911,6 +944,13 @@ class Game (Scene):
 			self.reset_all(False)
 			self.menu = None
 			self.dismiss_modal_scene()
+		elif title == 'use continue':
+			self.purchase_to_continue = False
+			self.use_continue()
+			self.menu = None
+			self.dismiss_modal_scene()
+		elif title == 'purchase continue':
+			self.show_purchase_to_continue()
 		elif title == 'exit':
 			sys.exit()
 		
@@ -926,8 +966,13 @@ class Game (Scene):
 
 	def show_purchase(self):
 		
-		self.menu = PurchaseMenu()
+		self.menu = PurchaseMenu(purchase_to_play=self.purchase_to_play, purchase_to_continue=self.purchase_to_continue)
 		self.present_modal_scene(self.menu)
+		
+	def show_purchase_to_continue(self):
+		
+		self.purchase_to_continue = True
+		self.show_purchase()
 		
 	def show_level_complete(self, check_point):
 		
@@ -986,6 +1031,11 @@ class Game (Scene):
 		with open('.map_man_highscore', 'w') as f:
 			f.write(str(self.highscore))
 
+	def save_contiues(self):
+		
+		with open('.continues', 'w') as f:
+			f.write(str(self.continues))
+			
 	def save_check_points(self):
 		
 		with open('.map_man_check_point', 'w') as f:
@@ -1042,7 +1092,7 @@ class Game (Scene):
 		else:
 			pb = False
 			
-		self.menu = EndGameMenu(self.points_display.score, pb)
+		self.menu = EndGameMenu(self.points_display.score, pb, self.continues)
 		self.present_modal_scene(self.menu)
 	
 	def present_modal_scene(self, menu):

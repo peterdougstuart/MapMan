@@ -5,23 +5,22 @@ from scaler import Scaler
 
 class Effect(object):
 	
-	SCALE = 0.5
-	FOLDER = 'Effects'
+	SCALE = 1.0
 	
 	def __init__(self, parent):
 		
-		self.scale = Effect.SCALE * Scaler.get_scale()
+		self.scale = Effect.SCALE * Scaler.Effect
 		
-		self.off_texture = self.create_texture('off.png')
-		self.reverse_texture = self.create_texture('reverse.png')
-		self.vanish_texture = self.create_texture('vanish.png')
-		self.sticky_texture = self.create_texture('sticky.png')
-		self.points_texture = self.create_texture('points.png')
-		self.more_time_texture = self.create_texture('more_time.png')
-		self.less_time_texture = self.create_texture('less_time.png')
-		self.life_texture = self.create_texture('life.png')
-		self.hide_texture = self.create_texture('hide.png')
-		self.unhide_texture = self.create_texture('unhide.png')
+		self.off_texture = self.create_texture(Scaler.get_effect_path('off.png'))
+		self.reverse_texture = self.create_texture(Scaler.get_effect_path('reverse.png'))
+		self.vanish_texture = self.create_texture(Scaler.get_effect_path('vanish.png'))
+		self.sticky_texture = self.create_texture(Scaler.get_effect_path('sticky.png'))
+		self.points_texture = self.create_texture(Scaler.get_effect_path('points.png'))
+		self.more_time_texture = self.create_texture(Scaler.get_effect_path('more_time.png'))
+		self.less_time_texture = self.create_texture(Scaler.get_effect_path('less_time.png'))
+		self.life_texture = self.create_texture(Scaler.get_effect_path('life.png'))
+		self.hide_texture = self.create_texture(Scaler.get_effect_path('hide.png'))
+		self.unhide_texture = self.create_texture(Scaler.get_effect_path('unhide.png'))
 				
 		self.node = SpriteNode(self.off_texture)
 		self.node_top = SpriteNode(self.off_texture)
@@ -33,17 +32,20 @@ class Effect(object):
 		self.node_top.anchor_point = (0, 0)
 		self.node_bottom.anchor_point = (0, 0)
 		
-		self.node.position = (5 * Scaler.get_scale(), 2 * Scaler.get_scale())
-		self.node_top.position = (25 * Scaler.get_scale(), 42 * Scaler.get_scale()) 
-		self.node_bottom.position = (25 * Scaler.get_scale(), 2 * Scaler.get_scale()) 
+		self.node.position = (5 * Scaler.Bottom_bar, 2 * Scaler.Bottom_bar)
+		self.node_top.position = (25 * Scaler.Bottom_bar, 42 * Scaler.Bottom_bar)
+		self.node_bottom.position = (25 * Scaler.Bottom_bar, 2 * Scaler.Bottom_bar) 
 		
 		self.parent = parent
 		self.parent.add_child(self.node)
 		self.parent.add_child(self.node_top)
 		self.parent.add_child(self.node_bottom)
 	
-	def create_texture(self,image):
-		return Texture(os.path.join(Effect.FOLDER, image))
+	def create_texture(self, image):
+		try:
+			return Texture(image)
+		except:
+			raise Exception('Cannot load image: {0}'.format(image))
 
 	def reverse_and_vanish(self):
 		self.show_double()

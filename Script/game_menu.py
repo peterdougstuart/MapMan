@@ -32,7 +32,7 @@ class ScoreLabelNode(LabelNode):
 		
 		self.base_text = base_text
 		
-		button_font = (font.BUTTON, int(20*Scaler.get_scale()))
+		button_font = (font.BUTTON, int(20*Scaler.Menu))
 		
 		LabelNode.__init__(self, text='', font=button_font, color='#ffffff', parent =parent)
 
@@ -51,6 +51,30 @@ class ScoreLabelNode(LabelNode):
 	
 	def make_score_text(self, score):
 		return '{0} {1} {2} {1}'.format(self.base_text, font.STAR, score)
+
+class ContinuesLabelNode(LabelNode):
+	
+	def __init__(self, parent, continues):
+		
+		label_font = (font.BUTTON, int(20*Scaler.Menu))
+		
+		LabelNode.__init__(self, text='', font=label_font, color='#ffffff', parent =parent)
+
+		self.anchor_point = (0.5,0.5)
+		
+		self.position=(0, -parent.size.h/2-self.size.h*2)
+		
+		self.set_continues(continues)
+	
+	def add_continues(self, continues):
+		self.set_score(self.continues + continues)
+		
+	def set_continues(self, continues):
+		self.continues = continues
+		self.text = self.make_continues_text(continues)
+	
+	def make_continues_text(self, continues):
+		return 'continues {0}'.format(self.continues)
 		
 class EmphasiseText:
 	
@@ -82,7 +106,7 @@ class EmphasiseText:
 			for i in range(len(self.nodes)):
 				node = self.nodes[i]
 				#node.color = '#e28c9b'
-				node.font = (node.font[0], int(30*Scaler.get_scale()))
+				node.font = (node.font[0], int(30*Scaler.Menu))
 			
 			self.on = True
 			
@@ -131,17 +155,17 @@ class InfoNode (SpriteNode):
 		
 		SpriteNode.__init__(self, parent=parent)
 		
-		button_font = (font.BUTTON, int(20*Scaler.get_scale()))
+		button_font = (font.BUTTON, int(20*Scaler.Menu))
 		
 		self.heading_label = LabelNode(info[0], font=button_font, color='#71c0e2', position=(0, 5), parent=self)
 		
-		self.info_label = self.new_info_label(info[1], font=button_font, color='#000000', position=(0, -20*Scaler.get_scale()), parent=self)
+		self.info_label = self.new_info_label(info[1], font=button_font, color='#000000', position=(0, -20*Scaler.Menu), parent=self)
 		
 		if len(info) >= 3:
-			self.heading_label.font = (button_font[0], info[2]*Scaler.get_scale())
+			self.heading_label.font = (button_font[0], info[2]*Scaler.Menu)
 
 		if len(info) >= 4:
-			self.info_label.font = (button_font[0], info[3]*Scaler.get_scale())
+			self.info_label.font = (button_font[0], info[3]*Scaler.Menu)
 			
 		self.size = (self.parent.size.w * 0.8, self.heading_label.size.h + self.info_label.size.h)
 
@@ -169,21 +193,37 @@ class ButtonNode (LabelNode):
 		
 		self.untouch_color = '#71c0e2'
 		self.touch_color = '#e28c9b'
-		self.untouch_font_size = 20*Scaler.get_scale()
-		self.touch_font_size = 25*Scaler.get_scale()
+		self.untouch_font_size = 20*Scaler.Menu
+		self.touch_font_size = 25*Scaler.Menu
 		
 		button_font = (font.BUTTON, self.untouch_font_size)
 		
 		text = title
 		
-		while len(text) < 20:
-			text = ' {0} '.format(text)
-			
+		#while len(text) < 20:
+		#	text = ' {0} '.format(text)
+		
 		LabelNode.__init__(self, text, font=button_font, color=self.untouch_color, position=(0, 0), parent=parent)
 		
-		self.anchor_point = (0.5,1)
+		self.anchor_point = (0.5, 1)
 		self.enabled = True
+		
+		self.spacer = None
 	
+	def add_spacer(self):
+		
+		self.spacer = LabelNode('—----',font=self.font, color=self.untouch_color, position=(0, 0), parent=self.parent)
+		self.spacer.anchor_point = (0.5, 1)
+		
+		self.set_position(self.position)
+		
+	def set_position(self, position):
+		
+		self.position = position
+		
+		if not self.spacer is None:
+			self.spacer.position = (self.position.x, self.position.y + self.size.h)
+		
 	def set_title(self, title):
 		self.title = title
 		self.text = title
@@ -204,14 +244,20 @@ class ButtonNode (LabelNode):
 		
 class MenuScene (Scene):
 	
-	def __init__(self, title, button_titles, infos=[], title_size=60, y_position_delta=0):
+	def __init__(self, title, button_titles, infos=[], title_size=60, button_delta=None):
 		
+		if button_delta is None:
+			button_delta = 40
+			
 		Scene.__init__(self)
+
+		self.info_delta = 60*Scaler.Menu
+		self.button_delta = button_delta*Scaler.Menu
 		
 		self.title = title
 		self.button_titles = button_titles
 		self.infos = infos
-		self.title_size = title_size*Scaler.get_scale()
+		self.title_size = title_size*Scaler.Menu
 
 	def above_height(self):
 		if len(self.title_label.text) > 0:
@@ -241,22 +287,22 @@ class MenuScene (Scene):
 		new_position = (x, y)
 		
 		self.menu_bg.position = new_position
+	
+	def get_width(self):
+		return 240
 		
 	def setup(self):
 		
 		title_font = (font.TITLE, self.title_size)
 		
-		info_delta = 60*Scaler.get_scale()
-		button_delta = 40*Scaler.get_scale()
-		
-		number_of_buttons = len(self.button_titles)
-		number_of_infos = len(self.infos)
+		self.number_of_buttons = len(self.button_titles)
+		self.number_of_infos = len(self.infos)
 				
 		self.bg = SpriteNode(color=palette.BASE_BG, parent=self)
 
 		self.background_gradient = Gradient(self)
 		
-		bg_shape = ui.Path.rounded_rect(0, 0, 240*Scaler.get_scale(), number_of_buttons * button_delta + number_of_infos * info_delta+10*Scaler.get_scale(), 16*Scaler.get_scale())
+		bg_shape = ui.Path.rounded_rect(0, 0, self.get_width()*Scaler.Menu, self.get_height(), 16*Scaler.Menu)
 		
 		bg_shape.line_width = 0
 		
@@ -277,17 +323,18 @@ class MenuScene (Scene):
 			
 			node.anchor_point = (0.5, 1)
 			
-			node.position = 0, self.menu_bg.size.h/2 - (i+0.5) * info_delta
+			node.position = 0, self.menu_bg.size.h/2 - (i+0.5) * self.info_delta
 			
 			self.info_nodes.append(node)
-
+		
+		self.info_space = self.number_of_infos * self.info_delta
+		
 		for i, title in enumerate(self.button_titles):
 			
 			btn = self.new_button_node(self.menu_bg, title)
 			
 			btn.anchor_point = (0.5, 1)
-			
-			btn.position = 0, self.menu_bg.size.h/2 - (i+0.5) * button_delta - number_of_infos * info_delta
+			btn.set_position(self.button_position(i))
 			
 			self.buttons.append(btn)
 			
@@ -296,6 +343,12 @@ class MenuScene (Scene):
 		self.bg.alpha = 0
 		self.bg.run_action(Action.fade_to(1))
 	
+	def get_height(self):
+		return self.number_of_buttons * self.button_delta + self.number_of_infos * self.info_delta+10*Scaler.Menu
+
+	def button_position(self, index):
+		return (0, self.menu_bg.size.h/2 - (index+0.5) * self.button_delta - self.info_space)
+		
 	def new_button_node(self, parent, title):
 		return ButtonNode(title, parent=parent)
 		
@@ -305,7 +358,7 @@ class MenuScene (Scene):
 
 	def did_change_size(self):
 		
-		self.bg.size = self.size + (2, 2)*Scaler.get_scale()
+		self.bg.size = self.size + (2, 2)*Scaler.Menu
 		self.bg.position = self.size/2
 		
 		self.center()
@@ -341,30 +394,51 @@ class MenuScene (Scene):
 	def show_menu(self, menu):
 		self.presenting_scene.menu_button_selected(menu)
 	 	
-class ContinueMenu(MenuScene):
+class RestartMenu(MenuScene):
 	
 	def __init__(self, check_points):
 		
 		buttons = []
 		self.enables = []
 		
+		sorted_check_points = sorted(check_points)
+		
 		for level in sorted(check_points):
 			
 			check_point = check_points[level]
-			buttons.append('Checkpoint - L{0}'.format(check_point.level))
+			buttons.append('L{0}'.format(check_point.level))
 			self.enables.append(check_point.complete)
 			
 		buttons.append('main menu')
 		infos = []
 		
-		infos.append(('select checkpoint', ''))
+		infos.append(('select checkpoint', 'to restart game'))
 		
-		MenuScene.__init__(self,'Continue', buttons, infos=infos, y_position_delta=-20)
+		MenuScene.__init__(self, 'Restart', buttons, infos=infos)
+
+	def get_height(self):
+		return MenuScene.get_height(self) * 0.5
+		
+	def button_position(self, index):
+		
+		if index < 8:
+			if index < 4:
+				x = -50
+			else:
+				x = 50
+				index -= 4
+		else:
+			x = 0
+			index = 4
+			
+		return (x, self.menu_bg.size.h/2 - (index+0.5) * self.button_delta * 0.75 - self.info_space)
 		
 	def setup(self):
 			
 		MenuScene.setup(self)
-			
+		
+		self.info_nodes[0].info_label.color = self.info_nodes[0].heading_label.color
+		
 		for i in range(len(self.enables)):
 			if not self.enables[i]:
 				self.buttons[i].disable()
@@ -400,7 +474,11 @@ class PurchaseToPlayMenu(MenuScene):
 	def setup(self):
 		MenuScene.setup(self)
 		self.info_nodes[0].heading_label.color = '#000000'
-		
+
+	def touch_ended(self, touch):
+		if not MenuScene.touch_ended(self, touch):
+			self.show_menu('okay')
+				
 class PurchaseToCheckpointMenu(PurchaseToPlayMenu):
 	
 	def get_description(self):
@@ -423,15 +501,12 @@ class FirstPlayMenu(MenuScene):
 		
 class MainMenu(MenuScene):
 	
-	def __init__(self, high_score, purchase_to_play = False):
+	def __init__(self, high_score, continues):
 		
 		self.high_score = high_score
-		self.purchase_to_play = purchase_to_play
+		self.continues = continues
 		
-		if self.purchase_to_play:
-			buttons = ['resume', 'new game']
-		else:
-			buttons = ['play', 'continue', 'tutorial']
+		buttons = ['play from start', 'restart from checkpoint', 'tutorial']
 			
 		buttons += ['purchase', 'credits']
 		
@@ -442,6 +517,9 @@ class MainMenu(MenuScene):
 		
 		MenuScene.__init__(self, '', buttons, infos)
 
+	def get_width(self):
+		return 360
+		
 	def above_height(self):
 
 		if self.man is not None:
@@ -462,14 +540,14 @@ class MainMenu(MenuScene):
 		
 		self.score_label = ScoreLabelNode(parent=self.menu_bg, score=self.high_score, base_text='best score')
 		
-		man_texture = Texture(os.path.join('Man','Idle', 'MapMan-idle-FRONT-2.png'))
+		man_texture = Texture(Scaler.get_idle_path('front.png'))
 		
 		self.man = SpriteNode(parent=self.menu_bg,texture=man_texture)
 		self.man.anchor_point=(0,0)
 		
 		ratio = self.man.size.w / self.menu_bg.size.w
 		
-		ratio_target = 0.2
+		ratio_target = 0.15
 		
 		self.man.scale = ratio_target / ratio
 		
@@ -477,7 +555,12 @@ class MainMenu(MenuScene):
 		
 		self.did_change_size()
 
-class ConfirmProductMenu(MenuScene):
+class PurchaseMenuBase(MenuScene):
+	
+	def get_width(self):
+		return 400
+		
+class ConfirmProductMenu(PurchaseMenuBase):
 	
 	def __init__(self, product):
 		
@@ -514,16 +597,21 @@ class ConfirmProductMenu(MenuScene):
 	 		self.presenting_scene.menu_button_selected(menu)
 	 	else:
 			self.presenting_scene.purchase_product(self.product)
-
-class MakePurchaseMenu(MenuScene):
+		
+class MakePurchaseMenu(PurchaseMenuBase):
 	
-	def __init__(self, product, purchase_to_play=False):
+	def __init__(self, product, purchase_to_play=False, purchase_to_continue=False, add_continue=None):
 		
 		self.product = product
 		self.purchase_to_play = purchase_to_play
+		self.purchase_to_continue = purchase_to_continue
+		self.add_continue = add_continue
 		
 		infos = [(product.title, 'processing')]
-		buttons = ['...']
+		buttons = ['...', 'main menu']
+		
+		if self.purchase_to_play or self.purchase_to_continue:
+			buttons[1] = 'main menu (end game)'
 		
 		MenuScene.__init__(self, 'Thanks', buttons, infos=infos)
 		
@@ -533,25 +621,40 @@ class MakePurchaseMenu(MenuScene):
 	
 	def set_button(self, success):
 		
-		check_points = (self.product.title.lower() == 'checkpoints')
-		
 		button = self.buttons[0]
 		
-		if (not self.purchase_to_play) or (not success) or check_points:
-			button.set_title('purchase menu')
+		if success:
+			if self.purchase_to_play:
+				button.set_title('resume game')
+			elif self.purchase_to_continue:
+				button.set_title('use continue')
+			else:
+				button.set_title('purchase menu')
 		else:
-			button.set_title('resume game')
-			
+			button.set_title('purchase menu')
+	
 	def purchase_successful(self, product_identifier):
 		
 		self.set_message('successful')
 		self.set_button(True)
+		self.process_continues(product_identifier)
 
 	def purchase_restored(self, product_identifier):
 		
 		self.set_message('restored')
 		self.set_button(True)
+		self.process_continues(product_identifier)
+	
+	def process_continues(self, product_identifier):
 		
+		if self.add_continue is None:
+			return
+			
+		if product_identifier.lower() == 'com.mapman.one_continue':
+			self.add_continue(1)
+		elif product_identifier.lower() == 'com.mapman.three_continues':
+			self.add_continue(3)
+				
 	def purchase_failed(self, product_identifier):
 		self.title_label.text = 'Sorry'
 		self.set_message('failed')
@@ -560,9 +663,14 @@ class MakePurchaseMenu(MenuScene):
 	def set_message(self, message):
 		self.info_nodes[0].info_label.text = message
 		
-class PurchaseMenu(MenuScene):
+class PurchaseMenu(PurchaseMenuBase):
 	
-	def __init__(self):
+	def __init__(self, 
+	purchase_to_play=False,
+	purchase_to_continue=False):
+		
+		self.purchase_to_play = purchase_to_play
+		self.purchase_to_continue = purchase_to_continue
 		
 		products_controller = ProductsController.get()
 		
@@ -580,29 +688,118 @@ class PurchaseMenu(MenuScene):
 			if products_controller.validated:
 			
 				for product in products_controller.get_products():
+					
+					if self.include_product(product):
+						
+						if product.purchased and not product.consumable:
 							
-					if product.purchased:
+							price = font.TICK
+						
+						else:
 							
-						price = font.TICK
+							price = product.price
 						
-					else:
-							
-						price = product.price
+						button_title = '{0}: {1}'.format(product.title, price)
 						
-					button_title = '{0}: {1}'.format(product.title, price)
+						buttons.append(button_title)
 						
-					buttons.append(button_title)
-						
-					self.products[button_title] = 	product
+						self.products[button_title] = 	product
 					
 			else:
 				
 				infos.append(('could not validate', 'try again later'))
-			
-		buttons.append('main menu')
 		
-		MenuScene.__init__(self, 'Purchase', buttons, infos)
+		if self.purchase_to_continue or self.purchase_to_play:
+			buttons.append('main menu (end game)')
+		else:
+			buttons.append('main menu')
+		
+		if len(buttons) >= 8:
+			self.relayout = True
+			button_delta = 35
+		else:
+			self.relayout = False
+			button_delta = 30
+			
+		MenuScene.__init__(self, 'Purchase', buttons, infos, button_delta = button_delta)
+		
+	def button_position(self, index):
+		
+		position = PurchaseMenuBase.button_position(self, index)
+		
+		if self.relayout:
+			
+			if index < 4:
+				
+				return (position[0]-75, position[1])
+				
+			elif index == 4:
+				
+				return (self.buttons[0].position.x + self.buttons[0].size.w + 10, self.buttons[0].position.y-self.buttons[0].size.h/2)
+				
+			elif index <= 6:
+				
+				return (position[0], position[1] + self.buttons[0].size.h * 1.5)
+				
+			else:
+				
+				return (position[0], position[1] + self.buttons[0].size.h *1.5)
+			
+		else:
+			
+			return position
 
+	def get_height(self):
+		
+		height = PurchaseMenuBase.get_height(self)
+		
+		if self.relayout:
+			return height - self.button_delta
+		else:
+			return height
+		
+	def setup(self):
+		
+		PurchaseMenuBase.setup(self)
+		
+		if self.relayout:
+			text = self.buttons[4].text
+			text = text.replace('& ', '&\n')
+			text = text.replace('All ','All\n')
+			text = text.replace('check','check\n')
+			text = text.replace(':','\nbundle:')
+			self.buttons[4].text = text
+			
+	def include_product(self, product):
+		
+		if self.purchase_to_play:
+			if self.is_continue(product) or self.is_checkpoints(product):
+				return False
+			else:
+				return True
+		elif self.purchase_to_continue:
+			if self.is_continue(product):
+				return True
+			else:
+				return False
+		else:
+			return True
+		
+	def is_continue(self, product):
+		if product.identifier in ['com.mapman.one_continue']:
+			return True
+		else:
+			return False
+
+	def is_checkpoints(self, product):
+		if product.identifier in ['com.mapman.checkpoints']:
+			return True
+		else:
+			return False
+			
+	def get_width(self):
+		return 400
+		
 	def new_button_node(self, parent, title):
 		
 		button = MenuScene.new_button_node(self, parent, title)
@@ -619,7 +816,7 @@ class PurchaseMenu(MenuScene):
 			
 	def show_menu(self, menu):
 	 	
-	 	if menu.lower() == 'main menu':
+	 	if menu.lower() in ['main menu', 'main menu (end game)']:
 	 		self.presenting_scene.menu_button_selected(menu)
 	 		
 	 	else:
@@ -768,18 +965,29 @@ class LoseLifeMenu(MenuScene):
 	
 	def __init__(self, lives):
 		
-		buttons = ['Try Again']
+		buttons = ['try again']
 
 		infos = []
 		infos.append(('life lost', '{0} lives remaining'.format(lives)))
 						
 		MenuScene.__init__(self, 'Oh No!', buttons, infos=infos, title_size=60)
-		
+
+	def touch_ended(self, touch):
+		if not MenuScene.touch_ended(self, touch):
+			self.show_menu('try again')
+					
 class EndGameMenu(MenuScene):
 	
-	def __init__(self, score, pb):
+	def __init__(self, score, pb, continues):
 		
-		buttons = ['main menu']
+		self.continues = continues
+		
+		if self.continues < 1:
+			buttons = ['purchase continue']
+		else:
+			buttons = ['use continue']
+		
+		buttons += ['main menu (end game)']
 		
 		if pb:
 			buttons = ['tweet PB'] + buttons
@@ -792,4 +1000,15 @@ class EndGameMenu(MenuScene):
 		infos = [('Your Score', score_text)]
 		
 		MenuScene.__init__(self, 'Game Over', buttons, infos, title_size=40)
+	
+	def remove_tweet_pb(self):
+		self.buttons[0].set_title('pb tweeted')
+	
+	def get_width(self):
+		return 250
 		
+	def setup(self):
+		
+		MenuScene.setup(self)
+		
+		self.continue_label = ContinuesLabelNode(self.menu_bg, self.continues)

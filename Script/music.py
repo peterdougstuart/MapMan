@@ -9,8 +9,6 @@ from sound import stop_effect
 from sound import Player
 from time import sleep
 
-#https://www.freefileconvert.com/mp3-caf
-
 class Music:
 
 	def __init__(self):
@@ -74,10 +72,8 @@ class Music:
 		file = os.path.join('GameMusic', file)
 
 		if not os.path.isfile(file):
-			print "Music not found: {0}".format(file)
-			return
+			raise Exception('Music not found: {0}'.format(file))
 
-		#self.player = MyPlayer(file)
 		self.player = Player(file)
 		self.player.play()
 		
@@ -89,21 +85,3 @@ class Music:
 		if not self.player is None:
 			self.player.stop()
 			
-class MyPlayer:
-	
-	def __init__(self, file):
-		self.effect_id = None
-		self.file = file
-		
-	def play(self):
-			
-		self.stop()
-
-		self.effect_id = play_effect(self.file)
-
-	def stop(self):
-		
-		if self.effect_id is None:
-			return
-			
-		stop_effect(self.effect_id)

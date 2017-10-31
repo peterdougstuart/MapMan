@@ -177,8 +177,8 @@ class Map:
 		self.hides = {}
 		self.unhides = {}
 		
-		self.tile_w = 32 * Scaler.get_scale()
-		self.tile_h = 23 * Scaler.get_scale()
+		self.tile_w = Scaler.Tile_size_x
+		self.tile_h = Scaler.Tile_size_y
 	
 	def unload(self):
 		
@@ -473,7 +473,7 @@ class Map:
 		else:
 			loading_lines = None
 		
-		self.min_y = self.game.size.h/2 - len(lines) * self.tile_h/2 + 50 * Scaler.get_scale()
+		self.min_y = self.game.size.h/2 - len(lines) * self.tile_h/2 + Scaler.Tile_size_y * 2
 		
 		max_columns = 0
 		

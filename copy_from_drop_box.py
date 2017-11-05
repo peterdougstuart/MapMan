@@ -71,6 +71,7 @@ sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png']
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Checkpoint')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Gradients')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.caf'], sub_folder='GameMusic')
+sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.caf'], sub_folder='SoundEffects')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Man', 'Death'))
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Man', 'Frames'))
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Man', 'Idle'))

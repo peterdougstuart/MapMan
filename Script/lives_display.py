@@ -1,13 +1,13 @@
 # coding: utf-8
 
-from scene import *
+from scene import LabelNode
+from scene import Texture
 import font
 from scaler import Scaler
 
 class LivesDisplay(object):
 	
 	INITIAL_LIVES = 3
-	SCALE = 1.0
 	
 	def __init__(self, parent):
 		
@@ -21,7 +21,7 @@ class LivesDisplay(object):
 		self.lives_label.scale = 0
 		
 	def show(self):
-		self.lives_label.scale = 1
+		self.lives_label.scale = self.lives_base_scale
 		
 	def reset(self):
 		self.lives = LivesDisplay.INITIAL_LIVES
@@ -34,7 +34,7 @@ class LivesDisplay(object):
 		
 		if not self.parent.tutorial:
 			self.lives_label.text = self.lives_text()
-			self.heart.scale = LivesDisplay.SCALE
+			self.heart.scale = self.heart_base_scale
 		else:
 			self.lives_label.text = ''
 			self.heart.scale = 0
@@ -46,12 +46,15 @@ class LivesDisplay(object):
 		
 		self.lives_label = LabelNode('', font=(font.LIVES_DISPLAY, 40), position=(x, y), parent=self.parent)
 		self.lives_label.anchor_point=(1, 0.5)
-
-		heart = Scaler.get_heart_path('heart.png')
+		self.lives_base_scale = self.lives_label.scale
 		
-		self.heart = SpriteNode(heart)
+		heart = Texture(Scaler.get_heart_path('heart.png'))
+		
+		self.heart = Scaler.new_sprite(heart)
 		self.heart.anchor_point = (0.5, 0.5)
 		self.heart.position = (x + 18, y + 2)
+		
+		self.heart_base_scale = self.heart.scale
 		self.heart.scale = 0
 		
 		self.parent.add_child(self.heart)

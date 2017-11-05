@@ -14,6 +14,7 @@ import player
 import sys
 import time
 
+from game_menu import PauseMenu
 from game_menu import CreditsMenu
 from game_menu import MainMenu
 from game_menu import EndGameMenu
@@ -118,6 +119,7 @@ class Game (Scene):
 		self.purchase_to_play = False
 		self.purchase_to_continue = False
 		self.game_active = False
+		self.paused = False
 		
 		self.set_background()
 		self.load_first_play()
@@ -152,8 +154,8 @@ class Game (Scene):
 		self.lives_display = LivesDisplay(parent=self)
 		self.points_display = PointsDisplay(parent=self)
 		
+		#self.game_node = Node(parent=self)
 		self.map = map.Map(self)
-		self.game_node = Node(parent=self)
 		
 		self.set_up_player()
 		self.load_highscore()
@@ -290,7 +292,7 @@ class Game (Scene):
 		self.map.load_level(selected_levels[level], loading, delay, check_point, x_hides)
 		
 	def update(self):
-		
+			
 		if not self.set_up_complete:
 			return
 			
@@ -333,13 +335,19 @@ class Game (Scene):
 	def touch_began(self, touch):
 		
 		if not self.simulate_tilt:
-			return
-		
-		self.simulated_tilt = SimulatedTilt(self.size, touch)
+				return
+		else:
+			self.simulated_tilt = SimulatedTilt(self.size, touch)
 
 	def touch_ended(self, touch):
-		
-		self.simulated_tilt = None 
+
+		if not self.simulate_tilt:
+			if self.paused:
+				return
+			else:
+				self.show_pause_menu()
+		else:
+			self.simulated_tilt = None 
 		
 	def move_player(self):
 		
@@ -672,7 +680,8 @@ class Game (Scene):
 		if not check_point:
 			sound.play_effect('rpg:DoorClose_1')
 		else:
-			sound.play_effect('game:Crashing', 1.0)
+			self.music.pause(datetime.timedelta(seconds=3))
+			sound.play_effect(os.path.join('SoundEffects','checkpoint.caf'))
 			
 		self.show_level_complete(check_point)
 	
@@ -781,6 +790,13 @@ class Game (Scene):
 	
 	def can_use_checkpoints(self):
 		return ProductsController.get().checkpoints.purchased
+
+	def show_pause_menu(self):
+		
+		self.bottom_bar.timer.stop()
+		self.paused = True
+		self.menu = PauseMenu()
+		self.present_modal_scene(self.menu)
 		
 	def show_start_menu(self):
 		
@@ -936,6 +952,13 @@ class Game (Scene):
 			self.purchase_to_continue = False
 			self.dismiss_modal_scene()
 			self.show_start_menu()
+		elif title == 'end game':
+			self.purchase_to_play = False
+			self.purchase_to_continue = False
+			self.paused = False
+			self.game_over(False)
+			self.dismiss_modal_scene()
+			self.show_start_menu()
 		elif title in ['next level','play next level']:
 			self.menu = None
 			self.dismiss_modal_scene()
@@ -951,8 +974,11 @@ class Game (Scene):
 			self.dismiss_modal_scene()
 		elif title == 'purchase continue':
 			self.show_purchase_to_continue()
-		elif title == 'exit':
-			sys.exit()
+		elif title == 'unpause':
+			self.bottom_bar.timer.start()
+			self.menu = None
+			self.paused = False
+			self.dismiss_modal_scene()
 		
 	def show_first_play(self):
 		
@@ -1049,7 +1075,7 @@ class Game (Scene):
 			
 	def lose_life(self):
 		self.bottom_bar.timer.stop()
-		sound.play_effect('arcade:Explosion_2')
+		sound.play_effect(os.path.join('SoundEffects','pop.caf'))
 		self.player.show()
 		self.player.face_death()
 		self.dead = True
@@ -1070,7 +1096,7 @@ class Game (Scene):
 			else:
 				self.reset_all()
 				
-	def game_over(self):
+	def game_over(self, score=True):
 		
 		self.bottom_bar.hide()
 		self.map.unload()
@@ -1085,15 +1111,18 @@ class Game (Scene):
 		self.points_display.hide()
 		self.lives_display.hide()
 		
-		if self.points_display.score > self.highscore:
-			self.highscore = self.points_display.score
-			self.save_highscore()
-			pb = True
-		else:
-			pb = False
+		if score:
 			
-		self.menu = EndGameMenu(self.points_display.score, pb, self.continues)
-		self.present_modal_scene(self.menu)
+			if self.points_display.score > 	self.highscore:
+				self.highscore = self.points_display.score
+				self.save_highscore()
+				pb = True
+			else:
+				pb = False
+			
+			self.menu = EndGameMenu(self.points_display.score, pb, self.continues)
+			
+			self.present_modal_scene(self.menu)
 	
 	def present_modal_scene(self, menu):
 		Scene.present_modal_scene(self, menu)

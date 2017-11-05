@@ -1,4 +1,4 @@
-from scene import *
+from scene import LabelNode
 import font
 
 class WrappingLabelNode(LabelNode):

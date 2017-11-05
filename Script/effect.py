@@ -1,15 +1,11 @@
 # coding: utf-8
-from scene import *
+from scene import Texture
 import os.path
 from scaler import Scaler
 
 class Effect(object):
 	
-	SCALE = 1.0
-	
 	def __init__(self, parent):
-		
-		self.scale = Effect.SCALE * Scaler.Effect
 		
 		self.off_texture = self.create_texture(Scaler.get_effect_path('off.png'))
 		self.reverse_texture = self.create_texture(Scaler.get_effect_path('reverse.png'))
@@ -22,9 +18,11 @@ class Effect(object):
 		self.hide_texture = self.create_texture(Scaler.get_effect_path('hide.png'))
 		self.unhide_texture = self.create_texture(Scaler.get_effect_path('unhide.png'))
 				
-		self.node = SpriteNode(self.off_texture)
-		self.node_top = SpriteNode(self.off_texture)
-		self.node_bottom = SpriteNode(self.off_texture)
+		self.node = Scaler.new_sprite(self.off_texture)
+		self.base_scale = self.node.scale
+		
+		self.node_top = Scaler.new_sprite(self.off_texture)
+		self.node_bottom = Scaler.new_sprite(self.off_texture)
 				
 		self.hide_effect()
 		
@@ -95,11 +93,11 @@ class Effect(object):
 	def show_effect(self):
 		self.node_top.scale = 0
 		self.node_bottom.scale = 0
-		self.node.scale = self.scale
+		self.node.scale = self.base_scale
 
 	def show_double(self):
-		self.node_top.scale = 0.5 * self.scale
-		self.node_bottom.scale = 0.5 * self.scale
+		self.node_top.scale = 0.5 * self.base_scale
+		self.node_bottom.scale = 0.5 * self.base_scale
 		self.node.scale = 0
 		
 	def hide_effect(self):

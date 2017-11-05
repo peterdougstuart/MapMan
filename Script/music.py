@@ -12,10 +12,15 @@ from time import sleep
 class Music:
 
 	def __init__(self):
+		
 		self.player = None
 		self.menu = False
 		self.restart_call = None
 		self.duration = None
+		
+		self.paused = False
+		self.start_pause = None
+		self.pause_duration = None
 		
 	def play_menu(self):
 		
@@ -52,6 +57,11 @@ class Music:
 	
 	def restart(self):
 		
+		if self.paused:
+			self.check_pause()
+			if self.paused:
+				return
+				
 		if self.restart_call is None:
 			return
 		
@@ -79,7 +89,36 @@ class Music:
 		
 		self.duration = self.player.duration
 		self.start_time = datetime.datetime.now()
+		
+		self.paused = False
+		self.start_pause = None
+		self.pause_duration = None
+		
+	def pause(self, pause_duration):
+		
+		self.start_pause = datetime.datetime.now()
+		self.pause_duration = pause_duration
+		
+		self.paused = True
+		self.stop()
 	
+	def check_pause(self):
+		
+		if self.start_pause is None:
+			self.paused = False
+			return
+		
+		if (datetime.datetime.now() -self.start_pause) > self.pause_duration:
+			
+			self.start_time += self.pause_duration
+			
+			self.paused = False
+			self.pause_duration = None
+			self.start_pause = None
+			
+			if not self.player is None:
+				self.player.play()
+		
 	def stop(self):
 		
 		if not self.player is None:

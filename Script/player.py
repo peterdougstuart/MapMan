@@ -1,22 +1,17 @@
 # coding: utf-8
-from scene import *
-import os.path
+from scene import Texture
 from scaler import Scaler
 
 class Player (object):
 	
-	SCALE = 1.0
 	FOLDER = 'Man'
 	FRAMES_FOLDER = 'Frames'
 	IDLE_FOLDER = 'Idle'
+	
 	FRAMES = 14
+	DEATH_FRAMES = 21
 	
 	def __init__(self, parent):
-		
-		self.base_scale = Player.SCALE * Scaler.Player
-		
-		self.x_scale = self.base_scale
-		self.y_scale = self.base_scale
 		
 		self.up_idle = [self.create_texture(Scaler.get_idle_path('back.png'))]
 		
@@ -32,12 +27,18 @@ class Player (object):
 		
 		self.death = self.load_death()
 		
-		self.node = SpriteNode(self.idle[0])
+		self.node = Scaler.new_sprite(self.idle[0])
 		self.node.z_position = 1001.0
+
+		self.base_scale = self.node.scale
+		self.base_size = self.node.size
 		
 		self.hide()
 		
 		self.node.anchor_point = (0.5, -0.05)
+
+		self.x_scale = self.base_scale
+		self.y_scale = self.base_scale
 		
 		self.parent = parent
 		self.parent.add_child(self.node)
@@ -52,7 +53,7 @@ class Player (object):
 		
 		frames = []
 		
-		for index in range(21):
+		for index in range(Player.DEATH_FRAMES):
 			frame = index
 			image = "death{0:02d}.png".format(frame)
 			texture = self.create_texture(Scaler.get_death_path(image))
@@ -148,6 +149,7 @@ class Player (object):
 			self.node.y_scale = self.y_scale
 		
 		self.node.texture = self.frames[self.frame]
+		self.node.size = self.base_size
 			
 	def advance_frame(self):
 		

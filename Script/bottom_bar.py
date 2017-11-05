@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from scene import *
+from scene import LabelNode
+from scene import SpriteNode
 from effect import Effect
 from timer import Timer
 import font

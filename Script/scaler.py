@@ -1,16 +1,13 @@
 import os.path
 import scene
+from scene import SpriteNode
 
 class Scaler (object):
 	
-	Player = None
-	Size = None
 	Resolution = None
-	Font = None
 	Bottom_bar = None
 	Menu = None
 	Timer = None
-	Effect = None
 	Score = None
 	
 	@staticmethod
@@ -20,13 +17,9 @@ class Scaler (object):
 			
 			#iPad
 			Scaler.Size = 'Large'
-			Scaler.Tile_size_x = 64
-			Scaler.Tile_size_y = 46
-			
-			Scaler.Player = 1
+
 			Scaler.Bottom_bar = 2
 			Scaler.Timer = 2
-			Scaler.Effect = 1
 			Scaler.Menu = 2
 			Scaler.Score = 1
 			
@@ -42,34 +35,55 @@ class Scaler (object):
 			elif scene.get_screen_scale() >= 3.0:
 				Scaler.Resolution = '3x'
 			else:
-				raise Exception('Unsupported resolution')
-			
-			#iPhone 5, 6, 7
-			Scaler.Size = 'Small'
-			Scaler.Tile_size_x = 32
-			Scaler.Tile_size_y = 23
-			
-			Scaler.Player = 1
-			Scaler.Bottom_bar = 1
-			Scaler.Timer = 1
-			Scaler.Effect = 1
-			Scaler.Menu = 1
-			Scaler.Score = 1
+				Scaler.Resolution = '3x'
 		
 			if game.size.w < 667:
 				
-				#iphone 4 and below
-				reduce = 0.8
-
-				Scaler.Tile_size_x = 28
-				Scaler.Tile_size_y = 20
-			
-				Scaler.Player *= reduce
-				Scaler.Menu *= reduce
+				if Scaler.Resolution == '1x':
+					Scaler.Size = 'Tiny'
+				else:
+					Scaler.Size = 'Small'
 				
-				#keep bottom bar same size
-				#keep score the same size
+				#iphone 4 and below
+				Scaler.Bottom_bar = 1
+				Scaler.Timer = 1
+				Scaler.Menu = 0.8
+				Scaler.Score = 1			
+
+			else:
+				
+				#iPhone 5, 6, 7
+				Scaler.Size = 'Normal'
+			
+				Scaler.Bottom_bar = 1
+				Scaler.Timer = 1
+				Scaler.Menu = 1
+				Scaler.Score = 1
 	
+	@staticmethod
+	def new_sprite(texture):
+		
+		#textures size is in pixels
+		#convert to points and apply to sprite
+		
+		node = SpriteNode(texture)
+		
+		if Scaler.Resolution == '1x':
+			scale = 1.0
+		elif Scaler.Resolution == '2x':
+			scale = 2.0
+		elif Scaler.Resolution == '3x':
+			scale = 3.0
+		else:
+			raise Exception('Unkown resolution')
+		
+		x = int(texture.size[0] / scale)
+		y = int(texture.size[1] / scale)
+		
+		node.size = (x, y)
+		
+		return node
+		
 	@staticmethod
 	def get_effect_path(file_name):
 		return os.path.join('Effects', Scaler.get_file(file_name))
@@ -96,13 +110,14 @@ class Scaler (object):
 
 	@staticmethod
 	def get_heart_path(file_name):
-		return os.path.join('Heart', Scaler.get_file(file_name))
+		return os.path.join('Heart', Scaler.get_file(file_name, force_normal=True))
 		
 	@staticmethod
-	def get_file(file_name):
+	def get_file(file_name, force_normal=False):
 		
-		if Scaler.Size == 'Large':
-			return '{0}_{1}'.format(Scaler.Size, file_name)
-		else:
+		if Scaler.Size not in ['Tiny','Large'] or force_normal:
 			return '{0}_{1}'.format(Scaler.Resolution, file_name)
+		else:
+			return '{0}_{1}'.format(Scaler.Size, file_name)
+			
 			

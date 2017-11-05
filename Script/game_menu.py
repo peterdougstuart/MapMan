@@ -358,7 +358,7 @@ class MenuScene (Scene):
 
 	def did_change_size(self):
 		
-		self.bg.size = self.size + (2, 2)*Scaler.Menu
+		self.bg.size = self.size + (2*Scaler.Menu, 2*Scaler.Menu)
 		self.bg.position = self.size/2
 		
 		self.center()
@@ -960,7 +960,17 @@ class EndLevelMenu(MenuScene):
 		if not MenuScene.touch_ended(self, touch):
 			if self.complete:
 				self.show_menu('next level')
-					
+
+class PauseMenu(MenuScene):
+	
+	def __init__(self):
+		
+		buttons = ['unpause', 'end game']
+
+		infos = [('tilt to move MapMan','tap game to pause')]
+
+		MenuScene.__init__(self, 'Paused', buttons, infos=infos, title_size=60)
+				
 class LoseLifeMenu(MenuScene):
 	
 	def __init__(self, lives):

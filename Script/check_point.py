@@ -1,8 +1,8 @@
-from scene import *
+from scene import SpriteNode
+from scene import Texture
+from scene import Action
 import os.path
 from scaler import Scaler
-
-A = Action
 
 class CheckPoint(object):
 	
@@ -70,6 +70,6 @@ class CheckPoint(object):
 				frame = Action.sequence(change_frame, wait_fame)
 				
 				animate = Action.repeat(frame, 0)
-				self.node.run_action(A.sequence(A.wait(wait), A.scale_to(CheckPoint.SCALE, 0.25, 4), animate))
+				self.node.run_action(Action.sequence(Action.wait(wait), Action.scale_to(CheckPoint.SCALE, 0.25, 4), animate))
 		
 			

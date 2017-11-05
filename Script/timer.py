@@ -1,6 +1,5 @@
 # coding: utf-8
-
-from scene import *
+from scene import LabelNode
 import clock
 import game_levels as levels
 import tutorial
@@ -9,6 +8,7 @@ import sound
 import datetime
 from scaler import Scaler
 import palette
+import os.path
 
 class Timer (LabelNode):
 	
@@ -23,7 +23,7 @@ class Timer (LabelNode):
 		
 		self.anchor_point = (0.5, 0.5)
 		
-		self.player = sound.Player('Clock_1.caf')
+		self.player = sound.Player(os.path.join('SoundEffects','clock.caf'))
 		self.player.number_of_loops = -1
 		
 		self.playing = False

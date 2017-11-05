@@ -25,18 +25,23 @@ class Tile:
 		
 		self.x_hides = map.x_hides
 		self.key = (x, y)
-		
-		self.position = Point(map.min_x + x * map.tile_w, map.min_y + (y-1) * map.tile_h)
-		
 		self.brick_type = brick_type
-		self.size = (map.tile_w, map.tile_h)
 		
 		if brick_type != ' ' and brick_type != '-':
 			
-			self.node = SpriteNode(parent=map.game.game_node, position=self.position)
-			self.node.texture = self.get_texture(brick_type)
+			texture = self.get_texture(brick_type)
+			
+			self.node = Scaler.new_sprite(texture)
+			map.game.add_child(self.node)
+			
 			self.node.anchor_point = (0.5, 0.5)
-			self.node.size = self.size
+			
+			self.size = self.node.size
+			self.base_scale = self.node.scale
+			
+			self.position = Point(map.min_x + x * self.size[0], map.min_y + (y-1) * self.size[1])
+			self.node.position = self.position
+			
 			self.node.scale = 0
 			self.node.alpha = 0.8
 			self.blank = False
@@ -66,7 +71,7 @@ class Tile:
 			
 		if self.node is not None:
 			if self.node.scale == 0:
-				self.node.scale = 1
+				self.node.scale = self.base_scale
 			
 	def normalise(self):
 		self.node.texture = Texture(self.get_blank(1))
@@ -144,7 +149,7 @@ class Tile:
 	def appear(self, wait):
 		
 		if self.node != None:
-			self.node.run_action(A.sequence(A.wait(wait), A.scale_to(1, 0.25, 4)))
+			self.node.run_action(A.sequence(A.wait(wait), A.scale_to(self.base_scale, 0.25, 4)))
 		
 class Map:
 	
@@ -176,9 +181,15 @@ class Map:
 		self.points = {}
 		self.hides = {}
 		self.unhides = {}
+		self.x_hides = {}
 		
-		self.tile_w = Scaler.Tile_size_x
-		self.tile_h = Scaler.Tile_size_y
+		self.min_x = 0
+		self.min_y = 0
+		
+		self.dummy_tile = Tile(self, 'c', 0, 0)
+		self.tile_w = self.dummy_tile.size[0]
+		self.tile_h = self.dummy_tile.size[1]
+		self.dummy_tile.hide()
 	
 	def unload(self):
 		
@@ -240,6 +251,8 @@ class Map:
 		self.show_position = (x, y)
 
 	def move(self, step_x, step_y, move_seconds):
+		
+		size = self.tiles[self.position].size
 		
 		dx = self.tile_w * step_x
 		dy = self.tile_h * step_y
@@ -473,7 +486,7 @@ class Map:
 		else:
 			loading_lines = None
 		
-		self.min_y = self.game.size.h/2 - len(lines) * self.tile_h/2 + Scaler.Tile_size_y * 2
+		self.min_y = self.game.size.h/2 - len(lines) * self.tile_h/2 + self.tile_h*2
 		
 		max_columns = 0
 		

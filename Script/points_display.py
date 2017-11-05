@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from scene import *
+from scene import LabelNode
 import font
 from scaler import Scaler
 

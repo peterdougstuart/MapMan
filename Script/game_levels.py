@@ -2004,7 +2004,5 @@ dddddddddd--dcd-
 --ddddddddddddd
 '''
 
-START_LEVEL = 1
-
 if __name__ == '__main__':
 	verify_levels(levels, loadings)

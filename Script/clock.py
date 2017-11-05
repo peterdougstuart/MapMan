@@ -35,10 +35,10 @@ class Countdown(object):
 		
 		elapsed_seconds = elapsed.total_seconds()
 		
-		if not fractional:
-			elapsed_seconds = int(elapsed_seconds)
-		
 		countdown = self.initial_seconds - elapsed_seconds
+
+		if not fractional:
+			countdown = int(countdown)
 		
 		if countdown < 0:
 			return 0

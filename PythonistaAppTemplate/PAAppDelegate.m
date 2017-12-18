@@ -65,17 +65,33 @@
 	NSFileManager *fm = [NSFileManager defaultManager];
 	[fm createDirectoryAtPath:writableScriptDirectory withIntermediateDirectories:YES attributes:nil error:NULL];
 	
+    #if TARGET_IPHONE_SIMULATOR
+        NSString *mode = @"Simulator";
+    #else
+        NSString *mode = @"Device";
+    #endif
+    
 	NSArray *scriptResources = [fm contentsOfDirectoryAtPath:bundledScriptDirectory error:NULL];
+    
 	for (NSString *filename in scriptResources) {
-		NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
-		NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
-		NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
-		NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
-		if (![destModificationDate isEqual:srcModificationDate]) {
-			[fm removeItemAtPath:destPath error:NULL];
-			[fm copyItemAtPath:fullPath toPath:destPath error:NULL];
-		}
+        
+        if (![filename isEqualToString:@"simulated_tilt.txt"] || [mode isEqualToString:@"Simulator"])
+        {
+        
+            NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
+            NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
+            NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
+            NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
+            
+            if (![destModificationDate isEqual:srcModificationDate] || [destModificationDate isEqual:NULL]) {
+                [fm removeItemAtPath:destPath error:NULL];
+                [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
+            }
+            
+        }
+        
 	}
+    
 	NSString *mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main.py"];
 	if (![fm fileExistsAtPath:mainScriptFile]) {
 		//If there is no main.py, find the first *.py file...

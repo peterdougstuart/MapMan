@@ -13,6 +13,7 @@ import bottom_bar
 import player
 import sys
 import time
+from timer import Timer
 
 from game_menu import PauseMenu
 from game_menu import CreditsMenu
@@ -106,9 +107,10 @@ class Game (Scene):
 			
 		try:
 			with open(Game.SIMULATE_TILT, 'r') as f:
-				text = f.read().lower()
+				text = f.read().lower().strip()
 				if text == 'simulate':
 					self.simulate_tilt = True
+					Timer.INITIAL_SECONDS = 99
 				else:
 					self.simulate_tilt = False
 		except:
@@ -341,11 +343,12 @@ class Game (Scene):
 
 	def touch_ended(self, touch):
 
-		if not self.simulate_tilt:
+		if not self.simulate_tilt: 
 			if self.paused:
 				return
 			else:
-				self.show_pause_menu()
+				if (not self.dead) and (self.bottom_bar.timer.seconds_remaining() <= 19 or self.tutorial):
+					self.show_pause_menu()
 		else:
 			self.simulated_tilt = None 
 		
@@ -795,7 +798,7 @@ class Game (Scene):
 		
 		self.bottom_bar.timer.stop()
 		self.paused = True
-		self.menu = PauseMenu()
+		self.menu = PauseMenu(self.tutorial)
 		self.present_modal_scene(self.menu)
 		
 	def show_start_menu(self):
@@ -952,7 +955,7 @@ class Game (Scene):
 			self.purchase_to_continue = False
 			self.dismiss_modal_scene()
 			self.show_start_menu()
-		elif title == 'end game':
+		elif title in ['end game','end tutorial']:
 			self.purchase_to_play = False
 			self.purchase_to_continue = False
 			self.paused = False

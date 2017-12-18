@@ -10,7 +10,7 @@ def include_file(file_name, allowed_extensions):
 
     return False
 
-def sync_folder(drop_box_folder, xcode_folder, allowed_extensions=['.py', '.png', '.caf'], sub_folder='', reverse=False):
+def sync_folder(drop_box_folder, xcode_folder, allowed_extensions=['.py', '.png', '.caf', '.txt'], sub_folder='', reverse=False):
 
     if len(sub_folder) > 0:
         source_folder = os.path.join(drop_box_folder, sub_folder)
@@ -46,7 +46,8 @@ def sync_folder(drop_box_folder, xcode_folder, allowed_extensions=['.py', '.png'
                 print "Copying {0}".format(file_name)
                 copyfile(drop_box_path, xcode_path)
             else:
-                print "{0} is up to date".format(file_name)
+                pass
+                #print "{0} is up to date".format(file_name)
 
 def sync_in_app(drop_box_folder, xcode_folder, in_app_from_drop_box=True):
 
@@ -76,3 +77,5 @@ sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png']
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Man', 'Frames'))
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Man', 'Idle'))
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Tiles')
+
+print("Done")

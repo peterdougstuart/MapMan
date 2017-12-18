@@ -5,8 +5,7 @@ import os.path
 from scaler import Scaler
 
 class CheckPoint(object):
-	
-	SCALE = 0.2
+
 	FRAMES = 117
 	
 	def __init__(self, tile):
@@ -14,7 +13,8 @@ class CheckPoint(object):
 		self.frame = 0
 		self.frames = self.load_frames()
 		
-		self.node = SpriteNode(self.frames[0])
+		self.node = Scaler.new_sprite(self.frames[0])
+		self.base_scale = self.node.scale
 		self.node.scale = 0
 		
 		self.node.anchor_point = (0.1, 0.05)
@@ -70,6 +70,6 @@ class CheckPoint(object):
 				frame = Action.sequence(change_frame, wait_fame)
 				
 				animate = Action.repeat(frame, 0)
-				self.node.run_action(Action.sequence(Action.wait(wait), Action.scale_to(CheckPoint.SCALE, 0.25, 4), animate))
+				self.node.run_action(Action.sequence(Action.wait(wait), Action.scale_to(self.base_scale, 0.25, 4), animate))
 		
 			

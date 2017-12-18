@@ -35,13 +35,16 @@ class Countdown(object):
 		
 		elapsed_seconds = elapsed.total_seconds()
 		
+		if elapsed_seconds == 0:
+			return self.initial_seconds
+			
 		countdown = self.initial_seconds - elapsed_seconds
-
-		if not fractional:
-			countdown = int(countdown)
 		
-		if countdown < 0:
+		if countdown <= 0:
 			return 0
 		else:
-			return countdown
+			if not fractional:
+				return int(countdown)+1
+			else:
+				return countdown
 

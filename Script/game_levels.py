@@ -9,8 +9,7 @@ level_messages = {}
 MAX_ROWS = 12
 MAX_COLUMNS = 17
 
-#teleport
-#a tile that disappears (or turns to death) once you have walked over 
+START_LEVEL = 1
 
 def next():
 	current = this()
@@ -48,8 +47,6 @@ def verify_levels(levels, loadings):
 	print 'all ok'
 
 check_points = [15, 30, 40, 50, 60, 70, 80, 90]
-
-START_LEVEL = 1
 
 DEFAULT_X_HIDES = 25
 DEFAULT_DELAY = 0.05
@@ -266,6 +263,25 @@ utsrqponnopqrstu
 --vu--------ba--
 '''
 
+levels[next()] = '''
+bcccccccc---
+--c-----c---
+--c-----ccc-
+cyccccv---r-
+c-----c--cc-
+c-----c--c--
+ccccccccccce
+'''
+
+loadings[this()] = '''
+abcdefghi---
+--d-----j---
+--e-----kll-
+ggfghij---m-
+h-----j--nn-
+h-----l--o--
+iijklmmnopqr
+''' 
 
 levels[next()] = '''
       cccc
@@ -441,6 +457,29 @@ loadings[this()] = '''
 ---eeddcccbbaa--
 '''
 
+levels[next()] = '''
+----------------
+----n------b----
+----c------c----
+----r------y----
+----y------r----
+----c------c----
+----r------y----
+----yccryccr----
+----------------
+'''
+
+loadings[this()] = '''
+----------------
+----k------1----
+----j------2----
+----i------3----
+----h------4----
+----g------5----
+----f------6----
+----edcba987----
+----------------
+'''
 
 levels[next()] = '''
 ----------------
@@ -558,6 +597,17 @@ bcc   cp
    dpdp
 '''
 
+loadings[this()] = '''
+    hiju
+  efg kl
+  d   lv
+abc   mn
+      nw
+      op
+  tsrqpx
+   zryp
+'''
+
 levels[next()] = '''
 -wccuci-------
 --!!--i-------
@@ -609,25 +659,23 @@ loadings[this()] = '''
 levels[next()] = '''
 ----------------
 ----------------
---dpppnpppd-----
---ppppppppp-----
---wppdpdpppxccb-
---ppppppppp-----
---doppspppd-----
+---yyyyyyyy-----
+--dy      c-----
+-wly      ccccb-
+--dy      c-----
+---yyyyyyyy-----
 ----------------
 ----------------
 '''
 
-x_hides[this()] = 50
-
 loadings[this()] = '''
 ----------------
 ----------------
---utsrqppon-----
---efghijklm-----
---dcba987654321-
---efghijklm-----
---utsrqppon-----
+---tsrqppon-----
+--ef      m-----
+-adc      54321-
+--ef      m-----
+---tsrqppon-----
 ----------------
 ----------------
 '''
@@ -870,30 +918,6 @@ loadings[this()] = '''
 -------------d--
 --123456789abc--
 ----------------
-----------------
-'''
-
-levels[next()] = '''
-----------------
-----n------b----
-----c------c----
-----r------y----
-----y------r----
-----c------c----
-----r------y----
-----yccryccr----
-----------------
-'''
-
-loadings[this()] = '''
-----------------
-----k------1----
-----j------2----
-----i------3----
-----h------4----
-----g------5----
-----f------6----
-----edcba987----
 ----------------
 '''
 
@@ -1292,26 +1316,6 @@ loadings[this()] = '''
 '''
 
 levels[next()] = '''
-bcccccccc---
---c-----c---
---c-----ccc-
-cyccccv---r-
-c-----c--cc-
-c-----c--c--
-ccccccccccce
-'''
-
-loadings[this()] = '''
-abcdefghi---
---d-----j---
---e-----kll-
-ggfghij---m-
-h-----j--nn-
-h-----l--o--
-iijklmmnopqr
-'''
-
-levels[next()] = '''
  Wcccccd
  dddddcd
  ccccccd
@@ -1465,10 +1469,12 @@ levels[next()] = '''
 ccc ccc ccc ccc
 c c c c c c c c
 r c c c c c c c
-9 c c c c c c c
+x c c c c c c c
 c c c c c c c c
 b ccc ccc ccc S
 '''
+
+x_hides[this()] = 100
 
 loadings[this()] = '''
 fgh fgh fgh fgh
@@ -1557,6 +1563,14 @@ crcrcrccrcrcrc
 bcrcrcrcrcrcrc
 '''
 
+loadings[this()] = '''
+nmlkjihgfedcba
+o
+tuvwxyzzyxwvut
+-------------o
+abcdefghijklmn
+'''
+
 levels[next()] = '''
  lllcccbc
         c
@@ -1603,6 +1617,14 @@ t c   c c   c
 ttt   mcc bcc
 '''
 
+loadings[this()] = '''
+z pon     987
+y q m     a 6
+x rzlkjzdcbz5zzz
+w s   i e   4
+vut   hgf 123
+'''
+
 levels[next()] = '''
 -------------n--
 ------------dcd-
@@ -1614,6 +1636,19 @@ levels[next()] = '''
 --dddddddddddcd-
 -bcycycycycycyd-
 --ddddddddddddd-
+'''
+
+loadings[this()] = '''
+-------------a--
+------------dbd-
+------------ccc-
+------------bdb-
+------------aea-
+------------9f9-
+------------8g8-
+--11223345678h8-
+-utsrqponmlkji7-
+--1122334455667-
 '''
 
 levels[next()] = '''
@@ -1629,6 +1664,19 @@ levels[next()] = '''
 --ddddddddddddd-
 '''
 
+loadings[this()] = '''
+-------------a--
+------------dbd-
+------------ccc-
+------------bdb-
+------------aea-
+------------9f9-
+------------8g8-
+--11223345678h8-
+-utsrqponmlkji7-
+--1122334455667-
+'''
+
 levels[next()] = '''
 ----------ddddd-
 ---------dcycyd-
@@ -1641,6 +1689,18 @@ levels[next()] = '''
 --ddddddddddddd-
 '''
 
+loadings[this()] = '''
+----------98887-
+---------9a9997-
+--------9aaaa87-
+-------abbb-a86-
+-------bbb--986-
+------------976-
+--5556667778875-
+-33344455566675-
+--1112223334445-
+'''
+
 levels[next()] = '''
  Wyyyyyyyy
          y
@@ -1649,12 +1709,28 @@ levels[next()] = '''
  yyyyyyyyb
 '''
 
+loadings[this()] = '''
+ 123456789
+         a
+ bcdefedcb
+ a
+ 987654321
+'''
+
 levels[next()] = '''
  Wryryryr
         y
  yryryryr
  r
  yryryryb
+'''
+
+loadings[this()] = '''
+ fedcba76
+        5
+ 43211234
+ 5
+ 67abcdef
 '''
 
 levels[next()] = '''
@@ -1669,6 +1745,20 @@ levels[next()] = '''
 --ddddddddddddd
 '''
 
+loadings[this()] = '''
+----------dccbb-
+---------dbbaaa-
+--ihggffedcba9a-
+-ihggffddcd-999-
+--ihggffee--989-
+------------888-
+--1122334456778-
+-11223344556677-
+--1122334455667-
+'''
+
+delays[this()] = 0.1
+
 levels[next()] = '''
 ----------ddddd-
 ---------dcycrd-
@@ -1680,6 +1770,20 @@ levels[next()] = '''
 -bcycycycycycyd-
 --ddddddddddddd-
 '''
+
+loadings[this()] = '''
+----------dccbb-
+---------dbbaza-
+--ihggffedcba9a-
+-ihggffddcd-999-
+--ihggffee--989-
+------------888-
+--1122334456778-
+-11223344556677-
+--1122334455667-
+'''
+
+delays[this()] = 0.1
 
 levels[next()] = '''
 -ddddddddddd-
@@ -1729,6 +1833,18 @@ bcccxcccc-h
           d
 '''
 
+loadings[this()] = '''
+        abc
+        j-j
+        i-i
+        h-h
+123456789-g
+          f
+          e
+  123456789
+          d
+'''
+
 x_hides[this()] = 100
 
 levels[next()] = '''
@@ -1740,6 +1856,17 @@ levels[next()] = '''
  dcd d   d c
   cccccccccc
      d   d
+'''
+
+loadings[this()] = '''
+ 1     bcdef
+ 234  xax ygy
+   56789   h
+    x     yiy
+  w        j
+ zvz z   z k
+  utsrqponml
+     z   z
 '''
 
 levels[next()] = '''
@@ -1845,6 +1972,18 @@ rdrcccpdpccb
 rrr   ppp
 '''
 
+loadings[this()] = '''
+789   ghi
+612mnofabjkl
+543   edc
+ q
+ p
+ q
+ghi   789
+fabjkl612mno
+edc   543
+'''
+
 levels[next()] = '''
   yyyyyyydyyyyyyn
   yyyyyyydyyyyyyy
@@ -1853,6 +1992,16 @@ levels[next()] = '''
   yyyyyyydyyyyyyy
   yyyyyyydyyyyyyy
 bcyyyyyyydyyyyyyy
+'''
+
+loadings[this()] = '''
+  fffffffe1111111
+  gggggggd2222222
+  hhhhhhhc3333333
+  iiiiiiib4444444
+  jjjjjjja5555555
+  kkkkkkk96666666
+lllllllll87777777
 '''
 
 x_hides[this()] = 50
@@ -1866,7 +2015,19 @@ levels[next()] = '''
 --dcdcdwccccdcd-
 --dcdcdddddddcd-
 --dcdcccccccccd-
-bcccdddddddddddd
+bcccddddddddddd-
+'''
+
+loadings[this()] = '''
+--kkkkkkkkkkkkk
+--l44556677889m-
+--l4ooooooooo9m-
+--l3pffggghhqam-
+--l3pfttttthqam-
+--l3pesjjiiiqam-
+--l2perrrrrrrbm-
+--l2oedddcccbbm-
+1112nnnnnnnnnnn-
 '''
 
 levels[next()] = '''
@@ -1881,6 +2042,18 @@ levels[next()] = '''
 bcrcddddddddddd-
 '''
 
+loadings[this()] = '''
+--kkkkkkkkkkkkk
+--l44556677889m-
+--l4ooooooooo9m-
+--l3pffggghhqam-
+--l3pfttttthqam-
+--l3pesjjiiiqam-
+--l2perrrrrrrbm-
+--l2oedddcccbbm-
+1112nnnnnnnnnnn-
+'''
+
 levels[next()] = '''
 --ddddddddddddd
 --dcccccccccccd-
@@ -1891,6 +2064,18 @@ levels[next()] = '''
 --dcdcdddddddcd-
 --dcdcccccccccd-
 bcxcddddddddddd-
+'''
+
+loadings[this()] = '''
+--kkkkkkkkkkkkk
+--l44556677889m-
+--l4ooooooooo9m-
+--l3pffggghhqam-
+--l3pfttttthqam-
+--l3pesjjiiiqam-
+--l2perrrrrrrbm-
+--l2oedddcccbbm-
+1112nnnnnnnnnnn-
 '''
 
 x_hides[this()] = 100
@@ -1905,6 +2090,18 @@ levels[next()] = '''
 --!i!i!!!!!!!i!-
 --!i!iiiiiicii!-
 bcch!!!!!!!!!!!-
+'''
+
+loadings[this()] = '''
+--kkkkkkkkkkkkk-
+--l44556677889m-
+--l4ooooooooo9m-
+--l3pffggghhqam-
+--l3pfttttthqam-
+--l3pesjjiiiqam-
+--l2perrrrrrrbm-
+--l2oedddcccbbm-
+1112nnnnnnnnnnn-
 '''
 
 levels[next()] = '''
@@ -1992,6 +2189,18 @@ dddddddddd--dcd-
 --ddddddddddddd
 '''
 
+loadings[this()] = '''
+vut-------didid-
+qrs------jehehe-
+pkpkpkpkpkfgfgf-
+olololololf-789-
+mnmnmnmnmnm-cba-
+------------789-
+--3434343434343-
+-22525252525252-
+--1616161616161
+'''
+
 levels[next()] = '''
 dnd-------ddddd-
 dyd------dcycrd-
@@ -2002,6 +2211,18 @@ dddddddddd--dcd-
 --dddddddddddcd-
 -bcycycycycycyd-
 --ddddddddddddd
+'''
+
+loadings[this()] = '''
+vut-------didid-
+qrs------jehehe-
+pkpkpkpkpkfgfgf-
+olololololf-789-
+mnmnmnmnmnm-cba-
+------------789-
+--3434343434343-
+-22525252525252-
+--1616161616161
 '''
 
 if __name__ == '__main__':

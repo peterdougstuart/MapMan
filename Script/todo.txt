@@ -1,0 +1,17 @@
+itune connect
+- app store screen shots and videos
+- set up tax forms
+
+pythonista
+- win game screen
+- finish level design
+- integrate high-res images - plan out pixels and points
+- Implement In-App purchases
+
+xcode
+-portrait behaviour on ipad
+-test as many resolutions as possible
+-fix title screen: Fred: noted with the title screen that the width doesn't fill the screen. Scale that page up so it fits horizontally and crop the top and bottom
+
+Done
+- fix UI for more (10) checkpoints

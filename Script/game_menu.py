@@ -963,10 +963,15 @@ class EndLevelMenu(MenuScene):
 
 class PauseMenu(MenuScene):
 	
-	def __init__(self):
+	def __init__(self, tutorial):
 		
-		buttons = ['unpause', 'end game']
-
+		buttons = ['unpause']
+		
+		if tutorial:
+			buttons.append('end tutorial')
+		else:
+			buttons.append('end game')
+		
 		infos = [('tilt to move MapMan','tap game to pause')]
 
 		MenuScene.__init__(self, 'Paused', buttons, infos=infos, title_size=60)

@@ -23,7 +23,6 @@ def fix_executable(file_path):
     return not is_executable
 
 def fix_pylib(pylib_path, dry_run=False):
-    print pylib_path
     for path, dirs, files in os.walk(pylib_path):
         for filename in files:
             full_path = full_path = os.path.join(path, filename)
@@ -35,11 +34,13 @@ def fix_pylib(pylib_path, dry_run=False):
                         print '### Executable found: %s' % (filename,)
                     else:
                         print 'Fixing %s...' % (filename,)
-                        fixed = fix_executable(full_path)
-                        if not fixed:
-                            print '### FIXING %s FAILED' % (full_path,)
-                        else:
-                            print 'Fixed'
+                        fixed = False
+                        counter = 0
+                        while not fixed:
+                            fixed = fix_executable(full_path)
+                            counter = counter + 1
+
+                        print 'Fixed with '+str(counter)+' dummy lines.'
                 else:
                     print '### Executable found, but does not seem to be Python code: %s' % (full_path,)
 

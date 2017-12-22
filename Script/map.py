@@ -495,6 +495,8 @@ class Map:
 			
 		self.min_x = self.game.size.w * 0.5 - (max_columns * 0.5) * self.tile_w
 		
+		self.min_x += 0.5 * self.tile_w
+			
 		self.add_row(-1, "", max_columns)
 		
 		for y, line in enumerate(reversed(lines)):
@@ -551,7 +553,6 @@ class Map:
 	def add_row(self, y, line, max_columns, loading_line=None):
 		
 		x = -1
-		
 		self.add_tile(" ", x, y)
 		
 		for x, char in enumerate(line):

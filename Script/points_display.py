@@ -33,7 +33,7 @@ class PointsDisplay(object):
 		
 	def add_score(self):
 		
-		self.score_label = LabelNode('', font=(font.SCORE_DISPLAY, 40*Scaler.Score), position=(self.parent.size.w/2, self.parent.size.h-30), parent=self.parent)
+		self.score_label = LabelNode('', font=(font.SCORE_DISPLAY, 40*Scaler.Score), position=(self.parent.size.w/2, self.parent.size.h-30-Scaler.DisplayShift), parent=self.parent)
 		
 		self.score_label.anchor_point = (0.5, 0.5)
 

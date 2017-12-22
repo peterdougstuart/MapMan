@@ -4,6 +4,7 @@ from scene import LabelNode
 import game_levels as levels
 import tutorial
 import font
+from scaler import Scaler
 
 class LevelDisplay(object):
 	
@@ -31,7 +32,7 @@ class LevelDisplay(object):
 		
 	def add_level(self):
 		
-		self.level_label = LabelNode('', font=(font.LEVEL_DISPLAY, 40), position=(10, self.parent.size.h-30), parent=self.parent)
+		self.level_label = LabelNode('', font=(font.LEVEL_DISPLAY, 40), position=(10, self.parent.size.h-30-Scaler.DisplayShift), parent=self.parent)
 		
 		self.level_label.anchor_point = (0, 0.5)
 

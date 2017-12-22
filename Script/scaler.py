@@ -9,6 +9,7 @@ class Scaler (object):
 	Menu = None
 	Timer = None
 	Score = None
+	DisplayShift = None
 	
 	@staticmethod
 	def initialize(game):
@@ -24,8 +25,11 @@ class Scaler (object):
 			Scaler.Score = 1
 			
 			Scaler.Resolution = '2x'
+			Scaler.DisplayShift = 15
 			
 		else:
+			
+			Scaler.DisplayShift = 0
 			
 			#iphone
 			if scene.get_screen_scale() == 1.0:

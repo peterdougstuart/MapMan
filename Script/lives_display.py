@@ -42,7 +42,7 @@ class LivesDisplay(object):
 	def add_lives(self):
 		
 		x = self.parent.size.w - 45
-		y = self.parent.size.h - 30
+		y = self.parent.size.h - 30 - Scaler.DisplayShift
 		
 		self.lives_label = LabelNode('', font=(font.LIVES_DISPLAY, 40), position=(x, y), parent=self.parent)
 		self.lives_label.anchor_point=(1, 0.5)

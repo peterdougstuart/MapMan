@@ -101,13 +101,25 @@ class Scaler (object):
 		return os.path.join('Man', 'Frames', Scaler.get_file(file_name))
 
 	@staticmethod
+	def get_woman_frames_path(file_name):
+		return os.path.join('Woman', 'Frames', Scaler.get_file(file_name))
+
+	@staticmethod
+	def get_vortex_frames_path(file_name):
+		return os.path.join('Vortex', Scaler.get_file(file_name))
+		
+	@staticmethod
 	def get_death_path(file_name):
 		return os.path.join('Man', 'Death', Scaler.get_file(file_name))
 
 	@staticmethod
-	def get_idle_path(file_name):
+	def get_man_idle_path(file_name):
 		return os.path.join('Man', 'Idle', Scaler.get_file(file_name))
 
+	@staticmethod
+	def get_woman_idle_path(file_name):
+		return os.path.join('Woman', 'Idle', Scaler.get_file(file_name))
+		
 	@staticmethod
 	def get_checkpoint_path(file_name):
 		return os.path.join('CheckPoint', Scaler.get_file(file_name))

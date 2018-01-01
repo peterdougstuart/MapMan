@@ -19,9 +19,11 @@ class LivesDisplay(object):
 
 	def hide(self):
 		self.lives_label.scale = 0
+		self.heart.scale = 0
 		
 	def show(self):
 		self.lives_label.scale = self.lives_base_scale
+		self.heart.scale = self.heart_base_scale
 		
 	def reset(self):
 		self.lives = LivesDisplay.INITIAL_LIVES

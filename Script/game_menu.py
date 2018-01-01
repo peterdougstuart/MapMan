@@ -145,7 +145,12 @@ class Star:
 		
 		points = extract_stars(text)
 		
-		self.node.info_label.text = star_text(points-1)
+		if points > 50:
+			step = 5
+		else:
+			step = 1
+			
+		self.node.info_label.text = star_text(points-step)
 		
 		self.score_node.add_score()
 		
@@ -178,7 +183,7 @@ class WrappingInfoNode(InfoNode):
 		
 		node = WrappingLabelNode(parent=parent, anchor_point=(0.5, 0.5), position=position,
 		target_width=parent.parent.size.w,
-		font_type=font[0],
+		font_type=font,
 		color=color)
 		
 		node.set_text(text, font[1])
@@ -478,11 +483,6 @@ class PurchaseToPlayMenu(MenuScene):
 	def touch_ended(self, touch):
 		if not MenuScene.touch_ended(self, touch):
 			self.show_menu('okay')
-				
-class PurchaseToCheckpointMenu(PurchaseToPlayMenu):
-	
-	def get_description(self):
-		return "to use checkpoints"
 		
 class FirstPlayMenu(MenuScene):
 	
@@ -540,7 +540,7 @@ class MainMenu(MenuScene):
 		
 		self.score_label = ScoreLabelNode(parent=self.menu_bg, score=self.high_score, base_text='best score')
 		
-		man_texture = Texture(Scaler.get_idle_path('front.png'))
+		man_texture = Texture(Scaler.get_man_idle_path('front.png'))
 		
 		self.man = SpriteNode(parent=self.menu_bg,texture=man_texture)
 		self.man.anchor_point=(0,0)
@@ -714,7 +714,7 @@ class PurchaseMenu(PurchaseMenuBase):
 		else:
 			buttons.append('main menu')
 		
-		if len(buttons) >= 8:
+		if len(buttons) >= 7:
 			self.relayout = True
 			button_delta = 35
 		else:
@@ -729,15 +729,15 @@ class PurchaseMenu(PurchaseMenuBase):
 		
 		if self.relayout:
 			
-			if index < 4:
+			if index < 3:
 				
 				return (position[0]-75, position[1])
 				
-			elif index == 4:
+			elif index == 3:
 				
-				return (self.buttons[0].position.x + self.buttons[0].size.w + 10, self.buttons[0].position.y-self.buttons[0].size.h/2)
+				return (self.buttons[0].position.x + self.buttons[0].size.w - 5, self.buttons[0].position.y-self.buttons[0].size.h/2)
 				
-			elif index <= 6:
+			elif index <= 5:
 				
 				return (position[0], position[1] + self.buttons[0].size.h * 1.5)
 				
@@ -763,17 +763,15 @@ class PurchaseMenu(PurchaseMenuBase):
 		PurchaseMenuBase.setup(self)
 		
 		if self.relayout:
-			text = self.buttons[4].text
-			text = text.replace('& ', '&\n')
+			text = self.buttons[3].text
 			text = text.replace('All ','All\n')
-			text = text.replace('check','check\n')
 			text = text.replace(':','\nbundle:')
-			self.buttons[4].text = text
+			self.buttons[3].text = text
 			
 	def include_product(self, product):
 		
 		if self.purchase_to_play:
-			if self.is_continue(product) or self.is_checkpoints(product):
+			if self.is_continue(product):
 				return False
 			else:
 				return True
@@ -786,13 +784,7 @@ class PurchaseMenu(PurchaseMenuBase):
 			return True
 		
 	def is_continue(self, product):
-		if product.identifier in ['com.mapman.one_continue']:
-			return True
-		else:
-			return False
-
-	def is_checkpoints(self, product):
-		if product.identifier in ['com.mapman.checkpoints']:
+		if product.identifier in ['com.mapman.one_continue','com.mapman.three_continues']:
 			return True
 		else:
 			return False
@@ -837,20 +829,47 @@ class EndLevelMenu(MenuScene):
 		self.next_level_button = None
 		
 		buttons = []
+		
+		infos = self.add_infos(level_points, time_bonus, stars, check_point)
+			
+		MenuScene.__init__(self, self.get_title(level), buttons, infos=infos, title_size=40)
+	
+	def get_title(self, level):
+		return 'Level {0} Clear'.format(level)
+		
+	def add_infos(self, level_points, time_bonus, stars, check_point):
+		
 		infos = []
 		
-		infos.append(('level bonus', star_text(level_points)))
+		infos, self.level_bonus_index = self.add_level_bonus(infos, level_points)
 		
-		infos.append(('time bonus', star_text(time_bonus)))
+		infos, self.time_bonus_index = self.add_time_bonus(infos, time_bonus)
 		
 		if self.stars > 0:
 			infos.append(('collected', star_text(stars)))
+			self.stars_index = self.get_index(infos)
+		else:
+			self.stars_index = None
 		
 		if self.check_point:
 			infos.append(('checkpoint', 'passed'))
-
-		MenuScene.__init__(self, 'Level {0} Clear'.format(level), buttons, infos=infos, title_size=40)
-
+			self.check_point_index = self.get_index(infos)
+		else:
+			self.check_point_index = None
+		
+		return infos
+		
+	def get_index(self, infos):
+		return len(infos) - 1
+		
+	def add_level_bonus(self, infos, level_points):
+		infos.append(('level bonus', star_text(level_points)))
+		return infos, self.get_index(infos)
+	
+	def add_time_bonus(self, infos, time_bonus):
+		infos.append(('time bonus', star_text(time_bonus)))
+		return infos, self.get_index(infos)
+		
 	def below_height(self):
 		
 		height = 0
@@ -862,14 +881,17 @@ class EndLevelMenu(MenuScene):
 			height += self.next_level_button.size.h
 			
 		return height
-			
+	
+	def get_next_title(self):
+		return 'play next level'
+		
 	def setup(self):
 		
 		MenuScene.setup(self)
 		
 		self.score_label = ScoreLabelNode(parent=self.menu_bg, score=self.score)
 		
-		btn = ButtonNode('play next level', parent=self.menu_bg)
+		btn = ButtonNode(self.get_next_title(), parent=self.menu_bg)
 		
 		btn.untouch_color='#ffffff'
 		btn.touch_color='#000000'
@@ -888,22 +910,21 @@ class EndLevelMenu(MenuScene):
 		
 		actions.append(Action.wait(0.2))
 		
-		actions += self.add_star_action(0)
+		if not self.level_bonus_index is None:
+			actions += self.add_star_action(self.level_bonus_index)
 
-		actions += self.add_star_action(1)
+		if not self.time_bonus_index is None:
+			actions += self.add_star_action(self.time_bonus_index)
 		
-		if self.stars > 0:
-			actions += self.add_star_action(2)
+		if not self.stars_index is None:
+			actions += self.add_star_action(self.stars_index)
 		
-		if self.check_point:
+		if not self.check_point_index is None:
+			self.info_nodes[self.check_point_index].info_label.color = '#71c0e2'
 			
-			index = len(self.info_nodes) - 1
+			items = [self.info_nodes[self.check_point_index].heading_label, self.info_nodes[self.check_point_index].info_label]
 			
-			self.info_nodes[index].info_label.color = '#71c0e2'
-			
-			items = [self.info_nodes[index].heading_label, self.info_nodes[index].info_label]
-			
-			emphasise = EmphasiseText(items, index)
+			emphasise = EmphasiseText(items, self.check_point_index)
 			
 			actions.append(Action.call(emphasise))
 			actions.append(Action.wait(0.2))
@@ -949,8 +970,20 @@ class EndLevelMenu(MenuScene):
 		wait_action = Action.wait(0.1)
 		
 		star_and_wait = Action.sequence([star_action, wait_action])
+
+		stars_to_add = count
+		stars_count = 0
 		
-		stars = Action.repeat(star_and_wait, count)
+		while stars_to_add > 0:
+			
+			stars_count += 1
+			
+			if stars_to_add > 50:
+				stars_to_add -= 5
+			else:
+				stars_to_add -= 1
+				
+		stars = Action.repeat(star_and_wait, stars_count)
 		
 		unemphasise_action = Action.call(emphasise)
 		
@@ -958,8 +991,8 @@ class EndLevelMenu(MenuScene):
 
 	def touch_ended(self, touch):
 		if not MenuScene.touch_ended(self, touch):
-			if self.complete:
-				self.show_menu('next level')
+			#if self.complete:
+			self.show_menu('next level')
 
 class PauseMenu(MenuScene):
 	
@@ -993,16 +1026,26 @@ class LoseLifeMenu(MenuScene):
 					
 class EndGameMenu(MenuScene):
 	
+	CAN_PURCHASE_TO_CONTINUE = False
+	
 	def __init__(self, score, pb, continues):
 		
 		self.continues = continues
 		
 		if self.continues < 1:
-			buttons = ['purchase continue']
+			if EndGameMenu.CAN_PURCHASE_TO_CONTINUE:
+				buttons = ['purchase continue']
+			else:
+				buttons = []
 		else:
 			buttons = ['use continue']
 		
-		buttons += ['main menu (end game)']
+		if EndGameMenu.CAN_PURCHASE_TO_CONTINUE and self.continues > 0:
+			buttons += ['main menu (end game)']
+		else:
+			buttons += ['main menu']
+		
+		self.pb = pb
 		
 		if pb:
 			buttons = ['tweet PB'] + buttons
@@ -1016,9 +1059,21 @@ class EndGameMenu(MenuScene):
 		
 		MenuScene.__init__(self, 'Game Over', buttons, infos, title_size=40)
 	
-	def remove_tweet_pb(self):
-		self.buttons[0].set_title('pb tweeted')
-	
+	def remove_tweet(self, completion, pb):
+		
+		if completion and not pb:
+			text = 'completion tweeted'
+		elif not completion and pb:
+			text = 'pb tweeted'
+		elif completion and pb:
+			text = 'completion & pb'
+		else:
+			text = 'tweeted'
+			
+		self.buttons[0].set_title(text)
+		self.buttons[0].untouch_color ='#000000'
+		self.buttons[0].untouch()
+		
 	def get_width(self):
 		return 250
 		
@@ -1027,3 +1082,65 @@ class EndGameMenu(MenuScene):
 		MenuScene.setup(self)
 		
 		self.continue_label = ContinuesLabelNode(self.menu_bg, self.continues)
+			
+class CompletionScoringMenu(EndLevelMenu):
+	
+	COMPLETION_BONUS=100
+	BONUS_PER_LIFE=50
+	
+	def __init__(self, score, lives):
+		
+		self.lives=lives
+		
+		EndLevelMenu.__init__(self, level=-1, score=score, level_points=0, time_bonus=0, stars=0, check_point=False)
+
+	def get_width(self):
+		return 400
+
+	def add_level_bonus(self, infos, level_points):
+		infos.append(('completion bonus', star_text(CompletionScoringMenu.COMPLETION_BONUS)))
+		return infos, self.get_index(infos)
+	
+	def add_time_bonus(self, infos, time_bonus):
+		infos.append(('remaining lives bonus', star_text(self.lives*CompletionScoringMenu.BONUS_PER_LIFE)))
+		return infos, self.get_index(infos)
+	
+	def get_title(self, level):
+		return 'Game Complete'
+
+	def get_next_title(self):
+		return 'tap to proceed'
+
+	def touch_ended(self, touch):
+		if not MenuScene.touch_ended(self, touch):
+			self.show_menu('completion menu')
+				
+class CompletionMenu(EndGameMenu):
+	
+	def __init__(self, score, pb):
+		
+		buttons = ['main menu']
+		
+		self.pb = pb
+		
+		if pb:
+			buttons = ['tweet completion & PB'] + buttons
+		else:
+			buttons = ['tweet completion'] + buttons
+			
+		if pb:
+			score_text = '{0} - new PB!'.format(score)
+		else:
+			score_text = '{0}'.format(score)
+			
+		infos = [('MapMan', 'Completed'),('Your Score', score_text)]
+		
+		MenuScene.__init__(self, 'Congratulations', buttons, infos, title_size=40)
+
+	def get_width(self):
+		return 400
+
+	def setup(self):
+		MenuScene.setup(self)
+		self.info_nodes[0].heading_label.color = '#000000'
+	

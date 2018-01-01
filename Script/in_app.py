@@ -37,12 +37,11 @@ class InAppDummy:
     	
         self.observers = []
         self.products = []
-        self.products.append(Product('com.mapman.checkpoints', 'Checkpoints', 'Enable continuation from checkpoints', 0.5))
-        self.products.append(Product('com.mapman.l26-50', 'Levels 26-50', 'Enable levels 26 to 50', 0.25))
-        self.products.append(Product('com.mapman.l51-75', 'Levels 51-75', 'Enable levels 51 to 75', 0.25))
-        self.products.append(Product('com.mapman.l76-100', 'Levels 76-100', 'Enable levels 76 to 100', 0.25))
+        self.products.append(Product('com.mapman.l26-50', 'Levels 26-50', 'Enable levels 26 to 50', 0.50))
+        self.products.append(Product('com.mapman.l51-75', 'Levels 51-75', 'Enable levels 51 to 75', 0.50))
+        self.products.append(Product('com.mapman.l76-100', 'Levels 76-100', 'Enable levels 76 to 100', 0.50))
         
-        self.products.append(Product('com.mapman.all_levels_and_checkpoints', 'All levels & checkpoints', 'All levels & checkpoints', 1.00))
+        self.products.append(Product('com.mapman.all_levels', 'All levels', 'All levels', 1.00))
         
         self.products.append(Product('com.mapman.one_continue', 'One Continue', 'One Continue', 0.50))
         

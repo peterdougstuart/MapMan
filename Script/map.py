@@ -46,7 +46,7 @@ class Tile:
 			self.node.alpha = 0.8
 			self.blank = False
 			
-			if brick_type.lower() in ['i', '@', '!']:
+			if brick_type.lower() in ['i', '@', '!','+']:
 				self.can_hide = True
 			else:
 				self.can_hide = False
@@ -119,7 +119,7 @@ class Tile:
 			return self.get_tile_path("points.png")
 		elif tile_type in ["d", "!"]:
 			return self.get_tile_path("death.png")
-		elif tile_type == "l":
+		elif tile_type == "l" or tile_type == '+':
 			return self.get_tile_path("life.png")
 		elif tile_type == "m":
 			return self.get_tile_path("more_time.png")
@@ -621,7 +621,7 @@ class Map:
 			self.reverses[tile.key] = True
 		elif tile_type in ['d','!']:
 			self.deaths[tile.key] = True
-		elif tile_type == 'l':
+		elif tile_type in ['l','+']:
 			self.lives[tile.key] = True
 		elif tile_type == 'y':
 			self.stickies[tile.key] = True

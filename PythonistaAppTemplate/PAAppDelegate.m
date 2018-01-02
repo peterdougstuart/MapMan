@@ -59,6 +59,7 @@
 	
 	//The script is not run directly from the main bundle because its directory wouldn't be writable then,
 	//which would require changes in scripts that produce files.
+    NSError *error;
 	NSString *bundledScriptDirectory = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Script"];
 	NSString *appSupportDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
 	NSString *writableScriptDirectory = [appSupportDirectory stringByAppendingPathComponent:@"PythonistaScript"];
@@ -75,17 +76,27 @@
     
 	for (NSString *filename in scriptResources) {
         
-        if (![filename isEqualToString:@"simulated_tilt.txt"] || [mode isEqualToString:@"Simulator"])
+        if (![filename isEqualToString:@"simulate_tilt.txt"] || [mode isEqualToString:@"Simulator"])
         {
         
             NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
             NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
+            
+            /*
             NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
             NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
             
             if (![destModificationDate isEqual:srcModificationDate] || [destModificationDate isEqual:NULL]) {
                 [fm removeItemAtPath:destPath error:NULL];
                 [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
+            }
+            */
+            
+            [fm copyItemAtPath:fullPath toPath:destPath error:&error];
+            
+            if ([fm fileExistsAtPath:destPath] && [mode isEqualToString:@"Device"])
+            {
+                [fm removeItemAtPath:fullPath error:&error];
             }
             
         }

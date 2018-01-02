@@ -68,6 +68,7 @@ xcode_base_folder = r"/Users/stuart/MapMan/Script"
 sync_in_app(drop_box_base_folder, xcode_base_folder)
 sync_folder(drop_box_base_folder, xcode_base_folder)
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Heart')
+sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Vortex')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Effects')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Checkpoint')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Gradients')
@@ -76,6 +77,8 @@ sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.caf']
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Man', 'Death'))
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Man', 'Frames'))
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Man', 'Idle'))
+sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Woman', 'Frames'))
+sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder=os.path.join('Woman', 'Idle'))
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Tiles')
 
 print("Done")

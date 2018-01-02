@@ -183,7 +183,7 @@ class WrappingInfoNode(InfoNode):
 		
 		node = WrappingLabelNode(parent=parent, anchor_point=(0.5, 0.5), position=position,
 		target_width=parent.parent.size.w,
-		font_type=font,
+		font_type=font[0],
 		color=color)
 		
 		node.set_text(text, font[1])
@@ -198,15 +198,9 @@ class ButtonNode (LabelNode):
 		
 		self.untouch_color = '#71c0e2'
 		self.touch_color = '#e28c9b'
-		self.untouch_font_size = 20*Scaler.Menu
-		self.touch_font_size = 25*Scaler.Menu
-		
-		button_font = (font.BUTTON, self.untouch_font_size)
 		
 		text = title
-		
-		#while len(text) < 20:
-		#	text = ' {0} '.format(text)
+		button_font = self.make_font()
 		
 		LabelNode.__init__(self, text, font=button_font, color=self.untouch_color, position=(0, 0), parent=parent)
 		
@@ -215,6 +209,18 @@ class ButtonNode (LabelNode):
 		
 		self.spacer = None
 	
+	def make_font(self, scale=1):
+
+		self.untouch_font_size = 20*Scaler.Menu*scale
+		self.touch_font_size = 25*Scaler.Menu*scale
+		
+		button_font = (font.BUTTON, self.untouch_font_size)
+		
+		return button_font
+	
+	def set_font_scale(self, scale):
+		self.font = self.make_font(scale)
+		
 	def add_spacer(self):
 		
 		self.spacer = LabelNode('—----',font=self.font, color=self.untouch_color, position=(0, 0), parent=self.parent)
@@ -1008,7 +1014,35 @@ class PauseMenu(MenuScene):
 		infos = [('tilt to move MapMan','tap game to pause')]
 
 		MenuScene.__init__(self, 'Paused', buttons, infos=infos, title_size=60)
+
+	def setup(self):
+		MenuScene.setup(self)
+		self.info_nodes[0].heading_label.color = '#000000'
+		self.buttons[0].set_font_scale(1.7)
+		self.buttons[1].set_font_scale(1.0)
+		
+	def button_position(self, index):
+		
+		position = MenuScene.button_position(self, index)
+			
+		if index > 0:
 				
+			return (position[0], position[1]-0.5*self.button_delta)
+			
+		else:
+			
+			return (position[0], position[1]-0.1*self.button_delta)
+
+	def get_height(self):
+		
+		height = MenuScene.get_height(self)
+		
+		return height + self.button_delta
+
+	def touch_ended(self, touch):
+		if not MenuScene.touch_ended(self, touch):
+			self.show_menu('unpause')
+			
 class LoseLifeMenu(MenuScene):
 	
 	def __init__(self, lives):

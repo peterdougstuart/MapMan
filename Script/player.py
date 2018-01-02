@@ -15,7 +15,7 @@ class Player (object):
 		
 		self.side_idle = [self.create_texture(Scaler.get_man_idle_path('side.png'))]
 		
-		self.idle = self.down_idle
+		self.idle = self.side_idle
 		
 		self.up = self.load_frames('back')
 		self.down =  self.load_frames('forward')
@@ -122,7 +122,7 @@ class Player (object):
 		
 	def face_idle(self):
 		self.face(self.idle)
-	
+		
 	def vanish(self):
 		self.node.x_scale = 0
 		self.node.y_scale = 0

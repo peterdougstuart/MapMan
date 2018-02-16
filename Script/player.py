@@ -15,7 +15,7 @@ class Player (object):
 		
 		self.side_idle = [self.create_texture(Scaler.get_man_idle_path('side.png'))]
 		
-		self.idle = self.side_idle
+		self.idle = [self.create_texture(Scaler.get_man_idle_path('neutral.png'))]
 		
 		self.up = self.load_frames('back')
 		self.down =  self.load_frames('forward')

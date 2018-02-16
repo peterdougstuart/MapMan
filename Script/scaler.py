@@ -107,6 +107,10 @@ class Scaler (object):
 	@staticmethod
 	def get_vortex_frames_path(file_name):
 		return os.path.join('Vortex', Scaler.get_file(file_name))
+
+	@staticmethod
+	def get_hearts_frames_path(file_name):
+		return os.path.join('Hearts', Scaler.get_file(file_name))
 		
 	@staticmethod
 	def get_death_path(file_name):

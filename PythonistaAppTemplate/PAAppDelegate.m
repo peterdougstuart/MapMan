@@ -59,7 +59,6 @@
 	
 	//The script is not run directly from the main bundle because its directory wouldn't be writable then,
 	//which would require changes in scripts that produce files.
-    NSError *error;
 	NSString *bundledScriptDirectory = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Script"];
 	NSString *appSupportDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
 	NSString *writableScriptDirectory = [appSupportDirectory stringByAppendingPathComponent:@"PythonistaScript"];
@@ -73,7 +72,9 @@
     #endif
     
 	NSArray *scriptResources = [fm contentsOfDirectoryAtPath:bundledScriptDirectory error:NULL];
-    
+
+    BOOL has_error = NO;
+
 	for (NSString *filename in scriptResources) {
         
         if (![filename isEqualToString:@"simulate_tilt.txt"] || [mode isEqualToString:@"Simulator"])
@@ -82,38 +83,37 @@
             NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
             NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
             
-            /*
             NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
             NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
             
             if (![destModificationDate isEqual:srcModificationDate] || [destModificationDate isEqual:NULL]) {
+                
                 [fm removeItemAtPath:destPath error:NULL];
-                [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
+                BOOL success = [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
+                
+                if (!success)
+                {
+                    has_error = YES;
+                }
+                
             }
-            */
-            
-            [fm copyItemAtPath:fullPath toPath:destPath error:&error];
-            
-            if ([fm fileExistsAtPath:destPath] && [mode isEqualToString:@"Device"])
-            {
-                [fm removeItemAtPath:fullPath error:&error];
-            }
+
             
         }
         
 	}
     
-	NSString *mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main.py"];
-	if (![fm fileExistsAtPath:mainScriptFile]) {
-		//If there is no main.py, find the first *.py file...
-		mainScriptFile = nil;
-		for (NSString *filename in [fm contentsOfDirectoryAtPath:writableScriptDirectory error:NULL]) {
-			if ([[[filename pathExtension] lowercaseString] isEqualToString:@"py"]) {
-				mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:filename];
-				break;
-			}
-		}
-	}
+    NSString *mainScriptFile;
+    
+    if (!has_error)
+    {
+        mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main.py"];
+    }
+    else
+    {
+        mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"copy_failed.py"];
+    }
+    
 	return mainScriptFile;
 }
 

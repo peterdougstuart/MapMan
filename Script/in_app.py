@@ -37,15 +37,15 @@ class InAppDummy:
     	
         self.observers = []
         self.products = []
-        self.products.append(Product('com.mapman.l26-50', 'Levels 26-50', 'Enable levels 26 to 50', 0.50))
-        self.products.append(Product('com.mapman.l51-75', 'Levels 51-75', 'Enable levels 51 to 75', 0.50))
-        self.products.append(Product('com.mapman.l76-100', 'Levels 76-100', 'Enable levels 76 to 100', 0.50))
+        self.products.append(Product('com.mapman.l26_50', 'Levels 26-50', 'Enable levels 26 to 50', 0.99))
+        self.products.append(Product('com.mapman.l51_75', 'Levels 51-75', 'Enable levels 51 to 75', 0.99))
+        self.products.append(Product('com.mapman.l76_100', 'Levels 76-100', 'Enable levels 76 to 100', 0.99))
         
-        self.products.append(Product('com.mapman.all_levels', 'All levels', 'All levels', 1.00))
+        self.products.append(Product('com.mapman.all_levels', 'All levels', 'All levels', 1.99))
         
-        self.products.append(Product('com.mapman.one_continue', 'One Continue', 'One Continue', 0.50))
+        self.products.append(Product('com.mapman.five_continues', 'Five Continues', 'Five Continues', 0.99))
         
-        self.products.append(Product('com.mapman.three_continues', 'Three Continues', 'Three Continues', 1.00))
+        self.products.append(Product('com.mapman.twenty_continues', 'Twenty Continues', 'Twenty Continues', 1.99))
         
         self.invalid_products = []
         
@@ -73,7 +73,8 @@ class InAppDummy:
     	
 class InApp:
     
-    PRODUCTS = ["MapManPurchase001"]
+    PRODUCTS = ['com.mapman.l26_50','com.mapman.l51_75','com.mapman.l76_100','com.mapman.all_levels','com.mapman.five_continues','com.mapman.twenty_continues']
+    
     Instance = None
     
     @classmethod

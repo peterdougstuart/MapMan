@@ -50,6 +50,16 @@ class Effect(object):
 		self.node_top.texture = self.reverse_texture
 		self.node_bottom.texture = self.vanish_texture
 
+	def reverse_and_hidden(self):
+		self.show_double()
+		self.node_top.texture = self.reverse_texture
+		self.node_bottom.texture = self.hide_texture
+
+	def reverse_and_stuck(self):
+		self.show_double()
+		self.node_top.texture = self.reverse_texture
+		self.node_bottom.texture = self.sticky_texture
+		
 	def unhide(self):
 		self.show_effect()
 		self.node.texture = self.unhide_texture

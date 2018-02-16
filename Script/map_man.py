@@ -15,8 +15,10 @@ import sys
 import time
 from timer import Timer
 
+from game_menu import CopyFailMenu
 from game_menu import PauseMenu
 from game_menu import CreditsMenu
+from game_menu import OptionsMenu
 from game_menu import MainMenu
 from game_menu import EndGameMenu
 from game_menu import EndLevelMenu
@@ -43,6 +45,7 @@ from products_controller import ProductsController
 
 from completion import MapWoman
 from completion import Vortex
+from completion import Hearts
 
 import palette
 
@@ -99,8 +102,9 @@ class Game (Scene):
 	POINTS_PER_LEVEL = 10
 	SIMULATE_TILT = 'simulate_tilt.txt'
 	
-	def __init__(self):
+	def __init__(self, copy_failed=False):
 		self.set_up_complete = False
+		self.copy_failed=copy_failed
 		Scene.__init__(self)
 		
 	def load_simulated(self):
@@ -119,8 +123,16 @@ class Game (Scene):
 					self.simulate_tilt = False
 		except:
 			self.simulate_tilt = False
+	
+	def load_options(self):
+		self.playing_position = 'sitting'
+	
+	def update_playing_position(self, playing_position):
+		self.playing_position = playing_position
 		
 	def setup(self):
+		
+		Scaler.initialize(self)
 
 		self.completed = False
 		self.completed_auto = False
@@ -130,18 +142,7 @@ class Game (Scene):
 		self.purchase_to_continue = False
 		self.game_active = False
 		self.paused = False
-		
-		self.set_background()
-		self.load_first_play()
-		
-		self.simulated_tilt = None
-		self.load_simulated()
 
-		Scaler.initialize(self)
-		
-		self.music = Music()
-		self.shake = ShakeAndTilt()
-		
 		self.tutorial = False
 		
 		self.last_points_time = None
@@ -157,30 +158,56 @@ class Game (Scene):
 		self.sound = 0
 		self.stars = 0
 		
-		self.bottom_bar = bottom_bar.BottomBar(parent=self)
-		self.bottom_bar.hide()
+		self.menu = None
+		self.music = None
+			
+		if not self.copy_failed:
 		
-		self.level_display = LevelDisplay(parent=self)
-		self.lives_display = LivesDisplay(parent=self)
-		self.points_display = PointsDisplay(parent=self)
+			self.set_background()
 		
-		#self.game_node = Node(parent=self)
-		self.map = map.Map(self)
+			self.music = Music()
+			self.shake = ShakeAndTilt()
 		
-		self.set_up_player()
+			self.bottom_bar = bottom_bar.BottomBar(parent=self)
+			self.bottom_bar.hide()
 		
-		self.vortex = Vortex(self)
-		self.vortex.hide()
+			self.level_display = LevelDisplay(parent=self)
+			self.lives_display = LivesDisplay(parent=self)
+			self.points_display = 		PointsDisplay(parent=self)
 		
-		self.load_highscore()
-		self.load_continues()
-		self.load_check_points()
-		self.show_start_menu()
+			self.map = map.Map(self)
 		
+			self.set_up_player()
+		
+			self.vortex = Vortex(self)
+			self.vortex.hide()
+		
+			self.hearts = Hearts(self)
+			self.hearts.hide()
+
+			self.load_first_play()
+			self.simulated_tilt = None
+			self.load_simulated()
+			
+			self.load_options()
+			self.load_highscore()
+			self.load_continues()
+			self.load_check_points()
+		
+			self.show_start_menu()
+			
+		else:
+			
+			self.dummy_node = LabelNode(parent=self, text='dummy', font=('Courier', 12))
+			
+			self.menu = CopyFailMenu()
+			self.present_modal_scene(self.menu)
+				
 		self.set_up_complete = True
 		
 	def stop(self):
-		self.music.stop()
+		if not self.music is None:
+			self.music.stop()
 
 	def set_background(self):
 		
@@ -213,12 +240,18 @@ class Game (Scene):
 		elif not self.last_life_time is None:
 			self.bottom_bar.effect.life()
 			self.bottom_bar.set_controls_message('Extra Life', 20)
-		elif self.stuck:
-			self.bottom_bar.set_controls_message('Stuck, shake to release', 20)
-			self.bottom_bar.effect.sticky()
 		elif self.reverse and self.vanish > 0:
 			self.bottom_bar.set_controls_message('Controls reversed &\nsee you again in {0} moves'.format(self.vanish), 18)
 			self.bottom_bar.effect.reverse_and_vanish()
+		elif self.reverse and self.stuck:
+			self.bottom_bar.set_controls_message('Stuck, & controls reversed. Shake to release.'.format(self.vanish), 18)
+			self.bottom_bar.effect.reverse_and_stuck()
+		elif self.reverse and (not self.last_hide_time is None) and self.map.hidden:
+			self.bottom_bar.set_controls_message('Controls reversed &\nand tiles hidden', 18)
+			self.bottom_bar.effect.reverse_and_hidden()
+		elif self.stuck:
+			self.bottom_bar.set_controls_message('Stuck, shake to release', 20)
+			self.bottom_bar.effect.sticky()
 		elif self.reverse:
 			self.bottom_bar.set_controls_message('Controls reversed', 20)
 			self.bottom_bar.effect.reverse()
@@ -272,6 +305,7 @@ class Game (Scene):
 		self.player.hide()
 		self.map_woman.hide()
 		self.vortex.hide()
+		self.hearts.hide()
 			
 		level = self.level_display.level
 		delay = levels.DEFAULT_DELAY
@@ -314,7 +348,11 @@ class Game (Scene):
 			
 			selected_level = tutorial.levels[level]
 			loading = None
-			check_point = False
+			
+			if level in tutorial.checkpoints:
+				check_point = True
+			else:
+				check_point = False
 			self.bottom_bar.set_tutorial_text(tutorial.descriptions[level])
 			
 			x_hides = levels.DEFAULT_X_HIDES
@@ -322,10 +360,23 @@ class Game (Scene):
 		self.map.load_level(selected_level, loading, delay, check_point, x_hides)
 		
 		if self.completed:
-			self.map_woman.update(self.map.tiles[self.map_woman_start_position].position)
+			
+			woman_start = self.map.tiles[self.map_woman_start_position].position
+			
+			self.map_woman.update(woman_start)
 			self.vortex.update(self.map.end[0].node.position)
 			
+			heart_position = (woman_start[0] - self.map.tile_w * 0.5, woman_start[1] + self.player.node.size.h)
+			
+			self.hearts.update(heart_position)
+			
 	def update(self):
+		
+		if self.copy_failed:
+			return
+			
+		if self.menu is not None:
+			self.menu.update()
 			
 		if not self.set_up_complete:
 			return
@@ -357,8 +408,13 @@ class Game (Scene):
 					
 					if diff_x <= 1 and diff_y == 0:
 						self.completed_auto = True
-						self.map_woman.face_right()
-						
+						self.completed_auto_start = datetime.datetime.now()
+						self.map_woman.face_left()
+						self.hearts.show()
+
+						self.music.pause(datetime.timedelta(seconds=3))
+						sound.play_effect(os.path.join('SoundEffects','love.caf'))
+			
 				else:
 					
 					if self.map_woman.node.position[0] > self.map.end[0].node.position[0]:
@@ -405,6 +461,25 @@ class Game (Scene):
 					self.show_pause_menu()
 		else:
 			self.simulated_tilt = None 
+
+	def completed_auto_wait(self):
+		
+		if not self.completed_auto:
+			return False
+		
+		if self.completed_auto_start is None:
+			return False
+			
+		diff = datetime.datetime.now() - self.completed_auto_start
+		
+		return (diff.total_seconds() < 1)
+		
+	def completed_auto_right(self):
+		
+		if not self.completed_auto:
+			return False
+		else:
+			return not self.completed_auto_wait()
 		
 	def move_player(self):
 		
@@ -446,8 +521,14 @@ class Game (Scene):
 
 		x_threshold = 0.1
 		y_threshold = 0.1
-		y_offset = 0.6
 		
+		if self.playing_position == 'sitting':
+			y_offset = 0.7
+		elif self.playing_position == 'standing':
+			y_offset = 0.6
+		else:
+			raise Exception('Unexpected playing position: {0}'.format(self.playing_position))
+			
 		stop_time = 1.0 / 60.0 * 14.0 #0.15
 		wait_time = 1.0
 				
@@ -518,7 +599,7 @@ class Game (Scene):
 				else:
 					face = self.player.face_right_idle
 				
-		elif x < -x_threshold or self.completed_auto:
+		elif (x < -x_threshold or self.completed_auto_right()) and not self.completed_auto_wait():
 			
 			if can_move:
 				self.move(1, 0, x_stop_time)
@@ -728,15 +809,37 @@ class Game (Scene):
 			self.set_controls_message()
 	
 	def update_player_location(self):
-		self.player.update(self.map.get_position())
 		
-		if self.completed:
-			self.vortex.update(self.map.end[0].node.position)
+		if not self.completed:
+			self.player.update(self.map.get_position())
 			
-			if self.completed_auto:
-				position = self.map.get_position()
-				position = (position[0]+self.map.tile_w,position[1])
-				self.map_woman.update(position)
+		else:
+			
+			self.vortex.update()
+			
+			if not self.completed_auto_wait():
+				self.player.update(self.map.get_position())
+				
+				if self.completed_auto_right():
+					
+					if not self.completed_auto_start is None:
+						
+						self.player.face_right()
+						self.map_woman.face_right()
+						self.completed_auto_start = None
+						self.hearts.hide()
+						
+					position = self.map.get_position()
+					position = (position[0]+self.map.tile_w,position[1])
+					
+					self.map_woman.update(position)
+				
+			else:
+				
+				self.player.face_right()
+				self.map_woman.face_left()
+				self.hearts.update()
+				
 
 	def advance_level(self, check_point):
 		
@@ -842,7 +945,7 @@ class Game (Scene):
 	def set_up_player(self):
 		self.player = player.Player(self)
 		self.map_woman = MapWoman(self)
-		self.map_woman_start_position = (4,0)
+		self.map_woman_start_position = (4,1)
 
 	def show_purchase_to_play_menu(self):
 		
@@ -1005,6 +1108,17 @@ class Game (Scene):
 			self.new_tutorial()
 		elif title == 'credits':
 			self.show_credits()
+		elif title == 'options':
+			self.show_options()
+		elif title == 'sitting':
+			self.update_playing_position('standing')
+			self.menu.update_playing_position(self.playing_position)
+		elif title == 'standing':
+			
+			self.update_playing_position('sitting')
+			self.menu.update_playing_position(self.playing_position)
+			
+			
 		elif title in ['purchase', 'purchase menu', 'okay']:
 			self.show_purchase()
 		elif title in ['tweet pb','tweet completion','tweet completion & pb']:
@@ -1058,6 +1172,11 @@ class Game (Scene):
 		self.menu = CreditsMenu()
 		self.present_modal_scene(self.menu)
 
+	def show_options(self):
+		
+		self.menu = OptionsMenu(self.playing_position)
+		self.present_modal_scene(self.menu)
+		
 	def show_purchase(self):
 		
 		self.menu = PurchaseMenu(purchase_to_play=self.purchase_to_play, purchase_to_continue=self.purchase_to_continue)
@@ -1091,7 +1210,12 @@ class Game (Scene):
 		self.bottom_bar.timer.stop()
 		self.shake.stop()
 		
-		self.menu = CompletionScoringMenu(self.points_display.score, self.lives_display.lives)
+		completion_bonus = 100
+		lives_remaining_bonus = self.lives_display.lives * 50
+		
+		self.end_of_level_points = completion_bonus + lives_remaining_bonus
+		
+		self.menu = CompletionScoringMenu(self.points_display.score, completion_bonus, lives_remaining_bonus)
 			
 		self.present_modal_scene(self.menu)
 
@@ -1101,9 +1225,14 @@ class Game (Scene):
 		
 		self.dismiss_modal_scene()
 		
-		self.menu = CompletionMenu(self.points_display.score, pb)
-
+		self.points_display.score += self.end_of_level_points
+		
+		self.menu = CompletionMenu(self, self.points_display.score, pb)
+		
 		self.present_modal_scene(self.menu)
+		self.music.pause(datetime.timedelta(seconds=3))
+		
+		sound.play_effect(os.path.join('SoundEffects','complete.caf'))
 		
 	def new_game(self, level=None, tutorial=False):
 		

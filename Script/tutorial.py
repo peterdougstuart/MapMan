@@ -2,6 +2,7 @@
 
 descriptions = {}
 levels = {}
+checkpoints = {}
 
 levels[1] = '''
 
@@ -104,8 +105,31 @@ Wccci
 descriptions[9] = 'These tile causes other tiles to disappear and reappear. When the tiles are hidden you can still step on them so remember where they are.'
 
 levels[10] = '''
+  cccc
+  c  c
+Wcc  ccb
+'''
+
+descriptions[10] = 'Every so often you\'ll come across a checkpoint. Each time you reach a checkpoint you can restart from there instead of going back to the beginning.'
+
+checkpoints[10] = True
+
+levels[11] = '''
+  c   n
+  c   c
+  c   c
+  c   c
+  c   c
+  c   c
+  c   c
+  c   b
+'''
+
+descriptions[11] = 'If you need a break from playing, tap the screen during play to pause. Once paused you can either resume play or exit the game.'
+
+levels[12] = '''
 
 Wczczccb
 '''
 
-descriptions[10] = 'You\'re all set, head for the exit to start the game. Have fun!'
+descriptions[12] = 'You\'re all set, head for the exit to start the game. Have fun!'

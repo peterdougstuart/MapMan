@@ -11,6 +11,8 @@ import font
 from scaler import Scaler
 from products_controller import ProductsController
 from wrapping import WrappingLabelNode
+from random import random
+from random import randint
 
 def star_text(points):
 	if points < 1:
@@ -101,7 +103,7 @@ class EmphasiseText:
 		
 		if not self.on:
 			
-			sound.play_effect('arcade:Powerup_3', 0.5, (1 + 1.0/8.0 * self.index))
+			sound.play_effect('arcade:Powerup_3', 0.2, (1 + 1.0/8.0 * self.index))
 			
 			for i in range(len(self.nodes)):
 				node = self.nodes[i]
@@ -141,7 +143,7 @@ class Star:
 		if len(text) < 1:
 			return
 		
-		sound.play_effect('game:Ding_3')
+		sound.play_effect('game:Ding_3', 0.2)
 		
 		points = extract_stars(text)
 		
@@ -269,7 +271,11 @@ class MenuScene (Scene):
 		self.button_titles = button_titles
 		self.infos = infos
 		self.title_size = title_size*Scaler.Menu
-
+	
+	def update(self):
+		# overloaded by menus with animated bits
+		pass
+		
 	def above_height(self):
 		if len(self.title_label.text) > 0:
 			return self.title_label.size.h * 0.6
@@ -425,10 +431,10 @@ class RestartMenu(MenuScene):
 		
 		infos.append(('select checkpoint', 'to restart game'))
 		
-		MenuScene.__init__(self, 'Restart', buttons, infos=infos)
+		MenuScene.__init__(self, 'Restart', buttons, infos=infos, button_delta=65)
 
 	def get_height(self):
-		return MenuScene.get_height(self) * 0.5
+		return MenuScene.get_height(self) * 0.425
 		
 	def button_position(self, index):
 		
@@ -438,21 +444,45 @@ class RestartMenu(MenuScene):
 			else:
 				x = 50
 				index -= 4
+			extra = 0.0
 		else:
 			x = 0
 			index = 4
+			extra = -0.0
 			
-		return (x, self.menu_bg.size.h/2 - (index+0.5) * self.button_delta * 0.75 - self.info_space)
+		return (x, self.menu_bg.size.h/2 - (index+0.5) * self.button_delta * (0.70+extra) - self.info_space*0.85)
 		
 	def setup(self):
 			
 		MenuScene.setup(self)
 		
-		self.info_nodes[0].info_label.color = self.info_nodes[0].heading_label.color
+		self.info_nodes[0].heading_label.color = self.info_nodes[0].info_label.color
 		
 		for i in range(len(self.enables)):
 			if not self.enables[i]:
 				self.buttons[i].disable()
+		
+		for i in range(len(self.buttons)-1):
+			self.buttons[i].set_font_scale(1.5)
+
+class CopyFailMenu(MenuScene):
+	
+	def __init__(self):
+		
+		buttons = []
+		infos = []
+		
+		infos.append(('could not', 'expand files'))
+		infos.append(('try freeing', 'up space'))
+		infos.append(('on your', 'device'))
+		
+		MenuScene.__init__(self,'Failed', buttons, infos=infos)
+
+	def setup(self):
+		MenuScene.setup(self)
+		self.info_nodes[0].heading_label.color = '#000000'
+		self.info_nodes[1].heading_label.color = '#000000'
+		self.info_nodes[2].heading_label.color = '#000000'
 		
 class CreditsMenu(MenuScene):
 	
@@ -468,6 +498,25 @@ class CreditsMenu(MenuScene):
 		
 		MenuScene.__init__(self,'Credits', buttons, infos=infos)
 
+		
+class OptionsMenu(MenuScene):
+	
+	def __init__(self, playing_position):
+		
+		buttons = [playing_position, 'main menu']
+		infos = []
+		
+		infos.append(('playing position', 'click to toggle'))
+		
+		MenuScene.__init__(self,'Options', buttons, infos=infos)
+
+	def setup(self):
+		MenuScene.setup(self)
+		self.info_nodes[0].heading_label.color = '#000000'
+		
+	def update_playing_position(self, playing_position):
+		self.buttons[0].set_title(playing_position)
+		
 class PurchaseToPlayMenu(MenuScene):
 	
 	def __init__(self):
@@ -512,9 +561,9 @@ class MainMenu(MenuScene):
 		self.high_score = high_score
 		self.continues = continues
 		
-		buttons = ['play from start', 'restart from checkpoint', 'tutorial']
-			
-		buttons += ['purchase', 'credits']
+		buttons = ['play from start', 'restart from checkpoint', 'tutorial', 'purchase', 'credits', 'options']
+		
+		self.button_count = len(buttons)
 		
 		infos = []
 		
@@ -523,6 +572,28 @@ class MainMenu(MenuScene):
 		
 		MenuScene.__init__(self, '', buttons, infos)
 
+	def button_position(self, index):
+		
+		if index < (self.button_count - 2):
+			return MenuScene.button_position(self, index)
+			
+		else:
+			
+			position = MenuScene.button_position(self, self.button_count - 2)
+			
+			width = self.get_width()
+			
+			if index == (self.button_count - 2):
+				return (position[0]-width*0.15, position[1])
+			else:
+				return (position[0]+width*0.15, position[1])
+
+	def get_height(self):
+		
+		height = MenuScene.get_height(self)
+		
+		return height - self.button_delta
+			
 	def get_width(self):
 		return 360
 		
@@ -656,10 +727,10 @@ class MakePurchaseMenu(PurchaseMenuBase):
 		if self.add_continue is None:
 			return
 			
-		if product_identifier.lower() == 'com.mapman.one_continue':
-			self.add_continue(1)
-		elif product_identifier.lower() == 'com.mapman.three_continues':
-			self.add_continue(3)
+		if product_identifier.lower() == 'com.mapman.five_continues':
+			self.add_continue(5)
+		elif product_identifier.lower() == 'com.mapman.twenty_continues':
+			self.add_continue(20)
 				
 	def purchase_failed(self, product_identifier):
 		self.title_label.text = 'Sorry'
@@ -790,7 +861,7 @@ class PurchaseMenu(PurchaseMenuBase):
 			return True
 		
 	def is_continue(self, product):
-		if product.identifier in ['com.mapman.one_continue','com.mapman.three_continues']:
+		if product.identifier in ['com.mapman.five_continue','com.mapman.twenty_continues']:
 			return True
 		else:
 			return False
@@ -1119,12 +1190,10 @@ class EndGameMenu(MenuScene):
 			
 class CompletionScoringMenu(EndLevelMenu):
 	
-	COMPLETION_BONUS=100
-	BONUS_PER_LIFE=50
-	
-	def __init__(self, score, lives):
+	def __init__(self, score, completion_bonus, lives_remaining_bonus):
 		
-		self.lives=lives
+		self.completion_bonus = completion_bonus
+		self.lives_remaining_bonus = lives_remaining_bonus
 		
 		EndLevelMenu.__init__(self, level=-1, score=score, level_points=0, time_bonus=0, stars=0, check_point=False)
 
@@ -1132,11 +1201,11 @@ class CompletionScoringMenu(EndLevelMenu):
 		return 400
 
 	def add_level_bonus(self, infos, level_points):
-		infos.append(('completion bonus', star_text(CompletionScoringMenu.COMPLETION_BONUS)))
+		infos.append(('completion bonus', star_text(self.completion_bonus)))
 		return infos, self.get_index(infos)
 	
 	def add_time_bonus(self, infos, time_bonus):
-		infos.append(('remaining lives bonus', star_text(self.lives*CompletionScoringMenu.BONUS_PER_LIFE)))
+		infos.append(('remaining lives bonus', star_text(self.lives_remaining_bonus)))
 		return infos, self.get_index(infos)
 	
 	def get_title(self, level):
@@ -1148,10 +1217,59 @@ class CompletionScoringMenu(EndLevelMenu):
 	def touch_ended(self, touch):
 		if not MenuScene.touch_ended(self, touch):
 			self.show_menu('completion menu')
-				
+
+class CompletionSpriteNode(SpriteNode):
+	
+	def __init__(self, game, parent, texture, get_x, y, scale,rotation_range=3.14, z_position=None):
+		
+		SpriteNode.__init__(self, parent=parent, texture=texture)
+		
+		if not z_position is None:
+			self.z_position = z_position
+			
+		self.base_scale = scale
+		self.game = game
+		
+		self.anchor_point=(0.5,0)
+
+		self.set_scale()
+		
+		self.position = (get_x(self.size.w), y)
+		self.get_x = get_x
+		self.rotation_range = rotation_range
+		
+		self.set_rotation()
+		self.set_speed()
+	
+	def set_scale(self):
+		self.scale = self.base_scale = 0.9 + 0.2*random()
+		
+	def set_rotation(self):
+		self.rotation = self.rotation_range * (0.5-random())
+	
+	def set_speed(self):
+		self.speed = 0.5 + 0.5 * random()
+		
+	def update(self):
+		
+		max_height = 0.5 * self.game.size.h + max([self.size.w, self.size.h])
+		
+		y = self.position[1]
+		
+		if y > max_height:
+			new_y = -(max_height + self.size.h) * (1.0 + 0.5 * random())
+			self.position = (self.get_x(self.size.w), new_y)
+			self.set_rotation()
+			self.set_speed()
+			self.set_scale()
+		else:
+			self.position = (self.position[0], self.position[1]+self.speed)
+		
 class CompletionMenu(EndGameMenu):
 	
-	def __init__(self, score, pb):
+	def __init__(self, game, score, pb):
+		
+		self.game = game
 		
 		buttons = ['main menu']
 		
@@ -1173,8 +1291,67 @@ class CompletionMenu(EndGameMenu):
 
 	def get_width(self):
 		return 400
-
+	
+	def update(self):
+		for item in self.scrollers:
+			item.update()
+			
 	def setup(self):
+		
 		MenuScene.setup(self)
 		self.info_nodes[0].heading_label.color = '#000000'
+		
+		self.edge = 0.5 * (self.game.size.w- self.get_width())
+		
+		self.scroller_scale = float(self.get_width()) / float(self.game.size.w)
+		
+		self.scrollers = []
+		
+		self.add_scroller(Scaler.get_man_idle_path('front.png'), self.get_lhs, 0.5 * 3.14, 3000)
 	
+		self.add_scroller(Scaler.get_woman_idle_path('front.png'), self.get_rhs, 0.5 * 3.14,3000)
+		
+		for i in range(10):
+			
+			self.add_scroller(self.get_tile(), self.get_lhs)
+			self.add_scroller(self.get_tile(), self.get_rhs)
+		
+		
+	def get_lhs(self, width):
+		return -(0.5 * self.get_width() + random() * (self.edge-width))-0.5*width
+
+	def get_rhs(self, width):
+		return -self.get_lhs(width)
+	
+	def get_tile(self):
+		
+		key = randint(1, 8)
+		
+		if key == 1:
+			return Scaler.get_tile_path('blank1.png')
+		elif key == 2:
+			return Scaler.get_tile_path('show.png')
+		elif key == 3:
+			return Scaler.get_tile_path('life.png')
+		elif key == 4:
+			return Scaler.get_tile_path('sticky.png')
+		if key == 5:
+			return Scaler.get_tile_path('points.png')
+		elif key == 6:
+			return Scaler.get_tile_path('reverse.png')
+		elif key == 7:
+			return Scaler.get_tile_path('hide.png')
+		elif key == 8:
+			return Scaler.get_tile_path('death.png')
+		else:
+			return Scaler.get_tile_path('blank1.png')
+			
+	def add_scroller(self, texture, get_x, rotation_range=3.14,z_position=None):
+		
+		y = self.game.size.w*0.5 * (1.0 + random())
+		
+		item = CompletionSpriteNode(self.game, parent=self.menu_bg,texture=texture, get_x=get_x, y=-y, scale=self.scroller_scale,
+		rotation_range=rotation_range,
+		z_position=z_position)
+		
+		self.scrollers.append(item)

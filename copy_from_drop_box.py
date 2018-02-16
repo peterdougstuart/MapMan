@@ -67,6 +67,7 @@ xcode_base_folder = r"/Users/stuart/MapMan/Script"
 
 sync_in_app(drop_box_base_folder, xcode_base_folder)
 sync_folder(drop_box_base_folder, xcode_base_folder)
+sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Hearts')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Heart')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Vortex')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Effects')

@@ -114,26 +114,6 @@ tsrqponmn----
 '''
 
 levels[next()] = '''
-bcccccccc---
---c-----c---
---c-----ccc-
-crccccv---y-
-c-----c--cc-
-c-----c--c--
-ccccccccccce
-'''
-
-loadings[this()] = '''
-abcdefghi---
---d-----j---
---e-----kll-
-ggfghij---m-
-h-----j--nn-
-h-----l--o--
-iijklmmnopqr
-''' 
-
-levels[next()] = '''
 p--ccccccccccc--
 p--c---------c--
 p--c-ccccccc-c--
@@ -234,6 +214,26 @@ abcdef----opqrs
      hi--nop
       jklm
 '''
+
+levels[next()] = '''
+bcccccccc---
+--c-----c---
+--c-----ccc-
+crccccv---y-
+c-----c--cc-
+c-----c--c--
+ccccccccccce
+'''
+
+loadings[this()] = '''
+abcdefghi---
+--d-----j---
+--e-----kll-
+ggfghij---m-
+h-----j--nn-
+h-----l--o--
+iijklmmnopqr
+''' 
 
 levels[next()] = '''
 ------n-----
@@ -847,15 +847,15 @@ loadings[this()] = '''
 '''
 
 levels[next()] = '''
------clc--------
-----cc-c--------
+-----tlt--------
+----ct-t--------
+---cc--t--------
+--cc---t--------
+-bc----cccccce--
+--cc---c--------
 ---cc--c--------
---tc---t--------
--bc----mccccce--
---tp---t--------
----pp--p--------
-----pp-p--------
------ppp--------
+----cc-c--------
+-----ccc--------
 '''
 
 loadings[this()] = '''
@@ -903,7 +903,7 @@ ccc----------c--
 -ppc------c--ccc
 pp------ccc----c
 p--cccccc------c
-p--c--------cccc
+l--c--------cccc
 ---cccccccccc---
 '''
 
@@ -970,11 +970,11 @@ loadings[this()] = '''
 
 levels[next()] = '''
 ppp-----ppp-----
-pbpcccccpppccc--
+pbpcccccpypccc--
 ppp-----ppp--c--
 -------------c--
 --ppp----ppp-c--
---pnp----pppcc--
+--pnp----pypcc--
 --ppp----ppp----
 ---c------c-----
 ---cccccccc-----
@@ -1094,6 +1094,32 @@ loadings[this()] = '''
 levels[next()] = '''
 ----------------
 ----------------
+----------------
+-cccccdcccccdcce
+bccdcccccdccccc-
+----------------
+----------------
+----------------
+----------------
+'''
+
+loadings[this()] = '''
+----------------
+----------------
+----------------
+-3456789abcdefgh
+123456789abcdef-
+----------------
+----------------
+----------------
+----------------
+'''
+
+#START_LEVEL = this()
+
+levels[next()] = '''
+----------------
+----------------
 --dpppnpppd-----
 --ppppppppp-----
 --wppdpdpppxccb-
@@ -1140,31 +1166,6 @@ loadings[this()] = '''
 -------1--------
 ----------------
 '''
-
-levels[next()] = '''
-----------------
-----------------
-----------------
--cccccdcccccdcce
-bccdcccccdccccc-
-----------------
-----------------
-----------------
-----------------
-'''
-
-loadings[this()] = '''
-----------------
-----------------
-----------------
--3456789abcdefgh
-123456789abcdef-
-----------------
-----------------
-----------------
-----------------
-'''
-
 
 levels[next()] = '''
 -----------p----
@@ -1237,56 +1238,6 @@ dd--------------
 -a9988776655443-
 -99887766554433-
 --------------21
-'''
-
-levels[next()] = '''
---ddddddddddddddd
---dccccccccccccxd
-wcccdddddcdddddcd
---ddd---dld---dcd
-bcccd---ddd---dcd
---dcd---------dcd
---dcdddddddddddcd
---dxccccccccccccd
---ddddddddddddddd
-'''
-
-x_hides[this()] = 12
-
-loadings[this()] = '''
---xwvuttssrrqqppo
---ykjjihhggffeedo
-mllkvuttthrqqpoin
---yxw---shr---ncn
-1122b---ssr---mcm
---c3c---------lbm
---c3cdfgghhiijkbl
---c44566778899aal
---ddeffgghhiijjkk
-'''
-
-levels[next()] = '''
---ddddddddddddddd
---dcccccccccccccd
-wcccdddddldddddcd
---ddd---drd---dcd
-bcrcd---ddd---dcd
---dcd---------dcd
---dcdddddddddddcd
---dcccccccccccccd
---ddddddddddddddd
-'''
-
-loadings[this()] = '''
---xwvuttssrrqqppo
---ykjjihhggffeedo
-mllkvuttthrqqpoin
---yxw---shr---ncn
-1122b---ssr---mcm
---c3c---------lbm
---c3cdfgghhiijkbl
---c44566778899aal
---ddeffgghhiijjkk
 '''
 
 levels[next()] = '''
@@ -1532,30 +1483,6 @@ loadings[this()] = '''
 '''
 
 levels[next()] = '''
-   rcccccccr
-   c       c
-   c rcccr c
-   c c   c c
-   c c b c c
-   c c c c c
-   c c tcr c
-   c c     c
-   S rcccccr
-'''
-
-loadings[this()] = '''
-   xllkkjjiw
-   m       i
-   m t987s h
-   n a   6 h
-   n a 1 5 g
-   o b 2 4 g
-   o b q3r f
-   p c     f
-   y ucddeev
-'''
-
-levels[next()] = '''
  Wyyyyyd
  dddddyd
  yyyyyyd
@@ -1611,6 +1538,54 @@ loadings[this()] = '''
  ********
  *   *
  z***z***
+'''
+
+levels[next()] = '''
+--ddddddddddddddd
+--dcccccccccccccd
+wcccdddddcdddddcd
+--ddd---dld---dcd
+bcccd---ddd---dcd
+--dcd---------dcd
+--dcdddddddddddcd
+--dxccccccccccccd
+--ddddddddddddddd
+'''
+
+loadings[this()] = '''
+--xwvuttssrrqqppo
+--ykjjihhggffeedo
+mllkvuttthrqqpoin
+--yxw---shr---ncn
+1122b---ssr---mcm
+--c3c---------lbm
+--c3cdfgghhiijkbl
+--c44566778899aal
+--ddeffgghhiijjkk
+'''
+
+levels[next()] = '''
+--ddddddddddddddd
+--dcccccccccccccd
+wcccdddddldddddcd
+--ddd---drd---dcd
+bcrcd---ddd---dcd
+--dcd---------dcd
+--dcdddddddddddcd
+--dcccccccccccccd
+--ddddddddddddddd
+'''
+
+loadings[this()] = '''
+--xwvuttssrrqqppo
+--ykjjihhggffeedo
+mllkvuttthrqqpoin
+--yxw---shr---ncn
+1122b---ssr---mcm
+--c3c---------lbm
+--c3cdfgghhiijkbl
+--c44566778899aal
+--ddeffgghhiijjkk
 '''
 
 levels[next()] = '''
@@ -1920,7 +1895,7 @@ levels[next()] = '''
   c    c i    i
  cc    ccu    pi
  c      s      i
-cc             pi
+cc             pt
 b               l
 '''
 
@@ -1935,6 +1910,30 @@ loadings[this()] = '''
  c      c      *
 cc             **
 b               *
+'''
+
+levels[next()] = '''
+   rcccccccr
+   c       c
+   c rcccr c
+   c c   c c
+   c c b c c
+   c c c c c
+   c c tcr c
+   c c     c
+   S rcccccr
+'''
+
+loadings[this()] = '''
+   xllkkjjiw
+   m       i
+   m t987s h
+   n a   6 h
+   n a 1 5 g
+   o b 2 4 g
+   o b q3r f
+   p c     f
+   y ucddeev
 '''
 
 levels[next()] = '''
@@ -2084,7 +2083,7 @@ levels[next()] = '''
 --dcdcdddddcdcd-
 --dcdcdwccccdcd-
 --dcdcdddddddcd-
---dcdcccccccccd-
+--dcdxccccccccd-
 bcxcddddddddddd-
 '''
 
@@ -2100,7 +2099,7 @@ loadings[this()] = '''
 1112nnnnnnnnnnn-
 '''
 
-x_hides[this()] = 100
+x_hides[this()] = 10
 
 levels[next()] = '''
 --!!!!!!!!!!!!!-
@@ -2246,14 +2245,16 @@ mnmnmnmnmnm-cba-
 -22525252525252-
 --1616161616161
 '''
-
-#levels[this()] = '''
-#bcce
-#'''
-#
-#del loadings[this()]
-#START_LEVEL = this()
  
+pre_completion = '''
+bcce
+'''
+
+if False:
+	levels[this()] = pre_completion
+	del loadings[this()]
+	START_LEVEL = this()
+
 completion = '''
  bccccccc
         c
@@ -2264,6 +2265,7 @@ completion = '''
  c
  c
  ccccccce
+ 
 '''
 
 completion_loading = '''
@@ -2276,7 +2278,10 @@ completion_loading = '''
  r
  r
  stuvwxyz
+ 
 '''
+
+START_LEVEL = 1
 
 if __name__ == '__main__':
 	verify_levels(levels, loadings)

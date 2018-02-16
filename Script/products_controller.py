@@ -40,8 +40,8 @@ class ProductsController(object):
 		self.l51_l75 = NullProduct()
 		self.l76_l100 = NullProduct()
 		self.all_levels = NullProduct()
-		self.one_continue = NullProduct()
-		self.three_continues = NullProduct()
+		self.five_continues = NullProduct()
+		self.twenty_continues = NullProduct()
 		
 		if InApp.Instance.products_validated:
 			
@@ -65,8 +65,8 @@ class ProductsController(object):
 		self.products.append(self.l76_l100)
 		self.products.append(self.all_levels)
 		
-		self.products.append(self.one_continue)
-		self.products.append(self.three_continues)
+		self.products.append(self.five_continues)
+		self.products.append(self.twenty_continues)
 		
 		self.dict = {}
 		
@@ -91,18 +91,18 @@ class ProductsController(object):
 		
 	def map_to_attribute(self, product):
 		
-		if product.identifier == 'com.mapman.l26-50':
+		if product.identifier == 'com.mapman.l26_50':
 			self.l26_l50 = self.extend(product)
-		elif product.identifier == 'com.mapman.l51-75':
+		elif product.identifier == 'com.mapman.l51_75':
 			self.l51_l75 = self.extend(product)
-		elif product.identifier == 'com.mapman.l76-100':
+		elif product.identifier == 'com.mapman.l76_100':
 			self.l76_l100 = self.extend(product)
 		elif product.identifier == 'com.mapman.all_levels':
 			self.all_levels = self.extend(product)
-		elif product.identifier == 'com.mapman.one_continue':
-			self.one_continue = self.extend(product, True)
-		elif product.identifier == 'com.mapman.three_continues':
-			self.three_continues = self.extend(product, True)
+		elif product.identifier == 'com.mapman.five_continues':
+			self.five_continues = self.extend(product, True)
+		elif product.identifier == 'com.mapman.twenty_continues':
+			self.twenty_continues = self.extend(product, True)
 			
 	def extend(self, product, consumable=False):
 		
@@ -121,8 +121,8 @@ class ProductsController(object):
 		self.check_can_purchase_l51_l75()
 		self.check_can_purchase_l76_l100()
 		
-		self.check_can_purchase_one_continue()
-		self.check_can_purchase_three_continues()
+		self.check_can_purchase_five_continues()
+		self.check_can_purchase_twenty_continues()
 	
 	def base_can_purchase(self, product):
 		
@@ -186,13 +186,13 @@ class ProductsController(object):
 			self.l76_l100.can_purchase = False
 			self.l76_l100.why_cant_purchase = 'You must first purchase levels 51-75'
 
-	def check_can_purchase_one_continue(self):
+	def check_can_purchase_five_continues(self):
 		
-		self.one_continue.can_purchase = True
+		self.five_continues.can_purchase = True
 	
-	def check_can_purchase_three_continues(self):
+	def check_can_purchase_twenty_continues(self):
 		
-		self.three_continues.can_purchase = True
+		self.twenty_continues.can_purchase = True
 		
 	def purchase(self, product, caller):
 		

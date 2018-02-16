@@ -14,7 +14,7 @@ class MapWoman (object):
 		
 		self.side_idle = [self.create_texture(Scaler.get_woman_idle_path('side.png'))]
 		
-		self.idle = self.down_idle
+		self.idle = [self.create_texture(Scaler.get_woman_idle_path('neutral.png'))]
 		
 		self.up = self.load_frames('back')
 		self.down =  self.load_frames('forward')
@@ -142,13 +142,11 @@ class MapWoman (object):
 			return False
 
 
-class Vortex (object):
-	
-	FRAMES = 1
+class AnimatedBase(object):
 	
 	def __init__(self, parent):
 		
-		self.frames = self.load_frames('vortex')
+		self.frames = self.load_frames()
 		
 		self.node = Scaler.new_sprite(self.frames[0])
 		self.node.z_position = 999.0
@@ -158,7 +156,7 @@ class Vortex (object):
 		
 		self.hide()
 		
-		self.node.anchor_point = (0.5, 0.25)
+		self.node.anchor_point = (0.5, 0.35)
 
 		self.x_scale = self.base_scale
 		self.y_scale = self.base_scale
@@ -168,14 +166,20 @@ class Vortex (object):
 		
 		self.frame = 0
 
-	def load_frames(self, tag):
+	def number_of_frames(self):
+		pass
+		
+	def load_frames(self):
+		pass
+		
+	def load_frames_base(self, tag, method):
 		
 		frames = []
 		
-		for index in range(Vortex.FRAMES):
-			frame = index + 1
+		for index in range(self.number_of_frames()):
+			frame = index
 			image = "{0}{1:02d}.png".format(tag, frame)
-			texture = self.create_texture(Scaler.get_vortex_frames_path(image))
+			texture = self.create_texture(method(image))
 			frames.append(texture)
 			
 		return frames
@@ -196,8 +200,9 @@ class Vortex (object):
 		self.node.y_scale = self.y_scale
 		self.hidden = False
 				
-	def update(self, position):
-		self.node.position = position
+	def update(self, position=None):
+		if not position is None:
+			self.node.position = position
 		self.advance_frame()
 	
 	def draw(self):
@@ -224,3 +229,27 @@ class Vortex (object):
 			return True
 		else:
 			return False
+			
+class Vortex (AnimatedBase):
+	
+	FRAMES = 90
+
+	def number_of_frames(self):
+		return Vortex.FRAMES
+		
+	def load_frames(self):
+		return self.load_frames_base('vortex', Scaler.get_vortex_frames_path)
+
+class Hearts(AnimatedBase):
+	
+	FRAMES = 90
+
+	def __init__(self, parent):
+		AnimatedBase.__init__(self, parent)
+		self.node.z_position = 3000
+		
+	def number_of_frames(self):
+		return Hearts.FRAMES
+		
+	def load_frames(self):
+		return self.load_frames_base('hearts', Scaler.get_hearts_frames_path)

@@ -40,4 +40,29 @@ class ProductRegistry (object):
 			self.purchased[product_identifier] = self.load(product_identifier)
 			
 		return self.purchased[product_identifier]
+		
+	def log_price(self, product_identifier, product_price):
+
+		file = self.get_price_log_file(product_identifier)
+		
+		with open(file, 'w') as f:
+			f.write(str(product_price))
+	
+	def is_discounted(self, product_identifier, product_price):
+		
+		file = self.get_price_log_file(product_identifier)
+		
+		if not os.path.isfile(file):
+			return False
+		
+		try:
+			with open(file, 'r') as f:
+				old_price = float(f.readline())
+				return (product_price < old_price)
+		except:
+			return False
+
+	def get_price_log_file(self, product_identifier):
+		return '.{0}.price'.format(product_identifier)
+		
 

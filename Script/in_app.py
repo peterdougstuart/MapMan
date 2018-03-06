@@ -37,15 +37,14 @@ class InAppDummy:
     	
         self.observers = []
         self.products = []
-        self.products.append(Product('com.mapman.l26_50', 'Levels 26-50', 'Enable levels 26 to 50', 0.99))
-        self.products.append(Product('com.mapman.l51_75', 'Levels 51-75', 'Enable levels 51 to 75', 0.99))
-        self.products.append(Product('com.mapman.l76_100', 'Levels 76-100', 'Enable levels 76 to 100', 0.99))
         
-        self.products.append(Product('com.mapman.all_levels', 'All levels', 'All levels', 1.99))
+        discounted = (randint(0, 2) == 0)
         
-        self.products.append(Product('com.mapman.five_continues', 'Five Continues', 'Five Continues', 0.99))
-        
-        self.products.append(Product('com.mapman.twenty_continues', 'Twenty Continues', 'Twenty Continues', 1.99))
+        if discounted:
+        	price = 0.99
+        else:
+        	price = 1.99
+        self.products.append(Product('com.mapman.checkpoints', 'Checkpoints', 'activate ability to restart game from achieved checkpoints. great for practicing later levels without having to start from the beginning', price))
         
         self.invalid_products = []
         
@@ -56,7 +55,7 @@ class InAppDummy:
     	
         time.sleep(1.0)
         
-        outcome = (randint(0, 2) == 0)
+        outcome = (randint(0, 3) == 0)
         
         for observer in self.observers:
             if outcome == 0:
@@ -73,13 +72,14 @@ class InAppDummy:
     	
 class InApp:
     
-    PRODUCTS = ['com.mapman.l26_50','com.mapman.l51_75','com.mapman.l76_100','com.mapman.all_levels','com.mapman.five_continues','com.mapman.twenty_continues']
+    PRODUCTS = ['com.mapman.checkpoints']
     
     Instance = None
     
     @classmethod
     def initialize(cls):
         cls.Instance = InApp()
+        cls.Instance.fetch()
 
     @classmethod
     def initialize_dummy(cls):
@@ -194,6 +194,7 @@ class InApp:
         
         self.valid_count = 0
         self.invalid_products = []
+        
 		
     def add_observer(self, observer):
         self.observers.append(observer)

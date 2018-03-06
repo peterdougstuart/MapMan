@@ -71,6 +71,8 @@ sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png']
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Heart')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Vortex')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Effects')
+sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Buttons')
+sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Menu')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Checkpoint')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Gradients')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.caf'], sub_folder='GameMusic')

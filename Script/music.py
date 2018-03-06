@@ -21,6 +21,7 @@ class Music:
 		self.paused = False
 		self.start_pause = None
 		self.pause_duration = None
+		self.completion = 1
 		
 	def play_menu(self):
 		
@@ -28,6 +29,8 @@ class Music:
 			return
 			
 		self.menu = True
+		self.completion = 1
+		
 		self.play('Brexit of Champions (opening).caf')
 		
 		self.restart_call = self.play_menu
@@ -37,9 +40,33 @@ class Music:
 		self.play('Paris Breakup (end screen).caf')
 		self.restart_call = self.play_end
 
+	def play_completion_scoring(self):
+		
+		self.menu = False
+		self.completion = 1
+		
+		self.play('Calling it a day (completion scoring).caf')
+			
+		self.restart_call = self.play_completion_scoring
+		
+	def play_completion_menu(self):
+		
+		self.menu = False
+		
+		if self.completion == 1:
+			self.play('Starry Starry Bye (completion menu).caf')
+			self.completion = 2
+		else:
+			self.play('Fly away my old friend (completion menu).caf')
+			self.completion = 1
+			
+		self.restart_call = self.play_completion_menu
+		
 	def play_game(self):
 		
 		self.menu = False
+		self.completion = 1
+		
 		number = random.randint(1, 5)
 		
 		if number == 1:

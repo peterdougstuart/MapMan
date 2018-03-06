@@ -46,7 +46,7 @@ def verify_levels(levels, loadings):
 		
 	print 'all ok'
 
-check_points = [15, 30, 40, 50, 60, 70, 80, 90]
+check_points = [10, 20, 30, 40, 50, 60, 70, 75, 80, 85, 90, 95]
 
 DEFAULT_X_HIDES = 25
 DEFAULT_DELAY = 0.05
@@ -829,7 +829,7 @@ levels[next()] = '''
 --c----------p--
 --c----------p--
 --c----------p--
---c----------p--
+--c----------l--
 --s----------d--
 ----------------
 '''
@@ -901,9 +901,9 @@ c-bccccccccccc--
 ccc----------c--
 ---cccccccc--c--
 -ppc------c--ccc
-pp------ccc----c
-p--cccccc------c
-l--c--------cccc
+lp------ccc----c
+---cccccc------c
+---c--------cccc
 ---cccccccccc---
 '''
 
@@ -914,8 +914,8 @@ loadings[this()] = '''
 ---wwvvvuuu--i--
 -xxw------t--ijj
 yx------stt----k
-y--qrrrss------k
-y--q--------mmll
+---qrrrss------k
+---q--------mmll
 ---qpppooonnn---
 '''
 
@@ -1439,47 +1439,27 @@ loadings[this()] = '''
 '''
 
 levels[next()] = '''
-ccc ccc ccc ccc
-c c c c c c c c
-r c c c c c c c
-x c c c c c c c
-c c c c c c c c
-b ccc ccc ccc S
-'''
-
-x_hides[this()] = 100
-
-loadings[this()] = '''
-fgh fgh fgh fgh
-e e e e e e e e
-d d d d d d d d
-c c c c c c c c
-b b b b b b b b
-a fgh fgh fgh a
-'''
-
-delays[this()] = 0.1
-
-levels[next()] = '''
- Wcccccd
- dddddcd
- ccccccd
- cdddddd
- cccdrccccb
- ddcdvdd
- ddcccdd
- ddddddd
+wu--------------
+-cccccccccccccc-
+-cccccccccccccc-
+-cccccccccccccc-
+-!!!i!!!!!!!!!!-
+-cccccccccccccc-
+-cccccccccccccc-
+-cccccccccccccc-
+--------------hb
 '''
 
 loadings[this()] = '''
- srqponx
- xxxxxmx
- ghijklx
- fxxxxxx
- edcxy54321
- xxbxzxx
- xxa98xx
- xxxxxxx
+dd--------------
+-ccbbaa99887766-
+-cbbaa998877665-
+-bbaa9988776655-
+-baa99887766554-
+-aa998877665544-
+-a9988776655443-
+-99887766554433-
+-------------21-
 '''
 
 levels[next()] = '''
@@ -1551,6 +1531,8 @@ bcccd---ddd---dcd
 --dxccccccccccccd
 --ddddddddddddddd
 '''
+
+x_hides[this()] = 12
 
 loadings[this()] = '''
 --xwvuttssrrqqppo
@@ -1631,7 +1613,7 @@ levels[next()] = '''
 ------------dcd-
 ------------dyd-
 --dddddddddddcd-
--bcycycycycycyd-
+bccycycycycycyd-
 --ddddddddddddd-
 '''
 
@@ -1644,7 +1626,7 @@ loadings[this()] = '''
 ------------9f9-
 ------------8g8-
 --11223345678h8-
--utsrqponmlkji7-
+vutsrqponmlkji7-
 --1122334455667-
 '''
 
@@ -1657,7 +1639,7 @@ levels[next()] = '''
 ------------dcd-
 ------------dyd-
 --dddddddddddcd-
--bcycycycycycrd-
+brcycycycycycyd-
 --ddddddddddddd-
 '''
 
@@ -1670,7 +1652,7 @@ loadings[this()] = '''
 ------------9f9-
 ------------8g8-
 --11223345678h8-
--utsrqponmlkji7-
+vutsrqponmlkji7-
 --1122334455667-
 '''
 
@@ -1682,7 +1664,7 @@ levels[next()] = '''
 -------dsd--dcd-
 ------------dyd-
 --dddddddddddcd-
--bcycycycycycyd-
+bccycycycycycyd-
 --ddddddddddddd-
 '''
 
@@ -1694,7 +1676,7 @@ loadings[this()] = '''
 -------bbb--986-
 ------------976-
 --5556667778875-
--33344455566675-
+333344455566675-
 --1112223334445-
 '''
 
@@ -1738,7 +1720,7 @@ levels[next()] = '''
 --dddddddd--dcd-
 ------------dyd-
 --dddddddddddcd-
--bcycycycycycyd-
+bccycycycycycyd-
 --ddddddddddddd
 '''
 
@@ -1750,7 +1732,7 @@ loadings[this()] = '''
 --ihggffee--989-
 ------------888-
 --1122334456778-
--11223344556677-
+111223344556677-
 --1122334455667-
 '''
 
@@ -1758,13 +1740,13 @@ delays[this()] = 0.1
 
 levels[next()] = '''
 ----------ddddd-
----------dcycrd-
+---------dcycyd-
 --dddddddcyddcd-
 -wcycycycyd-dyd-
 --dddddddd--dcd-
 ------------dyd-
 --dddddddddddcd-
--bcycycycycycyd-
+brcycycycycycyd-
 --ddddddddddddd-
 '''
 
@@ -1776,7 +1758,7 @@ loadings[this()] = '''
 --ihggffee--989-
 ------------888-
 --1122334456778-
--11223344556677-
+111223344556677-
 --1122334455667-
 '''
 
@@ -1828,6 +1810,40 @@ bcccxcccc-h
           i
   wcciiiiii
           d
+'''
+
+loadings[this()] = '''
+        def
+        c-g
+        b-h
+        a-i
+123456789-j
+          k
+          l
+  vutsrqonm
+          n
+'''
+
+levels[next()] = '''
+ Wyyyyyd
+ dddddyd
+ yyyyyyd
+ ydddddd
+ yyydyyycrb
+ ddydydd
+ ddyyydd
+ ddddddd
+'''
+
+loadings[this()] = '''
+ srqponx
+ xxxxxmx
+ ghijklx
+ fxxxxxx
+ edcxy54321
+ xxbxzxx
+ xxa98xx
+ xxxxxxx
 '''
 
 loadings[this()] = '''
@@ -2057,7 +2073,7 @@ levels[next()] = '''
 --dcdddddddddcd-
 --dcdcccccccdcd-
 --dcdcdddddcdcd-
---dcdcdwccccdcd-
+--dcdcdwccccdrd-
 --dcdcdddddddcd-
 --dcdcccccccccd-
 bcrcddddddddddd-
@@ -2076,15 +2092,15 @@ loadings[this()] = '''
 '''
 
 levels[next()] = '''
---ddddddddddddd
+--dddddddmddddd
 --dcccccccccccd-
 --dcdddddddddcd-
 --dcdcccccccdcd-
 --dcdcdddddcdcd-
 --dcdcdwccccdcd-
 --dcdcdddddddcd-
---dcdxccccccccd-
-bcxcddddddddddd-
+--dcd4ccccccccd-
+bc8cddddddddddd-
 '''
 
 loadings[this()] = '''
@@ -2098,8 +2114,6 @@ loadings[this()] = '''
 --l2oedddcccbbm-
 1112nnnnnnnnnnn-
 '''
-
-x_hides[this()] = 10
 
 levels[next()] = '''
 --!!!!!!!!!!!!!-
@@ -2126,29 +2140,26 @@ loadings[this()] = '''
 '''
 
 levels[next()] = '''
-wu--------------
--cccccccccccccc-
--cccccccccccccc-
--cccccccccccccc-
--!!!i!!!!!!!!!!-
--cccccccccccccc-
--cccccccccccccc-
--cccccccccccccc-
---------------hb
+ccc ccc ccc ccc
+c c c c c c c c
+r c c c c c c c
+x c c c c c c c
+c c c c c c c c
+b ccc ccc ccc S
 '''
+
+x_hides[this()] = 100
 
 loadings[this()] = '''
-dd--------------
--ccbbaa99887766-
--cbbaa998877665-
--bbaa9988776655-
--baa99887766554-
--aa998877665544-
--a9988776655443-
--99887766554433-
--------------21-
+fgh fgh fgh fgh
+e e e e e e e e
+d d d d d d d d
+c c c c c c c c
+b b b b b b b b
+a fgh fgh fgh a
 '''
 
+delays[this()] = 0.1
 
 levels[next()] = '''
 wu--------------
@@ -2254,7 +2265,7 @@ if False:
 	levels[this()] = pre_completion
 	del loadings[this()]
 	START_LEVEL = this()
-
+	
 completion = '''
  bccccccc
         c
@@ -2280,8 +2291,6 @@ completion_loading = '''
  stuvwxyz
  
 '''
-
-START_LEVEL = 1
 
 if __name__ == '__main__':
 	verify_levels(levels, loadings)

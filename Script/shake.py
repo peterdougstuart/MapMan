@@ -42,7 +42,7 @@ class ShakeAndTilt:
 		
 		shake = math.sqrt(ux*ux+uy*uy+uz*uz)
 				
-		if shake > 80.0:
+		if shake > 40.0:
 			self.shook = True
 		else:
 			self.shook = False

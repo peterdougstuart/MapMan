@@ -15,24 +15,23 @@ import sys
 import time
 from timer import Timer
 
+from game_menu import CheckpointsPurchaseRequiredMenu
 from game_menu import CopyFailMenu
 from game_menu import PauseMenu
 from game_menu import CreditsMenu
 from game_menu import OptionsMenu
-from game_menu import MainMenu
+from game_menu2 import MainMenu
 from game_menu import EndGameMenu
 from game_menu import EndLevelMenu
 from game_menu import LoseLifeMenu
 from game_menu import RestartMenu
 from game_menu import PurchaseMenu
-from game_menu import FirstPlayMenu
+from game_menu2 import FirstPlayMenu
 from game_menu import ConfirmProductMenu
 from game_menu import MakePurchaseMenu
-from game_menu import PurchaseToPlayMenu
 from game_menu import CompletionMenu
 from game_menu import CompletionScoringMenu
 
-from score_tweet import ScoreTweet
 from shake import ShakeAndTilt
 from music import Music
 from level_display import LevelDisplay
@@ -125,10 +124,27 @@ class Game (Scene):
 			self.simulate_tilt = False
 	
 	def load_options(self):
-		self.playing_position = 'sitting'
+		
+		try:
+			with open('.map_man_options', 'r') as f:
+				self.playing_position = f.readline()
+		except:
+			self.playing_position = 'sitting'
+		
+		if not self.playing_position in ['sitting','standing']:
+			self.playing_position = 'sitting'
 	
+	def save_options(self):
+		
+		try:
+			with open('.map_man_options', 'w') as f:
+				f.write(self.playing_position)
+		except:
+			pass
+			
 	def update_playing_position(self, playing_position):
 		self.playing_position = playing_position
+		self.save_options()
 		
 	def setup(self):
 		
@@ -138,8 +154,6 @@ class Game (Scene):
 		self.completed_auto = False
 		self.completed_loaded = False
 		
-		self.purchase_to_play = False
-		self.purchase_to_continue = False
 		self.game_active = False
 		self.paused = False
 
@@ -167,10 +181,13 @@ class Game (Scene):
 		
 			self.music = Music()
 			self.shake = ShakeAndTilt()
-		
+			
+			
 			self.bottom_bar = bottom_bar.BottomBar(parent=self)
 			self.bottom_bar.hide()
-		
+			
+			self.background_gradient = Gradient(self, self.bottom_bar.size.h)
+			
 			self.level_display = LevelDisplay(parent=self)
 			self.lives_display = LivesDisplay(parent=self)
 			self.points_display = 		PointsDisplay(parent=self)
@@ -191,7 +208,6 @@ class Game (Scene):
 			
 			self.load_options()
 			self.load_highscore()
-			self.load_continues()
 			self.load_check_points()
 		
 			self.show_start_menu()
@@ -518,9 +534,6 @@ class Game (Scene):
 					self.stuck = False
 			else:
 				self.stuck = False
-
-		x_threshold = 0.1
-		y_threshold = 0.1
 		
 		if self.playing_position == 'sitting':
 			y_offset = 0.7
@@ -548,24 +561,6 @@ class Game (Scene):
 		else:
 			y = self.shake.g[0] + y_offset
 			x = self.shake.g[1]
-			
-		if abs(x) > (2 * x_threshold):
-			x_stop_time = 0.5 * stop_time
-			self.wait_until = None
-		elif abs(x) > (1.5 * x_threshold):
-			x_stop_time = stop_time
-			self.wait_until = None
-		else:
-			x_stop_time = stop_time
-
-		if abs(y) > (2 * y_threshold):
-			y_stop_time = 0.5 * stop_time
-			self.wait_until = None
-		elif abs(y) > (1.25 * y_threshold):
-			y_stop_time = stop_time
-			self.wait_until = None
-		else:
-			y_stop_time = stop_time
 
 		if not self.wait_until is None:
 			if move_time < self.wait_until:
@@ -581,6 +576,38 @@ class Game (Scene):
 			
 		face = self.player.face_idle
 		
+		if abs(x) > abs(y):
+			first_method = self.move_player_x
+			second_method = self.move_player_y
+			first = x
+			second = y
+		else:
+			first_method = self.move_player_y
+			second_method = self.move_player_x
+			first = y
+			second = x
+			
+		face = first_method(first, stop_time, wait_time, can_move, face)
+		
+		if not self.map.moving:
+			face = second_method(second , stop_time, wait_time, can_move, face)
+		
+		if not face is None:
+			face()
+	
+	def move_player_x(self, x, stop_time, wait_time, can_move, face):
+		
+		x_threshold = 0.1
+
+		if abs(x) > (2 * x_threshold):
+			x_stop_time = 0.5 * stop_time
+			self.wait_until = None
+		elif abs(x) > (1.5 * x_threshold):
+			x_stop_time = stop_time
+			self.wait_until = None
+		else:
+			x_stop_time = stop_time
+			
 		if x > x_threshold and not self.completed_auto:
 			
 			if can_move:
@@ -616,6 +643,21 @@ class Game (Scene):
 					face = self.player.face_right_idle
 				else:
 					face = self.player.face_left_idle
+		
+		return face
+
+	def move_player_y(self, y, stop_time, wait_time, can_move, face):
+		
+		y_threshold = 0.1
+			
+		if abs(y) > (2 * y_threshold):
+			y_stop_time = 0.5 * stop_time
+			self.wait_until = None
+		elif abs(y) > (1.25 * y_threshold):
+			y_stop_time = stop_time
+			self.wait_until = None
+		else:
+			y_stop_time = stop_time
 			
 		if y > y_threshold and not self.completed_auto:
 			
@@ -652,9 +694,9 @@ class Game (Scene):
 					face = self.player.face_down_idle
 				else:
 					face = self.player.face_up_idle
-					
-		face()
-			
+
+		return face
+		 
 	def set_time_message(self, time_left):
 		
 		if self.tutorial:
@@ -670,16 +712,7 @@ class Game (Scene):
 			self.bottom_bar.set_time_message(message)
 		else:
 			self.bottom_bar.set_time_message('')
-
-	def use_continue(self):
-		
-		if self.continues < 1:
-			return
-			
-		self.continues -= 1
-		self.save_contiues()
-		self.new_game(level=self.level_display.level)
-		
+	
 	def reset_all(self, reset_stars=True):
 			
 			if reset_stars:
@@ -873,10 +906,7 @@ class Game (Scene):
 		
 		self.level_display.advance_level()
 		
-		if not self.can_play_level():
-			self.show_purchase_to_play_menu()
-		else:
-			self.finish_advancing_level()
+		self.finish_advancing_level()
 
 	def finish_advancing_level(self):
 		
@@ -903,22 +933,6 @@ class Game (Scene):
 		
 		self.load_level()
 		self.reset_all()
-	
-	def can_play_level(self):
-		
-		level = self.level_display.level
-		pc = ProductsController.get()
-		
-		if level <= 25:
-			return True
-		elif level >= 26 and level <= 50 and pc.l26_l50.purchased:
-			return True
-		elif level >= 51 and level <= 75 and pc.l51_l75.purchased:
-			return True
-		elif level >= 76 and level <= 100 and pc.l76_l100.purchased:
-			return True
-		else:
-			return True
 		
 	def move(self, step_x, step_y, move_seconds):
 		
@@ -947,21 +961,6 @@ class Game (Scene):
 		self.map_woman = MapWoman(self)
 		self.map_woman_start_position = (4,1)
 
-	def show_purchase_to_play_menu(self):
-		
-		self.bottom_bar.hide()
-		self.player.hide()
-		self.map.unload()
-		self.level_display.hide()
-		self.points_display.hide()
-		self.lives_display.hide()
-		
-		self.bottom_bar.timer.stop()
-	
-		self.purchase_to_play = True
-		self.menu = PurchaseToPlayMenu()
-		self.present_modal_scene(self.menu)
-
 	def show_pause_menu(self):
 		
 		self.bottom_bar.timer.stop()
@@ -973,7 +972,7 @@ class Game (Scene):
 		
 		self.music.play_menu()
 		
-		self.menu = MainMenu(self.highscore, self.continues)
+		self.menu = MainMenu(self.highscore)
 		self.present_modal_scene(self.menu)
 		
 	def show_restart_menu(self):
@@ -1005,13 +1004,6 @@ class Game (Scene):
 				self.highscore = int(f.read())
 		except:
 			self.highscore = 0
-
-	def load_continues(self):
-		try:
-			with open('.continues', 'r') as f:
-				self.continues = int(f.read())
-		except:
-			self.continues = 0
 			
 	def load_check_points(self):
 		
@@ -1039,17 +1031,12 @@ class Game (Scene):
 		except:
 			
 			pass
-	
-	def add_continue(self, number=1):
-		self.continues += number
-		self.save_contiues()
 		
 	def purchase_product(self, product):
 		
 		self.dismiss_modal_scene()
 		
-		self.menu = MakePurchaseMenu(product, purchase_to_play=self.purchase_to_play, purchase_to_continue=self.purchase_to_continue,
-		add_continue=self.add_continue)
+		self.menu = MakePurchaseMenu(product)
 		
 		self.present_modal_scene(self.menu)
 		
@@ -1059,6 +1046,9 @@ class Game (Scene):
 		self.menu = ConfirmProductMenu(product)
 		self.present_modal_scene(self.menu)
 	
+	def can_checkpoint(self):
+		return ProductsController.get().checkpoints.purchased
+		
 	def menu_button_selected(self, title):
 		
 		title = title.lower()
@@ -1076,32 +1066,31 @@ class Game (Scene):
 				
 		elif title in ['resume', 'resume game']:
 			
-			if self.can_play_level():
-				self.dismiss_modal_scene()
-				self.menu = None
-				self.purchase_to_play = False
-				self.purchase_to_continue = False
-				self.bottom_bar.show()
-				self.lives_display.show()
-				self.points_display.show()
-				self.level_display.show()
-				self.bottom_bar.timer.start()
-				self.finish_advancing_level()
-			else:
-				self.dismiss_modal_scene()
-				self.show_purchase_to_play_menu()
+			self.dismiss_modal_scene()
+			self.menu = None
+			self.bottom_bar.show()
+			self.lives_display.show()
+			self.points_display.show()
+			self.level_display.show()
+			self.bottom_bar.timer.start()
+			self.finish_advancing_level()
 			
 		elif title == 'restart from checkpoint':
 			self.dismiss_modal_scene()
 			self.show_restart_menu()
 		elif len(title) == 3 and title[0] == 'l':
-				
-			self.dismiss_modal_scene()
-			self.menu = None
-			data = title.replace('l','')
-			level = int(data)
-			self.new_game(level=level)
-				
+			
+			if self.can_checkpoint():
+				self.dismiss_modal_scene()
+				self.menu = None
+				data = title.replace('l','')
+				level = int(data)
+				self.new_game(level=(level+1))
+			else:
+				self.dismiss_modal_scene()
+				self.menu = CheckpointsPurchaseRequiredMenu()
+				self.present_modal_scene(self.menu)
+		
 		elif title in ['tutorial', 'take tutorial']:
 			self.dismiss_modal_scene()
 			self.menu = None
@@ -1119,21 +1108,12 @@ class Game (Scene):
 			self.menu.update_playing_position(self.playing_position)
 			
 			
-		elif title in ['purchase', 'purchase menu', 'okay']:
+		elif title in ['purchase', 'purchase menu', 'okay', 'purchase - price reduction']:
 			self.show_purchase()
-		elif title in ['tweet pb','tweet completion','tweet completion & pb']:
-			completion = ('completion' in title)
-			pb = ('pb' in title)
-			ScoreTweet(self.highscore, completion, pb)
-			self.menu.remove_tweet(completion, pb)
-		elif title in ['main menu', 'main menu (end game)']:
-			self.purchase_to_play = False
-			self.purchase_to_continue = False
+		elif title in ['main menu']:
 			self.dismiss_modal_scene()
 			self.show_start_menu()
 		elif title in ['end game','end tutorial']:
-			self.purchase_to_play = False
-			self.purchase_to_continue = False
 			self.paused = False
 			self.game_over(False)
 			self.dismiss_modal_scene()
@@ -1146,13 +1126,6 @@ class Game (Scene):
 			self.reset_all(False)
 			self.menu = None
 			self.dismiss_modal_scene()
-		elif title == 'use continue':
-			self.purchase_to_continue = False
-			self.use_continue()
-			self.menu = None
-			self.dismiss_modal_scene()
-		elif title == 'purchase continue':
-			self.show_purchase_to_continue()
 		elif title == 'completion menu':
 			self.show_game_complete()
 		elif title == 'unpause':
@@ -1179,13 +1152,8 @@ class Game (Scene):
 		
 	def show_purchase(self):
 		
-		self.menu = PurchaseMenu(purchase_to_play=self.purchase_to_play, purchase_to_continue=self.purchase_to_continue)
+		self.menu = PurchaseMenu()
 		self.present_modal_scene(self.menu)
-		
-	def show_purchase_to_continue(self):
-		
-		self.purchase_to_continue = True
-		self.show_purchase()
 		
 	def show_level_complete(self, check_point):
 		
@@ -1216,8 +1184,10 @@ class Game (Scene):
 		self.end_of_level_points = completion_bonus + lives_remaining_bonus
 		
 		self.menu = CompletionScoringMenu(self.points_display.score, completion_bonus, lives_remaining_bonus)
-			
+		
 		self.present_modal_scene(self.menu)
+		
+		self.music.play_completion_scoring()
 
 	def show_game_complete(self):
 		
@@ -1230,9 +1200,7 @@ class Game (Scene):
 		self.menu = CompletionMenu(self, self.points_display.score, pb)
 		
 		self.present_modal_scene(self.menu)
-		self.music.pause(datetime.timedelta(seconds=3))
-		
-		sound.play_effect(os.path.join('SoundEffects','complete.caf'))
+		self.music.play_completion_menu()
 		
 	def new_game(self, level=None, tutorial=False):
 		
@@ -1278,11 +1246,6 @@ class Game (Scene):
 		
 		with open('.map_man_highscore', 'w') as f:
 			f.write(str(self.highscore))
-
-	def save_contiues(self):
-		
-		with open('.continues', 'w') as f:
-			f.write(str(self.continues))
 			
 	def save_check_points(self):
 		
@@ -1296,6 +1259,7 @@ class Game (Scene):
 					f.write('{0},{1}\n'.format(check_point.level, check_point.score))
 			
 	def lose_life(self):
+		self.bottom_bar.timer.update()
 		self.bottom_bar.timer.stop()
 		sound.play_effect(os.path.join('SoundEffects','pop.caf'))
 		self.player.show()
@@ -1337,7 +1301,7 @@ class Game (Scene):
 			
 			pb = self.process_pb()
 			
-			self.menu = EndGameMenu(self.points_display.score, pb, self.continues)
+			self.menu = EndGameMenu(self.points_display.score, pb)
 			
 			self.present_modal_scene(self.menu)
 			
@@ -1360,6 +1324,7 @@ class Game (Scene):
 		
 if __name__ == '__main__':
 	
+	#InApp.initialize()
 	InApp.initialize_dummy()
 	
 	run(Game(), LANDSCAPE, show_fps=False)

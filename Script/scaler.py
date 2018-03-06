@@ -10,6 +10,7 @@ class Scaler (object):
 	Timer = None
 	Score = None
 	DisplayShift = None
+	Luves = None
 	
 	@staticmethod
 	def initialize(game):
@@ -23,6 +24,7 @@ class Scaler (object):
 			Scaler.Timer = 2
 			Scaler.Menu = 2
 			Scaler.Score = 1
+			Scaler.Lives = 1
 			
 			Scaler.Resolution = '2x'
 			Scaler.DisplayShift = 15
@@ -52,7 +54,8 @@ class Scaler (object):
 				Scaler.Bottom_bar = 1
 				Scaler.Timer = 1
 				Scaler.Menu = 0.8
-				Scaler.Score = 1			
+				Scaler.Score = 1
+				Scaler.Lives = 1
 
 			else:
 				
@@ -63,6 +66,7 @@ class Scaler (object):
 				Scaler.Timer = 1
 				Scaler.Menu = 1
 				Scaler.Score = 1
+				Scaler.Lives = 1
 	
 	@staticmethod
 	def new_sprite(texture):
@@ -87,6 +91,18 @@ class Scaler (object):
 		node.size = (x, y)
 		
 		return node
+
+	@staticmethod
+	def get_menu(tag):
+		return os.path.join('Menu', Scaler.get_file('{0}.png'.format(tag)))
+		
+	@staticmethod
+	def get_button_off(tag):
+		return os.path.join('Buttons', Scaler.get_file('{0}.png'.format(tag)))
+
+	@staticmethod
+	def get_button_on(tag):
+		return os.path.join('Buttons', Scaler.get_file('{0}_on.png'.format(tag)))
 		
 	@staticmethod
 	def get_effect_path(file_name):

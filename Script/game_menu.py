@@ -14,6 +14,10 @@ from wrapping import WrappingLabelNode
 from random import random
 from random import randint
 
+def offer_active():
+	
+	return ProductsController.get().offer_active()
+
 def star_text(points):
 	if points < 1:
 		return ''
@@ -54,29 +58,6 @@ class ScoreLabelNode(LabelNode):
 	def make_score_text(self, score):
 		return '{0} {1} {2} {1}'.format(self.base_text, font.STAR, score)
 
-class ContinuesLabelNode(LabelNode):
-	
-	def __init__(self, parent, continues):
-		
-		label_font = (font.BUTTON, int(20*Scaler.Menu))
-		
-		LabelNode.__init__(self, text='', font=label_font, color='#ffffff', parent =parent)
-
-		self.anchor_point = (0.5,0.5)
-		
-		self.position=(0, -parent.size.h/2-self.size.h*2)
-		
-		self.set_continues(continues)
-	
-	def add_continues(self, continues):
-		self.set_score(self.continues + continues)
-		
-	def set_continues(self, continues):
-		self.continues = continues
-		self.text = self.make_continues_text(continues)
-	
-	def make_continues_text(self, continues):
-		return 'continues {0}'.format(self.continues)
 		
 class EmphasiseText:
 	
@@ -183,8 +164,10 @@ class WrappingInfoNode(InfoNode):
 
 	def new_info_label(self, text, font, color, position, parent):
 		
+		fraction_of_parent_width = 0.9
+		
 		node = WrappingLabelNode(parent=parent, anchor_point=(0.5, 0.5), position=position,
-		target_width=parent.parent.size.w,
+		target_width=parent.parent.size.w*fraction_of_parent_width,
 		font_type=font[0],
 		color=color)
 		
@@ -257,14 +240,14 @@ class ButtonNode (LabelNode):
 		
 class MenuScene (Scene):
 	
-	def __init__(self, title, button_titles, infos=[], title_size=60, button_delta=None):
+	def __init__(self, title, button_titles, infos=[], title_size=60, button_delta=None, info_delta=60):
 		
 		if button_delta is None:
 			button_delta = 40
 			
 		Scene.__init__(self)
 
-		self.info_delta = 60*Scaler.Menu
+		self.info_delta = info_delta*Scaler.Menu
 		self.button_delta = button_delta*Scaler.Menu
 		
 		self.title = title
@@ -434,16 +417,22 @@ class RestartMenu(MenuScene):
 		MenuScene.__init__(self, 'Restart', buttons, infos=infos, button_delta=65)
 
 	def get_height(self):
-		return MenuScene.get_height(self) * 0.425
+		return MenuScene.get_height(self) * 0.31
+	
+	def get_width(self):
+		return 400
 		
 	def button_position(self, index):
 		
-		if index < 8:
+		if index < 12:
 			if index < 4:
-				x = -50
-			else:
-				x = 50
+				x = -100
+			elif index < 8:
+				x = 0
 				index -= 4
+			else:
+				x = 100
+				index -= 8
 			extra = 0.0
 		else:
 			x = 0
@@ -498,6 +487,25 @@ class CreditsMenu(MenuScene):
 		
 		MenuScene.__init__(self,'Credits', buttons, infos=infos)
 
+class CheckpointsPurchaseRequiredMenu(MenuScene):
+	
+	def __init__(self):
+		
+		buttons = ['purchase menu', 'main menu']
+		infos = []
+		
+		infos.append(('purchase required', 'to enable checkpoints'))
+		
+		MenuScene.__init__(self,'Puchase Required', buttons, infos=infos, button_delta=50, title_size=40)
+
+	def setup(self):
+		MenuScene.setup(self)
+		self.info_nodes[0].heading_label.color = '#000000'
+		self.buttons[0].set_font_scale(1.7)
+		self.buttons[1].set_font_scale(1.1)
+
+	def get_width(self):
+		return 400
 		
 class OptionsMenu(MenuScene):
 	
@@ -517,28 +525,6 @@ class OptionsMenu(MenuScene):
 	def update_playing_position(self, playing_position):
 		self.buttons[0].set_title(playing_position)
 		
-class PurchaseToPlayMenu(MenuScene):
-	
-	def __init__(self):
-		
-		buttons = ['okay']
-		infos = []
-		
-		infos.append(('purchase required', self.get_description()))
-
-		MenuScene.__init__(self,'More?', buttons, infos=infos)
-
-	def get_description(self):
-		return "to advance level"
-		
-	def setup(self):
-		MenuScene.setup(self)
-		self.info_nodes[0].heading_label.color = '#000000'
-
-	def touch_ended(self, touch):
-		if not MenuScene.touch_ended(self, touch):
-			self.show_menu('okay')
-		
 class FirstPlayMenu(MenuScene):
 	
 	def __init__(self):
@@ -556,12 +542,18 @@ class FirstPlayMenu(MenuScene):
 		
 class MainMenu(MenuScene):
 	
-	def __init__(self, high_score, continues):
+	def __init__(self, high_score):
 		
 		self.high_score = high_score
-		self.continues = continues
 		
-		buttons = ['play from start', 'restart from checkpoint', 'tutorial', 'purchase', 'credits', 'options']
+		buttons = ['play from start', 'restart from checkpoint', 'tutorial']
+		
+		if offer_active():
+			buttons.append('purchase - price reduction')
+		else:
+			buttons.append('purchase')
+		
+		buttons += ['credits', 'options']
 		
 		self.button_count = len(buttons)
 		
@@ -584,9 +576,9 @@ class MainMenu(MenuScene):
 			width = self.get_width()
 			
 			if index == (self.button_count - 2):
-				return (position[0]-width*0.15, position[1])
+				return (position[0]-60*Scaler.Menu, position[1])
 			else:
-				return (position[0]+width*0.15, position[1])
+				return (position[0]+60*Scaler.Menu, position[1])
 
 	def get_height(self):
 		
@@ -595,7 +587,7 @@ class MainMenu(MenuScene):
 		return height - self.button_delta
 			
 	def get_width(self):
-		return 360
+		return 400
 		
 	def above_height(self):
 
@@ -637,6 +629,9 @@ class PurchaseMenuBase(MenuScene):
 	def get_width(self):
 		return 400
 		
+	def new_info_node(self, info, parent):
+		return WrappingInfoNode(info, parent=parent)
+		
 class ConfirmProductMenu(PurchaseMenuBase):
 	
 	def __init__(self, product):
@@ -644,69 +639,62 @@ class ConfirmProductMenu(PurchaseMenuBase):
 		self.product = product
 		
 		if product.can_purchase:
-			buttons = ['confirm purchase']
+			buttons = ['okay','cancel']
 		else:
-			buttons = []
-		
-		buttons.append('purchase menu')
+			buttons = ['purchase menu']
 		
 		infos = []
 		
 		if product.can_purchase:
-			description = product.description
+			info1 = 'Buy'
+			info2 = product.title
 			header = 'Confirm'
-			title = 'Buy {0}'.format(product.title)
 		else:
-			description = product.why_cant_purchase
 			header = 'Cannot'
-			title = product.title
-			
-		infos.append((title, description))
+			info1 = product.title
+			info2 = product.why_cant_purchase
+						
+		infos.append((info1, info2))
 		
-		MenuScene.__init__(self, header, buttons, infos=infos)
-
-	def new_info_node(self, info, parent):
-		return WrappingInfoNode(info, parent=parent)
+		MenuScene.__init__(self, header, buttons, infos=infos,button_delta=50)
 
 	def show_menu(self, menu):
 	 	
-	 	if menu.lower() in ['main menu', 'purchase menu']:
-	 		self.presenting_scene.menu_button_selected(menu)
-	 	else:
+		if 'okay' in menu.lower():
 			self.presenting_scene.purchase_product(self.product)
+		elif 'cancel' in menu.lower():
+			self.presenting_scene.menu_button_selected('purchase menu')
+		else:
+			self.presenting_scene.menu_button_selected(menu)
+
+	def setup(self):
+		MenuScene.setup(self)
+		self.info_nodes[0].heading_label.color = '#000000'
+		self.buttons[0].set_font_scale(1.4)
+		self.buttons[1].set_font_scale(1.4)
 		
 class MakePurchaseMenu(PurchaseMenuBase):
 	
-	def __init__(self, product, purchase_to_play=False, purchase_to_continue=False, add_continue=None):
+	def __init__(self, product):
 		
 		self.product = product
-		self.purchase_to_play = purchase_to_play
-		self.purchase_to_continue = purchase_to_continue
-		self.add_continue = add_continue
 		
 		infos = [(product.title, 'processing')]
-		buttons = ['...', 'main menu']
+		buttons = ['...']
 		
-		if self.purchase_to_play or self.purchase_to_continue:
-			buttons[1] = 'main menu (end game)'
-		
-		MenuScene.__init__(self, 'Thanks', buttons, infos=infos)
+		MenuScene.__init__(self, 'Thanks', buttons, infos=infos, button_delta=60)
 		
 	def setup(self):
 		MenuScene.setup(self)
+		self.buttons[0].set_font_scale(1.7)
 		ProductsController.get().purchase(self.product, self)
-	
+		
 	def set_button(self, success):
 		
 		button = self.buttons[0]
 		
 		if success:
-			if self.purchase_to_play:
-				button.set_title('resume game')
-			elif self.purchase_to_continue:
-				button.set_title('use continue')
-			else:
-				button.set_title('purchase menu')
+			button.set_title('main menu')
 		else:
 			button.set_title('purchase menu')
 	
@@ -714,24 +702,12 @@ class MakePurchaseMenu(PurchaseMenuBase):
 		
 		self.set_message('successful')
 		self.set_button(True)
-		self.process_continues(product_identifier)
 
 	def purchase_restored(self, product_identifier):
 		
 		self.set_message('restored')
 		self.set_button(True)
-		self.process_continues(product_identifier)
-	
-	def process_continues(self, product_identifier):
-		
-		if self.add_continue is None:
-			return
-			
-		if product_identifier.lower() == 'com.mapman.five_continues':
-			self.add_continue(5)
-		elif product_identifier.lower() == 'com.mapman.twenty_continues':
-			self.add_continue(20)
-				
+
 	def purchase_failed(self, product_identifier):
 		self.title_label.text = 'Sorry'
 		self.set_message('failed')
@@ -742,19 +718,14 @@ class MakePurchaseMenu(PurchaseMenuBase):
 		
 class PurchaseMenu(PurchaseMenuBase):
 	
-	def __init__(self, 
-	purchase_to_play=False,
-	purchase_to_continue=False):
-		
-		self.purchase_to_play = purchase_to_play
-		self.purchase_to_continue = purchase_to_continue
+	def __init__(self):
 		
 		products_controller = ProductsController.get()
 		
-		self.products = {}
-		
 		infos = []
 		buttons = []
+		
+		self.can_purchase = False
 		
 		if not products_controller.enabled:
 			
@@ -764,107 +735,36 @@ class PurchaseMenu(PurchaseMenuBase):
 			
 			if products_controller.validated:
 			
-				for product in products_controller.get_products():
+				self.checkpoints = products_controller.checkpoints
+				
+				if self.checkpoints.valid:
 					
-					if self.include_product(product):
-						
-						if product.purchased and not product.consumable:
+					if self.checkpoints.purchased:
 							
-							price = font.TICK
+						price = font.TICK
 						
-						else:
+					else:
 							
-							price = product.price
+						price = self.checkpoints.price
+						self.can_purchase = True
 						
-						button_title = '{0}: {1}'.format(product.title, price)
+					button_title = '{0}: {1}'.format(self.checkpoints.title, price)
 						
-						buttons.append(button_title)
-						
-						self.products[button_title] = 	product
+					buttons.append(button_title)
 					
+					infos.append(('', self.checkpoints.title.lower()+': '+ self.checkpoints.description))
+						
+				else:
+				
+					infos.append(('checkpoints', 'product invalid'))
+				
 			else:
 				
 				infos.append(('could not validate', 'try again later'))
 		
-		if self.purchase_to_continue or self.purchase_to_play:
-			buttons.append('main menu (end game)')
-		else:
-			buttons.append('main menu')
-		
-		if len(buttons) >= 7:
-			self.relayout = True
-			button_delta = 35
-		else:
-			self.relayout = False
-			button_delta = 30
+		buttons.append('main menu')
 			
-		MenuScene.__init__(self, 'Purchase', buttons, infos, button_delta = button_delta)
-		
-	def button_position(self, index):
-		
-		position = PurchaseMenuBase.button_position(self, index)
-		
-		if self.relayout:
-			
-			if index < 3:
-				
-				return (position[0]-75, position[1])
-				
-			elif index == 3:
-				
-				return (self.buttons[0].position.x + self.buttons[0].size.w - 5, self.buttons[0].position.y-self.buttons[0].size.h/2)
-				
-			elif index <= 5:
-				
-				return (position[0], position[1] + self.buttons[0].size.h * 1.5)
-				
-			else:
-				
-				return (position[0], position[1] + self.buttons[0].size.h *1.5)
-			
-		else:
-			
-			return position
-
-	def get_height(self):
-		
-		height = PurchaseMenuBase.get_height(self)
-		
-		if self.relayout:
-			return height - self.button_delta
-		else:
-			return height
-		
-	def setup(self):
-		
-		PurchaseMenuBase.setup(self)
-		
-		if self.relayout:
-			text = self.buttons[3].text
-			text = text.replace('All ','All\n')
-			text = text.replace(':','\nbundle:')
-			self.buttons[3].text = text
-			
-	def include_product(self, product):
-		
-		if self.purchase_to_play:
-			if self.is_continue(product):
-				return False
-			else:
-				return True
-		elif self.purchase_to_continue:
-			if self.is_continue(product):
-				return True
-			else:
-				return False
-		else:
-			return True
-		
-	def is_continue(self, product):
-		if product.identifier in ['com.mapman.five_continue','com.mapman.twenty_continues']:
-			return True
-		else:
-			return False
+		MenuScene.__init__(self, 'Purchase', buttons, infos, button_delta = 60, info_delta=150)
 			
 	def get_width(self):
 		return 400
@@ -873,25 +773,24 @@ class PurchaseMenu(PurchaseMenuBase):
 		
 		button = MenuScene.new_button_node(self, parent, title)
 		
-		if not title in self.products:
-			return button
-			
-		product = self.products[title]
-		
-		if not product.can_purchase:
-			button.disable()
+		if 'menu' not in title:
+			if not self.can_purchase:
+				button.disable()
 		
 		return button
-			
+	
+	def setup(self):
+		MenuScene.setup(self)
+		self.info_nodes[0].heading_label.color = '#000000'
+		self.buttons[0].set_font_scale(1.7)
+		
 	def show_menu(self, menu):
 	 	
-	 	if menu.lower() in ['main menu', 'main menu (end game)']:
+	 	if menu.lower() in ['main menu']:
 	 		self.presenting_scene.menu_button_selected(menu)
 	 		
 	 	else:
-	 		
-			product = self.products[menu]
-			self.presenting_scene.product_selected(product)
+			self.presenting_scene.product_selected(self.checkpoints)
 	 	
 class EndLevelMenu(MenuScene):
 	
@@ -1131,29 +1030,11 @@ class LoseLifeMenu(MenuScene):
 					
 class EndGameMenu(MenuScene):
 	
-	CAN_PURCHASE_TO_CONTINUE = False
-	
-	def __init__(self, score, pb, continues):
+	def __init__(self, score, pb):
 		
-		self.continues = continues
-		
-		if self.continues < 1:
-			if EndGameMenu.CAN_PURCHASE_TO_CONTINUE:
-				buttons = ['purchase continue']
-			else:
-				buttons = []
-		else:
-			buttons = ['use continue']
-		
-		if EndGameMenu.CAN_PURCHASE_TO_CONTINUE and self.continues > 0:
-			buttons += ['main menu (end game)']
-		else:
-			buttons += ['main menu']
+		buttons = ['main menu']
 		
 		self.pb = pb
-		
-		if pb:
-			buttons = ['tweet PB'] + buttons
 		
 		if pb:
 			score_text = '{0} - new PB!'.format(score)
@@ -1163,30 +1044,10 @@ class EndGameMenu(MenuScene):
 		infos = [('Your Score', score_text)]
 		
 		MenuScene.__init__(self, 'Game Over', buttons, infos, title_size=40)
-	
-	def remove_tweet(self, completion, pb):
-		
-		if completion and not pb:
-			text = 'completion tweeted'
-		elif not completion and pb:
-			text = 'pb tweeted'
-		elif completion and pb:
-			text = 'completion & pb'
-		else:
-			text = 'tweeted'
-			
-		self.buttons[0].set_title(text)
-		self.buttons[0].untouch_color ='#000000'
-		self.buttons[0].untouch()
 		
 	def get_width(self):
 		return 250
-		
-	def setup(self):
-		
-		MenuScene.setup(self)
-		
-		self.continue_label = ContinuesLabelNode(self.menu_bg, self.continues)
+
 			
 class CompletionScoringMenu(EndLevelMenu):
 	
@@ -1220,7 +1081,7 @@ class CompletionScoringMenu(EndLevelMenu):
 
 class CompletionSpriteNode(SpriteNode):
 	
-	def __init__(self, game, parent, texture, get_x, y, scale,rotation_range=3.14, z_position=None):
+	def __init__(self, game, parent, texture, get_x, scale,rotation_range=3.14, z_position=None):
 		
 		SpriteNode.__init__(self, parent=parent, texture=texture)
 		
@@ -1230,11 +1091,11 @@ class CompletionSpriteNode(SpriteNode):
 		self.base_scale = scale
 		self.game = game
 		
-		self.anchor_point=(0.5,0)
-
+		self.anchor_point=(0.5,0.5)
+		
 		self.set_scale()
 		
-		self.position = (get_x(self.size.w), y)
+		self.position = (get_x(self.size.w), self.get_new_y() + self.game.size.h*random()*0.5)
 		self.get_x = get_x
 		self.rotation_range = rotation_range
 		
@@ -1243,27 +1104,29 @@ class CompletionSpriteNode(SpriteNode):
 	
 	def set_scale(self):
 		self.scale = self.base_scale = 0.9 + 0.2*random()
+		self.max_dimension = max([self.size.w, self.size.h])
+		self.min_height = -self.game.size.h*0.5-self.max_dimension
 		
 	def set_rotation(self):
 		self.rotation = self.rotation_range * (0.5-random())
 	
 	def set_speed(self):
 		self.speed = 0.5 + 0.5 * random()
+	
+	def get_new_y(self):
+		return self.game.size.h*0.5 + self.max_dimension
 		
 	def update(self):
 		
-		max_height = 0.5 * self.game.size.h + max([self.size.w, self.size.h])
-		
 		y = self.position[1]
 		
-		if y > max_height:
-			new_y = -(max_height + self.size.h) * (1.0 + 0.5 * random())
-			self.position = (self.get_x(self.size.w), new_y)
+		if y < self.min_height:
 			self.set_rotation()
 			self.set_speed()
 			self.set_scale()
+			self.position = (self.get_x(self.size.w), self.get_new_y())
 		else:
-			self.position = (self.position[0], self.position[1]+self.speed)
+			self.position = (self.position[0], self.position[1]-self.speed)
 		
 class CompletionMenu(EndGameMenu):
 	
@@ -1274,11 +1137,6 @@ class CompletionMenu(EndGameMenu):
 		buttons = ['main menu']
 		
 		self.pb = pb
-		
-		if pb:
-			buttons = ['tweet completion & PB'] + buttons
-		else:
-			buttons = ['tweet completion'] + buttons
 			
 		if pb:
 			score_text = '{0} - new PB!'.format(score)
@@ -1348,9 +1206,7 @@ class CompletionMenu(EndGameMenu):
 			
 	def add_scroller(self, texture, get_x, rotation_range=3.14,z_position=None):
 		
-		y = self.game.size.w*0.5 * (1.0 + random())
-		
-		item = CompletionSpriteNode(self.game, parent=self.menu_bg,texture=texture, get_x=get_x, y=-y, scale=self.scroller_scale,
+		item = CompletionSpriteNode(self.game, parent=self.menu_bg,texture=texture, get_x=get_x, scale=self.scroller_scale,
 		rotation_range=rotation_range,
 		z_position=z_position)
 		

@@ -2,6 +2,7 @@ GENERAL = 'Courier'
 BUTTON = 'Courier'
 BUTTON_PRESSED = 'Courier'
 TITLE = 'Arial'
+SUB_TITLE = 'Courier'
 
 LIVES_DISPLAY = 'Courier'
 LEVEL_DISPLAY = 'Courier'

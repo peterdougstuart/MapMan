@@ -14,6 +14,18 @@ from wrapping import WrappingLabelNode
 from random import random
 from random import randint
 
+def get_checkpoint_level(action):
+	data = action.lower().replace('l','')
+	level = int(data)
+	return level
+	
+def is_checkpoint(action):
+	action = action.lower()
+	if len(action) == 3 and action[0] == 'l':
+		return True
+	else:
+		return False
+		
 def offer_active():
 	
 	return ProductsController.get().offer_active()
@@ -34,17 +46,17 @@ def extract_stars(text):
 		
 class ScoreLabelNode(LabelNode):
 	
-	def __init__(self, parent, score, base_text='score'):
+	def __init__(self, menu, score, base_text='score'):
 		
 		self.base_text = base_text
 		
 		button_font = (font.BUTTON, int(20*Scaler.Menu))
 		
-		LabelNode.__init__(self, text='', font=button_font, color='#ffffff', parent =parent)
+		LabelNode.__init__(self, text='', font=button_font, color='#ffffff', parent =menu.menu_bg)
 
-		self.anchor_point = (0.5,0.5)
+		self.anchor_point = (0.5,1)
 		
-		self.position=(0, -parent.size.h/2-self.size.h)
+		self.position=(0, menu.bottom()-menu.space_y)
 		
 		self.set_score(score)
 	
@@ -187,19 +199,23 @@ class ButtonNode (SpriteNode):
 		
 		self.action = button.action
 		
-		self.untouch_texture = Texture(Scaler.get_button_off(button.tag))
-		self.touch_texture = Texture(Scaler.get_button_on(button.tag))
-		self.disabled_texture = self.untouch_texture
-		
 		SpriteNode.__init__(self, parent=parent)
 		
-		self.texture = self.untouch_texture
+		self.update_tag(button.tag)
 		self.anchor_point = (0.5, 1)
 		self.enabled = True
 		
 		if not position is None:
 			self.position = position
-
+	
+	def update_tag(self, tag):
+		
+		self.untouch_texture = Texture(Scaler.get_button_off(tag))
+		self.touch_texture = Texture(Scaler.get_button_on(tag))
+		self.disabled_texture = self.untouch_texture
+		
+		self.texture = self.untouch_texture
+					
 	def set_action(self, action):
 		self.action = action
 		
@@ -215,12 +231,14 @@ class ButtonNode (SpriteNode):
 		
 class MenuScene (Scene):
 	
-	def __init__(self, tag):
+	def __init__(self, tag, main_menu_button=True):
 		
 		Scene.__init__(self)
 		
-		self.space_x = 10 * Scaler.Menu
-		self.space_y = 10 * Scaler.Menu
+		self.space_x = 13.5 * Scaler.Menu
+		self.space_y = 13.5 * Scaler.Menu
+		
+		self.main_menu_button = main_menu_button
 		
 		self.buttons = []
 		self.tag = tag
@@ -258,7 +276,7 @@ class MenuScene (Scene):
 		return self.menu_bg.size.w
 
 	def bottom(self):
-		return -self.menu_bg.size.h/2
+		return -self.menu_bg.size.h*0.35
 		
 	def setup(self):
 		
@@ -276,10 +294,17 @@ class MenuScene (Scene):
 		self.bg.run_action(Action.fade_to(1))
 		
 	def add_buttons(self):
-		pass
 		
-	def position_buttons(self):
-		pass
+		if self.main_menu_button:
+			
+			self.main_menu = ButtonNode(button=Button('main menu','main_menu'), parent=self.menu_bg)
+
+			y = self.bottom()-self.space_y/2
+		
+			self.main_menu.anchor_point = (0.5, 1.0)
+			self.main_menu.position = (0, y)
+			
+			self.buttons.append(self.main_menu)
 		
 	def add_bg(self):
 		
@@ -289,8 +314,8 @@ class MenuScene (Scene):
 		
 		self.bg.position = self.size/2
 		
-		self.background_gradient = Gradient(self)
-		self.background_gradient.size=(self.size.w, self.size.h)
+		#self.background_gradient = Gradient(self)
+		#self.background_gradient.size=(self.size.w, self.size.h)
 		
 	def add_menu_bg(self):
 		
@@ -306,6 +331,9 @@ class MenuScene (Scene):
 			if touch_loc in btn.frame and btn.enabled:
 				btn.touch()
 	
+	def should_action(self, action):
+		return True
+		
 	def touch_ended(self, touch):
 	
 		touch_loc = self.menu_bg.point_from_scene(touch.location)
@@ -317,31 +345,68 @@ class MenuScene (Scene):
 				btn.untouch()
 							
 				if self.presenting_scene and touch_loc in btn.frame:
-				
-					self.show_menu(btn.action)
-					return True
+					
+					if self.should_action(btn.action):
+						self.show_menu(btn.action)
+						return True
 		
 		return False
 					
 	def show_menu(self, menu):
 		self.presenting_scene.menu_button_selected(menu)
+
+class NoButtonMenu(MenuScene):
+
+	def __init__(self, tag, main_menu_button=True):
+	
+		MenuScene.__init__(self, tag=tag,main_menu_button=main_menu_button)
+
+
+class OneButtonMenu(MenuScene):
+
+	def __init__(self, tag, button,main_menu_button=True):
+	
+		MenuScene.__init__(self, tag=tag,main_menu_button=main_menu_button)
+			
+		self.button = button
+		
+	def get_y(self):
+		return self.bottom()+self.space_y
+		
+	def add_buttons(self):
+		
+		MenuScene.add_buttons(self)
+		
+		button = ButtonNode(button=self.button, parent=self.menu_bg)
+
+		y = self.get_y()
+		
+		button.anchor_point = (0.5, 0.0)
+		button.position = (0, y)
+		
+		self.buttons.append(button)
 		
 class TwoButtonMenu(MenuScene):
 
-	def __init__(self, tag, button_lhs, button_rhs):
+	def __init__(self, tag, button_lhs, button_rhs,main_menu_button=True):
 	
-		MenuScene.__init__(self, tag=tag)
+		MenuScene.__init__(self, tag=tag,main_menu_button=main_menu_button)
 			
 		self.button_lhs = button_lhs
 		self.button_rhs = button_rhs
-
+	
+	def get_y(self):
+		return self.bottom()+self.space_y
+		
 	def add_buttons(self):
+		
+		MenuScene.add_buttons(self)
 		
 		self.lhs = ButtonNode(button=self.button_lhs, parent=self.menu_bg)
 		
 		self.rhs = ButtonNode(button=self.button_rhs, parent=self.menu_bg)
 
-		y = self.bottom()+self.space_y
+		y = self.get_y()
 		
 		self.lhs.anchor_point = (0.5, 0.0)
 		self.lhs.position = (-self.lhs.size.w/2-self.space_x/2, y)
@@ -351,67 +416,124 @@ class TwoButtonMenu(MenuScene):
 
 		self.buttons.append(self.lhs)
 		self.buttons.append(self.rhs)
-	 	
-class RestartMenu(MenuScene):
+
+class ThreeButtonMenu(MenuScene):
+
+	def __init__(self, tag, button_lhs, button_middle, button_rhs,main_menu_button=True):
 	
-	def __init__(self, check_points):
+		MenuScene.__init__(self, tag=tag,main_menu_button=main_menu_button)
+			
+		self.button_lhs = button_lhs
+		self.button_middle = button_middle
+		self.button_rhs = button_rhs
+
+	def get_y(self):
+		return self.bottom()+self.space_y
 		
-		buttons = []
+	def add_buttons(self):
+		
+		MenuScene.add_buttons(self)
+		
+		self.lhs = ButtonNode(button=self.button_lhs, parent=self.menu_bg)
+		
+		self.middle = ButtonNode(button=self.button_middle, parent=self.menu_bg)
+		
+		self.rhs = ButtonNode(button=self.button_rhs, parent=self.menu_bg)
+
+		y = self.get_y()
+		
+		self.lhs.anchor_point = (1.0, 0.0)
+		self.lhs.position = (-self.middle.size.w/2-self.space_x, y)
+
+		self.middle.anchor_point = (0.5, 0.0)
+		self.middle.position = (0.0, y)
+		
+		self.rhs.anchor_point = (0.0, 0.0)
+		self.rhs.position = (self.middle.size.w/2+self.space_x, y)
+
+		self.buttons.append(self.lhs)
+		self.buttons.append(self.middle)
+		self.buttons.append(self.rhs)
+
+
+class RestartMenu(MenuScene):
+
+	def __init__(self, check_points):
+
 		self.enables = []
 		
-		sorted_check_points = sorted(check_points)
-		
-		for level in sorted(check_points):
+		for level in check_points:
 			
 			check_point = check_points[level]
-			buttons.append('L{0}'.format(check_point.level))
-			self.enables.append(check_point.complete)
 			
-		buttons.append('main menu')
-		infos = []
+			if check_point.complete:
+				self.enables.append(check_point.level)
 		
-		infos.append(('select checkpoint', 'to restart game'))
-		
-		MenuScene.__init__(self, 'Restart', buttons, infos=infos, button_delta=65)
+		MenuScene.__init__(self, tag='restart_from_checkpoint',main_menu_button=True)
 
-	def get_height(self):
-		return MenuScene.get_height(self) * 0.31
-	
-	def get_width(self):
-		return 400
+	def add_buttons(self):
 		
-	def button_position(self, index):
+		MenuScene.add_buttons(self)
 		
-		if index < 12:
-			if index < 4:
-				x = -100
-			elif index < 8:
-				x = 0
-				index -= 4
+		rows = []
+		
+		rows.append([80, 85, 90, 95])
+		rows.append([50, 60, 70, 75])
+		rows.append([10, 20, 30, 40])
+		
+		y = self.bottom()+self.space_y
+		dict = {}
+		width = 0
+		
+		for row in rows:
+			
+			for item in row:
+				
+				if item in self.enables:
+					tag = 'Checkpoint_{0}'.format(item)
+				else:
+					tag = 'Checkpoint_{0}_locked'.format(item)
+					
+				button = Button(tag=tag,action='L{0}'.format(item))
+				
+				button_node = ButtonNode(button=button, parent=self.menu_bg)
+					 
+				button_node.anchor_point = (0.0, 0.0)
+				
+				self.buttons.append(button_node)
+				dict[item] = button_node
+				
+				width += button_node.size.w
+				
+		y = self.bottom()+self.space_y
+		width /= len(rows)
+		width += 3*self.space_x
+		
+		for row in rows:
+			
+			x = -0.5 * width
+			
+			for item in row:
+				
+				button_node = dict[item]
+				
+				button_node.position = (x, y)
+				
+				x += button_node.size.w + self.space_x
+				
+			y += button_node.size.h + self.space_y
+
+	def should_action(self, action):
+		
+		if is_checkpoint(action):
+			level = get_checkpoint_level(action)
+			if level in self.enables:
+				return True
 			else:
-				x = 100
-				index -= 8
-			extra = 0.0
+				return False
 		else:
-			x = 0
-			index = 4
-			extra = -0.0
+			return True
 			
-		return (x, self.menu_bg.size.h/2 - (index+0.5) * self.button_delta * (0.70+extra) - self.info_space*0.85)
-		
-	def setup(self):
-			
-		MenuScene.setup(self)
-		
-		self.info_nodes[0].heading_label.color = self.info_nodes[0].info_label.color
-		
-		for i in range(len(self.enables)):
-			if not self.enables[i]:
-				self.buttons[i].disable()
-		
-		for i in range(len(self.buttons)-1):
-			self.buttons[i].set_font_scale(1.5)
-
 class CopyFailMenu(MenuScene):
 	
 	def __init__(self):
@@ -431,55 +553,172 @@ class CopyFailMenu(MenuScene):
 		self.info_nodes[1].heading_label.color = '#000000'
 		self.info_nodes[2].heading_label.color = '#000000'
 		
-class CreditsMenu(MenuScene):
+class CreditsMenu(ThreeButtonMenu):
 	
 	def __init__(self):
-		
-		buttons = ['main menu']
-		infos = []
-		
-		infos.append(('creator', 'Peter Stuart'))
-		infos.append(('art', 'Fred Mangan'))
-		infos.append(('music', 'David Sedgwick'))
-		infos.append(('info', 'www.mapmangame.com'))
-		
-		MenuScene.__init__(self,'Credits', buttons, infos=infos)
+		ThreeButtonMenu.__init__(self,tag='credits',button_lhs=Button(tag='credits_peter', action='peter'),
+		button_middle=Button(tag='credits_fred', action='fred'),
+		button_rhs=Button(tag='credits_david', action='david'))
 
-class CheckpointsPurchaseRequiredMenu(MenuScene):
+	def get_y(self):
+		return self.bottom()+self.space_y*3.5
+		
+class CheckpointsPurchaseRequiredMenu(OneButtonMenu):
 	
 	def __init__(self):
-		
-		buttons = ['purchase menu', 'main menu']
-		infos = []
-		
-		infos.append(('purchase required', 'to enable checkpoints'))
-		
-		MenuScene.__init__(self,'Puchase Required', buttons, infos=infos, button_delta=50, title_size=40)
+		OneButtonMenu.__init__(self,tag='purchase_required',button=Button(tag='purchase_required',action='purchase menu'))
 
-	def setup(self):
-		MenuScene.setup(self)
-		self.info_nodes[0].heading_label.color = '#000000'
-		self.buttons[0].set_font_scale(1.7)
-		self.buttons[1].set_font_scale(1.1)
-
-	def get_width(self):
-		return 400
 		
 class OptionsMenu(MenuScene):
 	
-	def __init__(self, playing_position):
+	def __init__(self, playing_position, music, fx):
 		
-		buttons = [playing_position, 'main menu']
-		infos = []
+		MenuScene.__init__(self, tag='options',main_menu_button=True)
 		
-		infos.append(('playing position', 'click to toggle'))
+		self.space_y *= 0.5
 		
-		MenuScene.__init__(self,'Options', buttons, infos=infos)
+		self.playing_position = playing_position
+		self.music = music
+		self.fx = fx
+	
+	def music_off_tag(self):
+		if not self.music:
+			return 'options_musicoff_active'
+		else:
+			return 'options_musicoff'
 
-	def setup(self):
-		MenuScene.setup(self)
-		self.info_nodes[0].heading_label.color = '#000000'
+	def music_on_tag(self):
+		if self.music:
+			return 'options_musicon_active'
+		else:
+			return 'options_musicon'
+
+	def fx_off_tag(self):
+		if not self.fx:
+			return 'options_fxoff_active'
+		else:
+			return 'options_fxoff'
+
+	def fx_on_tag(self):
+		if self.fx:
+			return 'options_fxon_active'
+		else:
+			return 'options_fxon'
+
+	def standing_tag(self):
+		if self.playing_position.lower() == 'standing':
+			return 'options_standing_active'
+		else:
+			return 'options_standing'
+
+	def sitting_tag(self):
+		if self.playing_position.lower() == 'sitting':
+			return 'options_sitting_active'
+		else:
+			return 'options_sitting'
+	
+	def update_options(self, music, fx, playing_position):
 		
+		self.music = music
+		self.fx = fx
+		self.playing_position = playing_position
+		self.music_off_node.update_tag(self.music_off_tag())
+		self.music_on_node.update_tag(self.music_on_tag())
+		self.fx_off_node.update_tag(self.fx_off_tag())
+		self.fx_on_node.update_tag(self.fx_on_tag())
+		self.sitting_node.update_tag(self.sitting_tag())
+		self.standing_node.update_tag(self.standing_tag())
+	
+	def add_buttons(self):
+		
+		MenuScene.add_buttons(self)
+		width = 4 * self.space_x
+		
+		#music off
+		music_off = Button(tag=self.music_off_tag(),action='music off')
+				
+		self.music_off_node = ButtonNode(button=music_off, parent=self.menu_bg)
+					 
+		self.music_off_node.anchor_point = (0.0, 0.0)
+		self.buttons.append(self.music_off_node)
+		
+		width += self.music_off_node.size.w
+		
+		#music on
+		music_on = Button(tag=self.music_on_tag(),action='music on')
+				
+		self.music_on_node = ButtonNode(button=music_on, parent=self.menu_bg)
+					 
+		self.music_on_node.anchor_point = (0.0, 0.0)
+		self.buttons.append(self.music_on_node)
+		
+		#fx off
+		fx_off = Button(tag=self.fx_off_tag(),action='fx off')
+				
+		self.fx_off_node = ButtonNode(button=fx_off, parent=self.menu_bg)
+					 
+		self.fx_off_node.anchor_point = (0.0, 0.0)
+		self.buttons.append(self.fx_off_node)
+		
+		width += self.fx_off_node.size.w
+		
+		#fx on
+		fx_on = Button(tag=self.fx_on_tag(),action='fx on')
+				
+		self.fx_on_node = ButtonNode(button=fx_on, parent=self.menu_bg)
+					 
+		self.fx_on_node.anchor_point = (0.0, 0.0)
+		self.buttons.append(self.fx_on_node)
+
+		#credits
+		credits = Button(tag='options_credits',action='credits')
+				
+		self.credits_node = ButtonNode(button=credits, parent=self.menu_bg)
+					 
+		self.credits_node.anchor_point = (0.0, 0.0)
+		self.buttons.append(self.credits_node)
+		
+		width += self.credits_node.size.w
+		
+		#standing
+		standing = Button(tag=self.standing_tag(),action='standing')
+				
+		self.standing_node = ButtonNode(button=standing, parent=self.menu_bg)
+					 
+		self.standing_node.anchor_point = (0.0, 0.0)
+		self.buttons.append(self.standing_node)
+
+		#sitting
+		sitting = Button(tag=self.sitting_tag(),action='sitting')
+				
+		self.sitting_node = ButtonNode(button=sitting, parent=self.menu_bg)
+					 
+		self.sitting_node.anchor_point = (0.0, 0.0)
+		self.buttons.append(self.sitting_node)
+
+		#positioning
+		x = -0.5 * width + self.space_x
+		y = self.bottom() + self.space_y*2
+		self.music_off_node.position = (x, y)
+		y += self.music_off_node.size.h + self.space_y
+		self.music_on_node.position = (x, y)
+		y += self.music_on_node.size.h + self.space_y*2
+		self.standing_node.position = (x, y)
+
+		x += self.music_off_node.size.w + self.space_x
+		y = self.bottom() + self.space_y*2
+		self.fx_off_node.position = (x, y)
+		y += self.fx_off_node.size.h + self.space_y
+		self.fx_on_node.position = (x, y)
+
+		x += self.fx_off_node.size.w + self.space_x
+		y = self.bottom() + self.space_y*2
+		self.credits_node.position = (x, y)
+
+		x += self.credits_node.size.w - self.sitting_node.size.w
+		y += self.credits_node.size.h + self.space_y*2
+		self.sitting_node.position = (x, y)
+
 	def update_playing_position(self, playing_position):
 		self.buttons[0].set_title(playing_position)
 		
@@ -492,18 +731,36 @@ class FirstPlayMenu(TwoButtonMenu):
 		button_lhs=Button(tag='take_tutorial', action='take tutorial'),
 		button_rhs=Button(tag='play_game', action='play game'))
 
+class ConfirmQuitMenu(TwoButtonMenu):
+	
+	def __init__(self):
+		
+		TwoButtonMenu.__init__(self,
+		tag='confirm_quit',
+		button_lhs=Button(tag='confirm_quit_yes', action='end game'),
+		button_rhs=Button(tag='confirm_quit_no', action='unpause'),
+		main_menu_button=False)
+
 class MainMenu(MenuScene):
 	
 	def __init__(self, highscore):
 	
 		MenuScene.__init__(self, tag='welcome')
 		
-		self.highscore = highscore
+		self.high_score = highscore
+		self.space_y *= 0.75
 		
 	def add_buttons(self):
 		
 		self.purchase = ButtonNode(button=Button(tag='purchase', action='purchase'), parent=self.menu_bg)
+		self.purchase.z_position = 1001
 		
+		if offer_active():
+			star_texture = Texture(Scaler.get_button_off('sale_star'))
+			star = SpriteNode(parent=self.purchase, texture=star_texture)
+			star.anchor_point = (0.5, 0.5)
+			star.position = (-0.5*self.purchase.size.w, 0.5*self.purchase.size.h)
+			
 		self.options = ButtonNode(button=Button(tag='options', action='options'), parent=self.menu_bg)
 		
 		y = self.bottom()+self.space_y
@@ -528,11 +785,13 @@ class MainMenu(MenuScene):
 		
 		y += self.tutorial.size.h+self.space_y
 		
-		self.checkpoint = ButtonNode(button=Button(tag='checkpoint_active', action='restart from checkpoint'), parent=self.menu_bg)
+		self.checkpoint = ButtonNode(button=Button(tag='restart_active', action='restart from checkpoint'), parent=self.menu_bg)
 		
 		self.checkpoint.anchor_point = (0.5, 0.0)
 		self.checkpoint.position = (0, y)
-
+		
+		self.buttons.append(self.checkpoint)
+		
 		y += self.checkpoint.size.h+self.space_y
 		
 		self.play = ButtonNode(button=Button(tag='play_from_start', action='play from start'), parent=self.menu_bg)
@@ -541,90 +800,16 @@ class MainMenu(MenuScene):
 		self.play.position = (0, y)
 
 		self.buttons.append(self.play)
-		
-class MainMenuOld(MenuScene):
-	
-	def __init__(self, high_score):
-		
-		self.high_score = high_score
-		
-		buttons = ['play from start', 'restart from checkpoint', 'tutorial']
-		
-		if offer_active():
-			buttons.append('purchase - price reduction')
-		else:
-			buttons.append('purchase')
-		
-		buttons += ['credits', 'options']
-		
-		self.button_count = len(buttons)
-		
-		infos = []
-		
-		self.man = None
-		self.score_label = None
-		
-		MenuScene.__init__(self, '', buttons, infos)
 
-	def button_position(self, index):
-		
-		if index < (self.button_count - 2):
-			return MenuScene.button_position(self, index)
-			
-		else:
-			
-			position = MenuScene.button_position(self, self.button_count - 2)
-			
-			width = self.get_width()
-			
-			if index == (self.button_count - 2):
-				return (position[0]-60*Scaler.Menu, position[1])
-			else:
-				return (position[0]+60*Scaler.Menu, position[1])
-
-	def get_height(self):
-		
-		height = MenuScene.get_height(self)
-		
-		return height - self.button_delta
-			
-	def get_width(self):
-		return 400
-		
-	def above_height(self):
-
-		if self.man is not None:
-			return (self.man.size.h * self.man.scale) * 0.8
-		else:
-			return 0
-		
-	def below_height(self):
-
-		if self.score_label is not None:
-			return self.score_label.size.h
-		else:
-			return 0
-		
 	def setup(self):
 		
 		MenuScene.setup(self)
 		
-		self.score_label = ScoreLabelNode(parent=self.menu_bg, score=self.high_score, base_text='best score')
+		self.score_label = ScoreLabelNode(menu=self, score=self.high_score, base_text='best score')
 		
-		man_texture = Texture(Scaler.get_man_idle_path('front.png'))
+		if offer_active():
+			pass
 		
-		self.man = SpriteNode(parent=self.menu_bg,texture=man_texture)
-		self.man.anchor_point=(0,0)
-		
-		ratio = self.man.size.w / self.menu_bg.size.w
-		
-		ratio_target = 0.15
-		
-		self.man.scale = ratio_target / ratio
-		
-		self.man.position = (self.menu_bg.size.w/2 - 1.5 * self.man.size.w * self.man.scale, self.menu_bg.size.h/2)
-		
-		self.did_change_size()
 
 class PurchaseMenuBase(MenuScene):
 	
@@ -634,7 +819,7 @@ class PurchaseMenuBase(MenuScene):
 	def new_info_node(self, info, parent):
 		return WrappingInfoNode(info, parent=parent)
 		
-class ConfirmProductMenu(PurchaseMenuBase):
+class ConfirmProductMenu(TwoButtonMenu):
 	
 	def __init__(self, product):
 		
@@ -658,7 +843,7 @@ class ConfirmProductMenu(PurchaseMenuBase):
 						
 		infos.append((info1, info2))
 		
-		MenuScene.__init__(self, header, buttons, infos=infos,button_delta=50)
+		TwoButtonMenu.__init__(self, tag='purchase_confirm',button_lhs=Button(tag='purchase_ok',action='okay'),button_rhs=Button(tag='purchase_cancel',action='cancel'))
 
 	def show_menu(self, menu):
 	 	
@@ -668,70 +853,72 @@ class ConfirmProductMenu(PurchaseMenuBase):
 			self.presenting_scene.menu_button_selected('purchase menu')
 		else:
 			self.presenting_scene.menu_button_selected(menu)
-
-	def setup(self):
-		MenuScene.setup(self)
-		self.info_nodes[0].heading_label.color = '#000000'
-		self.buttons[0].set_font_scale(1.4)
-		self.buttons[1].set_font_scale(1.4)
 		
-class MakePurchaseMenu(PurchaseMenuBase):
+class MakePurchaseMenu(NoButtonMenu):
 	
 	def __init__(self, product):
 		
 		self.product = product
+		self.enable_button = False
+		self.text_size = int(24 * Scaler.Menu)
 		
-		infos = [(product.title, 'processing')]
-		buttons = ['...']
+		self.message = '{0} processing'.format(product.title)
 		
-		MenuScene.__init__(self, 'Thanks', buttons, infos=infos, button_delta=60)
+		MenuScene.__init__(self, 'purchase_thanks',main_menu_button=True)
+		
+		self.failed_texture = Texture(Scaler.get_menu('purchase_failed'))
+	
+	def show_menu(self, menu):
+		
+		if self.enable_button:
+			NoButtonMenu.show_menu(self, menu)
 		
 	def setup(self):
+		
 		MenuScene.setup(self)
-		self.buttons[0].set_font_scale(1.7)
+		
+		self.message_label = WrappingLabelNode(parent=self.menu_bg, anchor_point=(0.5, 0.5),
+		position=(0.0, 0.0),
+		target_width=300.0,
+		font_type=font.BUTTON,
+		color='#000000')
 		ProductsController.get().purchase(self.product, self)
-		
-	def set_button(self, success):
-		
-		button = self.buttons[0]
-		
-		if success:
-			button.set_title('main menu')
-		else:
-			button.set_title('purchase menu')
 	
 	def purchase_successful(self, product_identifier):
 		
 		self.set_message('successful')
-		self.set_button(True)
+		self.enable_button = True
 
 	def purchase_restored(self, product_identifier):
 		
 		self.set_message('restored')
-		self.set_button(True)
+		self.enable_button = True
 
 	def purchase_failed(self, product_identifier):
-		self.title_label.text = 'Sorry'
+		self.menu_bg.texture = self.failed_texture
 		self.set_message('failed')
-		self.set_button(False)
+		self.enable_button = True
 	
 	def set_message(self, message):
-		self.info_nodes[0].info_label.text = message
+		self.message_label.set_text(message, self.text_size)
 		
-class PurchaseMenu(PurchaseMenuBase):
+class PurchaseMenu(OneButtonMenu):
+	
+	NULL_ACTION = 'NULL ACTION'
 	
 	def __init__(self):
 		
 		products_controller = ProductsController.get()
 		
-		infos = []
-		buttons = []
-		
 		self.can_purchase = False
+		self.price_text = ''
+		self.font_size = 20
+		
+		action = PurchaseMenu.NULL_ACTION
 		
 		if not products_controller.enabled:
 			
-			infos.append(('purchases disabled', ''))
+			self.price_text = 'purchases disabled'
 			
 		else:
 			
@@ -743,53 +930,55 @@ class PurchaseMenu(PurchaseMenuBase):
 					
 					if self.checkpoints.purchased:
 							
-						price = font.TICK
+						self.price_text = 'already purchased'
 						
 					else:
 							
-						price = self.checkpoints.price
+						self.price_text = str(self.checkpoints.price)
+						self.font_size = 36
 						self.can_purchase = True
 						
-					button_title = '{0}: {1}'.format(self.checkpoints.title, price)
-						
-					buttons.append(button_title)
-					
-					infos.append(('', self.checkpoints.title.lower()+': '+ self.checkpoints.description))
+						action = '{0}: {1}'.format(self.checkpoints.title, self.price_text)
 						
 				else:
 				
-					infos.append(('checkpoints', 'product invalid'))
+					self.price_text = 'product invalid'
 				
 			else:
 				
-				infos.append(('could not validate', 'try again later'))
+				self.price_text = 'could not validate'
 		
-		buttons.append('main menu')
-			
-		MenuScene.__init__(self, 'Purchase', buttons, infos, button_delta = 60, info_delta=150)
-			
-	def get_width(self):
-		return 400
+		button = Button(tag='purchase_checkpoints',action=action)
 		
-	def new_button_node(self, parent, title):
-		
-		button = MenuScene.new_button_node(self, parent, title)
-		
-		if 'menu' not in title:
-			if not self.can_purchase:
-				button.disable()
-		
-		return button
+		OneButtonMenu.__init__(self, tag='purchase', button=button)
 	
 	def setup(self):
-		MenuScene.setup(self)
-		self.info_nodes[0].heading_label.color = '#000000'
-		self.buttons[0].set_font_scale(1.7)
+		OneButtonMenu.setup(self)
+		self.add_price_label()
+	
+	def add_price_label(self):
+
+		label_font = (font.BUTTON, int(self.font_size*Scaler.Menu))
 		
+		self.price_label = LabelNode(parent=self.menu_bg, font=label_font,color='#ffffff')
+		
+		self.price_label.anchor_point = (0.5, 0.5)
+		
+		x = 0.0
+		y = -80.0*Scaler.Menu
+		
+		self.price_label.position = (x, y)
+		
+		self.price_label.text = self.price_text
+
 	def show_menu(self, menu):
 	 	
-	 	if menu.lower() in ['main menu']:
+	 	if menu.lower() == 'main menu':
 	 		self.presenting_scene.menu_button_selected(menu)
+	 	
+	 	elif menu in PurchaseMenu.NULL_ACTION:
+	 		
+	 		return
 	 		
 	 	else:
 			self.presenting_scene.product_selected(self.checkpoints)
@@ -867,7 +1056,7 @@ class EndLevelMenu(MenuScene):
 		
 		MenuScene.setup(self)
 		
-		self.score_label = ScoreLabelNode(parent=self.menu_bg, score=self.score)
+		self.score_label = ScoreLabelNode(menu=self, score=self.score)
 		
 		btn = ButtonNode(self.get_next_title(), parent=self.menu_bg)
 		
@@ -972,84 +1161,80 @@ class EndLevelMenu(MenuScene):
 			#if self.complete:
 			self.show_menu('next level')
 
-class PauseMenu(MenuScene):
+class PauseMenu(TwoButtonMenu):
 	
 	def __init__(self, tutorial):
-		
-		buttons = ['unpause']
-		
+
 		if tutorial:
-			buttons.append('end tutorial')
-		else:
-			buttons.append('end game')
-		
-		infos = [('tilt to move MapMan','tap game to pause')]
-
-		MenuScene.__init__(self, 'Paused', buttons, infos=infos, title_size=60)
-
-	def setup(self):
-		MenuScene.setup(self)
-		self.info_nodes[0].heading_label.color = '#000000'
-		self.buttons[0].set_font_scale(1.7)
-		self.buttons[1].set_font_scale(1.0)
-		
-	def button_position(self, index):
-		
-		position = MenuScene.button_position(self, index)
+			button_lhs=Button(tag='paused_tutorial_return', action='unpause')
+			button_rhs=Button(tag='paused_tutorial_end', action='end tutorial')
 			
-		if index > 0:
-				
-			return (position[0], position[1]-0.5*self.button_delta)
+			
+			menu = 'paused_game'
 			
 		else:
+			button_lhs=Button(tag='paused_game_return', action='unpause')
+			button_rhs=Button(tag='paused_game_end', action='confirm quit')
 			
-			return (position[0], position[1]-0.1*self.button_delta)
+			menu = 'paused_game'
 
-	def get_height(self):
-		
-		height = MenuScene.get_height(self)
-		
-		return height + self.button_delta
-
-	def touch_ended(self, touch):
-		if not MenuScene.touch_ended(self, touch):
-			self.show_menu('unpause')
+		TwoButtonMenu.__init__(self, tag=menu,button_lhs=button_lhs,button_rhs=button_rhs, main_menu_button=False)
 			
-class LoseLifeMenu(MenuScene):
+class LoseLifeMenu(OneButtonMenu):
 	
 	def __init__(self, lives):
 		
-		buttons = ['try again']
-
+		self.lives = lives
 		infos = []
 		infos.append(('life lost', '{0} lives remaining'.format(lives)))
 						
-		MenuScene.__init__(self, 'Oh No!', buttons, infos=infos, title_size=60)
+		OneButtonMenu.__init__(self, tag='lose_life', button=Button(tag='try_again',action='try again'))
 
-	def touch_ended(self, touch):
-		if not MenuScene.touch_ended(self, touch):
-			self.show_menu('try again')
+	def setup(self):
+		
+		OneButtonMenu.setup(self)
+		
+		label_font = (font.BUTTON, int(22*Scaler.Menu))
+		
+		self.lives_label = LabelNode(parent=self.menu_bg, font=label_font,color=palette.BASE_BG)
+		
+		self.lives_label.anchor_point = (0.5, 0)
+		
+		x = -22.0*Scaler.Menu
+		y = 23.0*Scaler.Menu
+		
+		self.lives_label.position = (x, y)
+		self.lives_label.text = str(self.lives)
 					
-class EndGameMenu(MenuScene):
+class EndGameMenu(TwoButtonMenu):
 	
 	def __init__(self, score, pb):
 		
-		buttons = ['main menu']
-		
-		self.pb = pb
-		
 		if pb:
-			score_text = '{0} - new PB!'.format(score)
+			self.score_text = '{0} - new PB!'.format(score)
 		else:
-			score_text = '{0}'.format(score)
-			
-		infos = [('Your Score', score_text)]
+			self.score_text = '{0}'.format(score)
 		
-		MenuScene.__init__(self, 'Game Over', buttons, infos, title_size=40)
+		lhs = Button(tag='game_over_restart',action='play from start')
 		
-	def get_width(self):
-		return 250
+		rhs = Button(tag='game_over_checkpoint',action='restart from checkpoint')
+		
+		TwoButtonMenu.__init__(self, tag='game_over',button_lhs=lhs,button_rhs=rhs,main_menu_button=True)
 
+	def setup(self):
+		
+		TwoButtonMenu.setup(self)
+		
+		label_font = (font.BUTTON, int(30*Scaler.Menu))
+		
+		self.score_label = LabelNode(parent=self.menu_bg, font=label_font,color='#000000')
+		
+		self.score_label.anchor_point = (0.5, 0.5)
+		
+		y = 35 * Scaler.Menu
+		
+		self.score_label.position = (0, y)
+		self.score_label.text = self.score_text
 			
 class CompletionScoringMenu(EndLevelMenu):
 	

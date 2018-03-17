@@ -11,8 +11,9 @@ from time import sleep
 
 class Music:
 
-	def __init__(self):
+	def __init__(self, enabled=True):
 		
+		self.enabled = enabled
 		self.player = None
 		self.menu = False
 		self.restart_call = None
@@ -21,6 +22,7 @@ class Music:
 		self.paused = False
 		self.start_pause = None
 		self.pause_duration = None
+		self.start_time = None
 		self.completion = 1
 		
 	def play_menu(self):
@@ -83,20 +85,36 @@ class Music:
 		self.restart_call = self.play_game
 	
 	def restart(self):
+
+		if self.restart_call is None:
+			return
 		
+		if self.start_time is None:
+			return
+
 		if self.paused:
 			self.check_pause()
 			if self.paused:
 				return
-				
-		if self.restart_call is None:
-			return
-		
+			
 		if (datetime.datetime.now() -self.start_time).total_seconds() > self.duration:
 			self.restart_call()
-			
+	
+	def disable(self):
+		self.enabled = False
+		self.stop()
+	
+	def enable(self):
+		self.enabled = True
+		self.play(self.file)
+		
 	def play(self, file):
 		
+		self.file = file
+		
+		if not self.enabled:
+			return
+			
 		if file is None:
 			return
 		

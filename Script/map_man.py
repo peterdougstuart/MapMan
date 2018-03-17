@@ -15,25 +15,29 @@ import sys
 import time
 from timer import Timer
 
-from game_menu import CheckpointsPurchaseRequiredMenu
+from game_menu2 import get_checkpoint_level
+from game_menu2 import is_checkpoint
+from game_menu2 import CheckpointsPurchaseRequiredMenu
 from game_menu import CopyFailMenu
-from game_menu import PauseMenu
-from game_menu import CreditsMenu
-from game_menu import OptionsMenu
+from game_menu2 import PauseMenu
+from game_menu2 import CreditsMenu
+from game_menu2 import OptionsMenu
 from game_menu2 import MainMenu
-from game_menu import EndGameMenu
+from game_menu2 import EndGameMenu
+from game_menu2 import ConfirmQuitMenu
 from game_menu import EndLevelMenu
-from game_menu import LoseLifeMenu
-from game_menu import RestartMenu
-from game_menu import PurchaseMenu
+from game_menu2 import LoseLifeMenu
+from game_menu2 import RestartMenu
+from game_menu2 import PurchaseMenu
 from game_menu2 import FirstPlayMenu
-from game_menu import ConfirmProductMenu
-from game_menu import MakePurchaseMenu
+from game_menu2 import ConfirmProductMenu
+from game_menu2 import MakePurchaseMenu
 from game_menu import CompletionMenu
 from game_menu import CompletionScoringMenu
 
 from shake import ShakeAndTilt
 from music import Music
+from fx import FX
 from level_display import LevelDisplay
 from lives_display import LivesDisplay
 from points_display import PointsDisplay
@@ -128,24 +132,65 @@ class Game (Scene):
 		try:
 			with open('.map_man_options', 'r') as f:
 				self.playing_position = f.readline()
+				self.music_option = self.get_bool(f.readline())
+				self.fx_option = self.get_bool(f.readline())
 		except:
 			self.playing_position = 'sitting'
+			self.music_option = True
+			self.fx_option = True
 		
 		if not self.playing_position in ['sitting','standing']:
 			self.playing_position = 'sitting'
+	
+	def get_bool(self, text):
+		text = text.lower().strip()
+		if text == 'true':
+			return True
+		else:
+			return False
 	
 	def save_options(self):
 		
 		try:
 			with open('.map_man_options', 'w') as f:
 				f.write(self.playing_position)
+				f.write(str(self.music))
+				f.write(str(self.fx))
 		except:
 			pass
 			
-	def update_playing_position(self, playing_position):
-		self.playing_position = playing_position
+	def update_options(self,music=None, fx=None, playing_position=None):
+		
+		if playing_position is not None:
+			self.playing_position = playing_position
+		
+		if music is not None:
+			
+			if music != self.music_option:
+				
+				self.music_option = music
+				
+				if self.music_option:
+					self.music.enable()
+				else:
+					self.music.disable()
+		
+		if fx is not None:
+			
+			if fx != self.fx_option:
+				
+				self.fx_option = fx
+				
+				if self.fx_option:
+					self.fx.enable()
+				else:
+					self.fx.disable()
+			
 		self.save_options()
 		
+		if self.menu is not None:
+			self.menu.update_options(self.music_option, self.fx_option, self.playing_position)
+			
 	def setup(self):
 		
 		Scaler.initialize(self)
@@ -169,24 +214,25 @@ class Game (Scene):
 		self.stuck = False
 		self.reverse = False
 		self.vanish = 0
-		self.sound = 0
 		self.stars = 0
 		
 		self.menu = None
 		self.music = None
 			
 		if not self.copy_failed:
-		
+			
+			self.load_options()
 			self.set_background()
 		
-			self.music = Music()
-			self.shake = ShakeAndTilt()
+			self.music = Music(enabled=self.music_option)
+			self.fx = FX(enabled=self.fx_option)
 			
+			self.shake = ShakeAndTilt()
 			
 			self.bottom_bar = bottom_bar.BottomBar(parent=self)
 			self.bottom_bar.hide()
 			
-			self.background_gradient = Gradient(self, self.bottom_bar.size.h)
+			#self.background_gradient = Gradient(self, self.bottom_bar.size.h)
 			
 			self.level_display = LevelDisplay(parent=self)
 			self.lives_display = LivesDisplay(parent=self)
@@ -206,7 +252,6 @@ class Game (Scene):
 			self.simulated_tilt = None
 			self.load_simulated()
 			
-			self.load_options()
 			self.load_highscore()
 			self.load_check_points()
 		
@@ -429,7 +474,8 @@ class Game (Scene):
 						self.hearts.show()
 
 						self.music.pause(datetime.timedelta(seconds=3))
-						sound.play_effect(os.path.join('SoundEffects','love.caf'))
+						
+						self.fx.play_love()
 			
 				else:
 					
@@ -749,7 +795,7 @@ class Game (Scene):
 				return
 			
 			if self.map.on_reverse():
-				sound.play_effect('game:Boing_1')
+				self.fx.play_reverse()
 				self.reverse = not self.reverse
 				self.map.clear_reverse()
 				
@@ -759,14 +805,14 @@ class Game (Scene):
 				self.player.show()
 				
 			if self.map.on_vanish():
-				sound.play_effect('game:Spaceship')
+				self.fx.play_vanish()
 				self.vanish = self.map.vanish_duration()
 				self.map.clear_vanish()
 				self.player.vanish()
 
 			if self.map.on_hide() or self.map.on_unhide():
 				
-				sound.play_effect('game:Spaceship')
+				self.fx.play_hide()
 				
 				if self.map.on_hide():
 					self.map.clear_hide()
@@ -782,7 +828,8 @@ class Game (Scene):
 				self.last_hide_time = datetime.datetime.now()
 				
 			if self.map.on_points():
-				sound.play_effect('rpg:HandleCoins')
+				
+				self.fx.play_points()
 				self.map.clear_points()
 				
 				if not self.tutorial:
@@ -801,7 +848,7 @@ class Game (Scene):
 
 			if self.map.on_life():
 				
-				sound.play_effect('game:Bleep')
+				self.fx.play_life()
 				self.map.clear_life()
 				
 				if not self.tutorial:
@@ -815,7 +862,7 @@ class Game (Scene):
 				self.lives_display.update()
 
 			if self.map.on_sticky():
-				sound.play_effect('game:Error')
+				self.fx.play_sticky()
 				self.map.clear_sticky()
 				self.stuck = True
 				
@@ -879,10 +926,11 @@ class Game (Scene):
 		self.bottom_bar.timer.stop()
 		
 		if not check_point:
-			sound.play_effect('rpg:DoorClose_1')
+			self.fx.play_end_level()
 		else:
 			self.music.pause(datetime.timedelta(seconds=3))
-			sound.play_effect(os.path.join('SoundEffects','checkpoint.caf'))
+			
+			self.fx.play_check_point()
 		
 		if self.completed:
 			self.show_game_complete_scoring()
@@ -946,12 +994,7 @@ class Game (Scene):
 		
 		if self.map.moving:
 			
-			if self.sound == 0:
-				self.sound = 1
-			else:
-				self.sound = 0
-			
-			sound.play_effect('rpg:Footstep00', 0.4, 1.0 + 0.5 * self.sound)
+			self.fx.play_step()
 				
 			if self.vanish > 0:
 				self.vanish -= 1
@@ -1078,13 +1121,12 @@ class Game (Scene):
 		elif title == 'restart from checkpoint':
 			self.dismiss_modal_scene()
 			self.show_restart_menu()
-		elif len(title) == 3 and title[0] == 'l':
+		elif is_checkpoint(title):
 			
 			if self.can_checkpoint():
 				self.dismiss_modal_scene()
 				self.menu = None
-				data = title.replace('l','')
-				level = int(data)
+				level = get_checkpoint_level(title)
 				self.new_game(level=(level+1))
 			else:
 				self.dismiss_modal_scene()
@@ -1100,19 +1142,26 @@ class Game (Scene):
 		elif title == 'options':
 			self.show_options()
 		elif title == 'sitting':
-			self.update_playing_position('standing')
-			self.menu.update_playing_position(self.playing_position)
+			self.update_options(playing_position='sitting')
+			
 		elif title == 'standing':
-			
-			self.update_playing_position('sitting')
-			self.menu.update_playing_position(self.playing_position)
-			
-			
-		elif title in ['purchase', 'purchase menu', 'okay', 'purchase - price reduction']:
+			self.update_options(playing_position='standing')
+		elif title == 'music on':
+			self.update_options(music=True)
+		elif title == 'music off':
+			self.update_options(music=False)
+		elif title == 'fx on':
+			self.update_options(fx=True)
+		elif title == 'fx off':
+			self.update_options(fx=False)
+		elif title in ['purchase', 'purchase menu', 'okay']:
 			self.show_purchase()
 		elif title in ['main menu']:
 			self.dismiss_modal_scene()
 			self.show_start_menu()
+		elif title in ['confirm quit']:
+			self.dismiss_modal_scene()
+			self.show_confirm_quit()
 		elif title in ['end game','end tutorial']:
 			self.paused = False
 			self.game_over(False)
@@ -1134,6 +1183,11 @@ class Game (Scene):
 			self.menu = None
 			self.paused = False
 			self.dismiss_modal_scene()
+
+	def show_confirm_quit(self):
+		
+		self.menu = ConfirmQuitMenu()
+		self.present_modal_scene(self.menu)
 		
 	def show_first_play(self):
 		
@@ -1147,7 +1201,7 @@ class Game (Scene):
 
 	def show_options(self):
 		
-		self.menu = OptionsMenu(self.playing_position)
+		self.menu = OptionsMenu(self.playing_position, self.music_option, self.fx_option)
 		self.present_modal_scene(self.menu)
 		
 	def show_purchase(self):
@@ -1261,7 +1315,7 @@ class Game (Scene):
 	def lose_life(self):
 		self.bottom_bar.timer.update()
 		self.bottom_bar.timer.stop()
-		sound.play_effect(os.path.join('SoundEffects','pop.caf'))
+		self.fx.play_lose_life()
 		self.player.show()
 		self.player.face_death()
 		self.dead = True

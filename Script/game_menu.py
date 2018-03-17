@@ -511,7 +511,7 @@ class OptionsMenu(MenuScene):
 	
 	def __init__(self, playing_position):
 		
-		buttons = [playing_position, 'main menu']
+		buttons = [playing_position, 'credits', 'main menu']
 		infos = []
 		
 		infos.append(('playing position', 'click to toggle'))

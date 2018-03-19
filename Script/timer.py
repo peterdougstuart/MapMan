@@ -15,7 +15,7 @@ class Timer (LabelNode):
 	FONT_SIZE = 50
 	INITIAL_SECONDS = 20
 	
-	def __init__(self, parent):
+	def __init__(self, parent, fx):
 		
 		self.countdown = clock.Countdown(parent, Timer.INITIAL_SECONDS)
 				
@@ -23,10 +23,7 @@ class Timer (LabelNode):
 		
 		self.anchor_point = (0.5, 0.5)
 		
-		self.player = sound.Player(os.path.join('SoundEffects','clock.caf'))
-		self.player.number_of_loops = -1
-		
-		self.playing = False
+		self.fx = fx
 		self.low_time = False
 	
 	def active(self):
@@ -78,33 +75,28 @@ class Timer (LabelNode):
 				
 			if seconds <= 3:
 					
-				self.player.play()
-				self.playing = True
+				self.fx.play_clock()
 				self.color = palette.LOW_TIME
 				self.low_time = True
 					
 			else:
 					
-				self.stop_player()
+				self.fx.stop_clock()
 				self.color = palette.NORMAL_TIME
 				self.low_time = False
 					
 		else:
 			
-			self.stop_player()
+			self.fx.stop_clock()
 			self.color = palette.DEATH_BG
 			self.low_time = False
 		
 	def seconds_remaining(self):
 		return self.countdown.seconds_remaining()
-		
-	def stop_player(self):
-		if self.playing:
-			self.player.stop()
 			
 	def stop(self):
 		self.countdown.stop()
-		self.stop_player()
+		self.fx.stop_clock()
 			
 	def start(self):
 		self.countdown.start()

@@ -10,7 +10,7 @@ from wrapping import WrappingLabelNode
 				
 class BottomBar (SpriteNode):
 	
-	def __init__(self, parent):
+	def __init__(self, parent, fx):
 		
 		SpriteNode.__init__(self,
 											  parent=parent,
@@ -26,7 +26,7 @@ class BottomBar (SpriteNode):
 		self.add_controls_message()
 		self.add_tutorial_message()
 		self.add_time_message()
-		self.timer = Timer(self)
+		self.timer = Timer(self, fx)
 		self.effect = Effect(self)
 	
 	def hide(self):

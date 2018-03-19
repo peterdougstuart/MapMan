@@ -15,25 +15,25 @@ import sys
 import time
 from timer import Timer
 
-from game_menu2 import get_checkpoint_level
-from game_menu2 import is_checkpoint
-from game_menu2 import CheckpointsPurchaseRequiredMenu
-from game_menu import CopyFailMenu
-from game_menu2 import PauseMenu
-from game_menu2 import CreditsMenu
-from game_menu2 import OptionsMenu
-from game_menu2 import MainMenu
-from game_menu2 import EndGameMenu
-from game_menu2 import ConfirmQuitMenu
-from game_menu import EndLevelMenu
-from game_menu2 import LoseLifeMenu
-from game_menu2 import RestartMenu
-from game_menu2 import PurchaseMenu
-from game_menu2 import FirstPlayMenu
-from game_menu2 import ConfirmProductMenu
-from game_menu2 import MakePurchaseMenu
-from game_menu import CompletionMenu
-from game_menu import CompletionScoringMenu
+from game_menus import get_checkpoint_level
+from game_menus import is_checkpoint
+from game_menus import CheckpointsPurchaseRequiredMenu
+from game_menus import CopyFailMenu
+from game_menus import PauseMenu
+from game_menus import CreditsMenu
+from game_menus import OptionsMenu
+from game_menus import MainMenu
+from game_menus import EndGameMenu
+from game_menus import ConfirmQuitMenu
+from game_menus import EndLevelMenu
+from game_menus import LoseLifeMenu
+from game_menus import RestartMenu
+from game_menus import PurchaseMenu
+from game_menus import FirstPlayMenu
+from game_menus import ConfirmProductMenu
+from game_menus import MakePurchaseMenu
+from game_menus import CompletionMenu
+from game_menus import CompletionScoringMenu
 
 from shake import ShakeAndTilt
 from music import Music
@@ -229,10 +229,10 @@ class Game (Scene):
 			
 			self.shake = ShakeAndTilt()
 			
-			self.bottom_bar = bottom_bar.BottomBar(parent=self)
+			self.bottom_bar = bottom_bar.BottomBar(parent=self, fx=self.fx)
 			self.bottom_bar.hide()
 			
-			#self.background_gradient = Gradient(self, self.bottom_bar.size.h)
+			self.background_gradient = Gradient(self, self.bottom_bar.size.h)
 			
 			self.level_display = LevelDisplay(parent=self)
 			self.lives_display = LivesDisplay(parent=self)
@@ -259,7 +259,7 @@ class Game (Scene):
 			
 		else:
 			
-			self.dummy_node = LabelNode(parent=self, text='dummy', font=('Courier', 12))
+			self.dummy_node = LabelNode(parent=self, text='', font=('Courier', 12))
 			
 			self.menu = CopyFailMenu()
 			self.present_modal_scene(self.menu)
@@ -1219,7 +1219,7 @@ class Game (Scene):
 		
 			self.end_of_level_points = Game.POINTS_PER_LEVEL + time_bonus + self.stars
 
-			self.menu = EndLevelMenu(self.level_display.level, self.points_display.score, Game.POINTS_PER_LEVEL, time_bonus, self.stars, check_point)
+			self.menu = EndLevelMenu(self.fx, self.level_display.level, self.points_display.score, Game.POINTS_PER_LEVEL, time_bonus, self.stars, check_point)
 			
 			self.present_modal_scene(self.menu)
 		
@@ -1237,7 +1237,7 @@ class Game (Scene):
 		
 		self.end_of_level_points = completion_bonus + lives_remaining_bonus
 		
-		self.menu = CompletionScoringMenu(self.points_display.score, completion_bonus, lives_remaining_bonus)
+		self.menu = CompletionScoringMenu(self.fx, self.points_display.score, completion_bonus, lives_remaining_bonus)
 		
 		self.present_modal_scene(self.menu)
 		

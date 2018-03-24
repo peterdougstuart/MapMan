@@ -155,6 +155,14 @@ NSArray *validProducts;
     }
 }
 
++(void)purchase
+{
+    if (PAAppDelegateInstance != nil)
+    {
+        [PAAppDelegateInstance fetchAvailableProducts];
+    }
+}
+    
 +(void)deleteProductsFile
 {
     NSString *appSupportDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
@@ -164,6 +172,29 @@ NSArray *validProducts;
     NSError *error;
     [[NSFileManager defaultManager] removeItemAtPath:destPath error:&error];
     
+}
+
+-(void)purchaseProduct
+{
+/*
+    SKPayment *payment = [SKPayment paymentWithProduct:product];
+    [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+    [[SKPaymentQueue defaultQueue] addPayment:payment];
+    
+    @on_main_thread
+    def purchase(self, product_identifier):
+    
+    if not self.can_make_purchases:
+        raise Exception('Purchases are disabled')
+        else:
+            product = self.get_valid_product(product_identifier)
+            sk_payment_class = ObjCClass("SKPayment")
+            payment = sk_payment_class.alloc().init(product=product)
+            default_queue = ObjCClass("SKPaymentQueue").defaultQueue
+            default_queue.addTransactionObserver(self.purchase_controller)
+            default_queue.addPayment(sk_payment_queue_class)
+ */
+
 }
 
 -(void)fetchAvailableProducts

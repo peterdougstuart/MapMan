@@ -1,6 +1,7 @@
 from objc_util import *
 import os.path
 import time
+from in_app import Product
 
 class InAppProxy:
 
@@ -8,6 +9,7 @@ class InAppProxy:
     MAX_SLEEP = 5.0
 
     PRODUCTS_FILE = '.products'
+    PURCHASE_FILE = '.purchase'
 
     def __init__(self):
 
@@ -26,10 +28,29 @@ class InAppProxy:
 
     def purchase(self, product_identifier):
     	
-        time.sleep(1.0)
+        try:
+
+            my_class = ObjCClass("PAAppDelegate")
+            my_class.purchase()
         
-        outcome = (randint(0, 3) == 0)
+            if self.wait_file(InAppProxy.PURCHASE_FILE):
+
+                f = open(InAppProxy.PURCHASE_FILE, 'r')
+                data = f.readline()
+                f.close()
+
+                self.inform_observers(0)
+
+            else:
+
+                self.inform_observers(1)
+
+        except Exception as e:
+
+            self.inform_observers(1)
+
         
+    def inform_observers(self, outcome):
         for observer in self.observers:
             if outcome == 0:
                 observer.purchase_successful(product_identifier)
@@ -50,23 +71,23 @@ class InAppProxy:
             my_class = ObjCClass("PAAppDelegate")
             my_class.fetchProducts()
         
-            if self.wait_products():
+            if self.wait_file(InAppProxy.PRODUCTS_FILE):
 
                 f = open(InAppProxy.ProductsFile, 'r')
                 data = f.readline().split(',')
                 f.close()
 
-                self.products.append(Product(data[0], data[0], data[0], float(data[1])))
+                self.products.append(Product(identifier=data[0], title=data[0], description=data[0], price=float(data[1])))
 
             else:
 
                 self.products_validated = True
 
-        except None as e:
+        except Exception as e:
 
-            self.products_validated = True
+            self.products_validated = False
 
-    def wait_products(start=False):
+    def wait_file(file_name):
 
         total_wait = 0.0
 
@@ -75,9 +96,10 @@ class InAppProxy:
             time.sleep(InAppProxy.SLEEP_STEP)
             total_wait += InAppProxy.SLEEP_STEP
 
-            if os.path.isfile(InAppProxy.PRODUCTS_FILE):
+            if os.path.isfile(file_name):
                 return True
 
         return False
+
 
 

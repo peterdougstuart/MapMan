@@ -13,6 +13,8 @@ class InAppProxy:
 
     def __init__(self):
 
+        self.products_validated = False
+
         self.observers = []
         self.products = []
         
@@ -36,21 +38,21 @@ class InAppProxy:
             if self.wait_file(InAppProxy.PURCHASE_FILE):
 
                 f = open(InAppProxy.PURCHASE_FILE, 'r')
-                data = f.readline()
+                product_identifier_check = f.readline().strip()
                 f.close()
 
-                self.inform_observers(0)
+                self.inform_observers(0, product_identifier)
 
             else:
 
-                self.inform_observers(1)
+                self.inform_observers(1, product_identifier)
 
         except Exception as e:
 
-            self.inform_observers(1)
+            self.inform_observers(1, product_identifier)
 
         
-    def inform_observers(self, outcome):
+    def inform_observers(self, outcome, product_identifier):
         for observer in self.observers:
             if outcome == 0:
                 observer.purchase_successful(product_identifier)
@@ -68,26 +70,36 @@ class InAppProxy:
         
         try:
 
+            self.products = []
+            
             my_class = ObjCClass("PAAppDelegate")
             my_class.fetchProducts()
         
             if self.wait_file(InAppProxy.PRODUCTS_FILE):
 
-                f = open(InAppProxy.ProductsFile, 'r')
-                data = f.readline().split(',')
+                f = open(InAppProxy.PRODUCTS_FILE, 'r')
+                
+                for line in f.readlines():
+    
+                    line = line.strip()
+    
+                    if len(line) > 0:
+                        data = line.split(',')
+                        self.products.append(Product(identifier=data[0], title=data[0], description=data[0], price=float(data[1])))
+
                 f.close()
 
-                self.products.append(Product(identifier=data[0], title=data[0], description=data[0], price=float(data[1])))
+                self.products_validated = True
 
             else:
 
-                self.products_validated = True
+                self.products_validated = False
 
         except Exception as e:
 
             self.products_validated = False
 
-    def wait_file(file_name):
+    def wait_file(self, file_name):
 
         total_wait = 0.0
 

@@ -7,10 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <StoreKit/StoreKit.h>
 
 @interface PAAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
+
+- (void)fetchAvailableProducts;
+- (BOOL)canMakePurchases;
 
 @end
 

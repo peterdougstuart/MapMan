@@ -72,9 +72,23 @@ class ProductsController(object):
 		
 		self.checkpoints = Product('com.mapman.checkpoints')
 		
+		self.dict = {}
+		
+		self.dict[self.checkpoints.identifier] = self.checkpoints
+		
+		self.validated = False
+		
+		self.validate()
+		
+	def validate(self):
+		
+		if self.validated:
+			raise Exception('Already validated')
+			
 		if InApp.Instance.products_validated:
 			
 			self.validated = True
+			self.valid_count = InApp.Instance.valid_count
 			
 			if len(InApp.Instance.products) > 0:
 				self.checkpoints.extend(InApp.Instance)
@@ -82,11 +96,8 @@ class ProductsController(object):
 		else:
 			
 			self.validated = False
-		
-		self.dict = {}
-		
-		self.dict[self.checkpoints.identifier] = self.checkpoints
-	
+			self.valid_count = 0
+			
 	def offer_active(self):
 		
 		if self.checkpoints.purchased:

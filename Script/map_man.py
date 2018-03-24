@@ -190,7 +190,7 @@ class Game (Scene):
 		
 		if self.menu is not None:
 			self.menu.update_options(self.music_option, self.fx_option, self.playing_position)
-			
+
 	def setup(self):
 		
 		Scaler.initialize(self)

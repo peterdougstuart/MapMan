@@ -17,9 +17,11 @@ def fetchAvailableProducts(_self, _cmd):
     InApp.Instance.products_request.delegate = obj
     InApp.Instance.products_request.start()
 
+
 def productsRequest_didReceiveResponse_(_self, _cmd, request, response):
     #defined here: https://developer.apple.com/documentation/storekit/skproductsrequestdelegate/1506070-productsrequest
     InApp.Instance.receive_products(response)
+
 
 def paymentQueue_updatedTransactions_(_self, _cmd, queue, transactions):
     InApp.Instance.update_transactions(queue, transactions)
@@ -50,6 +52,8 @@ class InAppDummy:
         
         self.products_validated = True
         self.can_make_purchases = True
+        
+        self.valid_count = len(self.products)
 
     def purchase(self, product_identifier):
     	
@@ -115,7 +119,8 @@ class InApp:
                 return True
         
         return False
-
+    
+    @on_main_thread
     def purchase(self, product_identifier):
 
         if not self.can_make_purchases:
@@ -128,6 +133,7 @@ class InApp:
             default_queue.addTransactionObserver(self.purchase_controller)
             default_queue.addPayment(sk_payment_queue_class)
     
+    @on_main_thread
     def update_transactions(self, queue, transactions):
         
         for transaction in ObjCInstance(transactions):
@@ -156,7 +162,8 @@ class InApp:
             elif transaction_state == "SKPaymentTransactionStateFailed":
                 self.update_failed_purchase(transaction.payment.productIdentifier)
                 self.log('Failed')
-                
+    
+    @on_main_thread
     def receive_products(self, response):
 
         self.products_validated = True
@@ -170,7 +177,7 @@ class InApp:
         
         for valid_product in valid_products:
             
-            if (valid_product.productIdentifier in InApp.PRODUCTS) or True:
+            if (valid_product.productIdentifier in InApp.PRODUCTS):
                 
                 product = Product(valid_product.productIdentifier,
                                   valid_product.localizedTitle,
@@ -199,7 +206,7 @@ class InApp:
     def add_observer(self, observer):
         self.observers.append(observer)
 			
-    #@on_main_thread
+    @on_main_thread
     def fetch(self):
         
         self.check_purchases_enabled()
@@ -220,6 +227,7 @@ class InApp:
 
         self.purchase_controller.fetchAvailableProducts()
     
+    @on_main_thread
     def check_purchases_enabled(self):
         sk_payment_queue_class = ObjCClass("SKPaymentQueue")
         self.can_make_purchases = sk_payment_queue_class.canMakePayments()

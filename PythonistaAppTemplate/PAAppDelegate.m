@@ -9,15 +9,26 @@
 #import "PAAppDelegate.h"
 #import "PAAppViewController.h"
 
-@interface PAAppDelegate () <UIGestureRecognizerDelegate>
+#define checkPointsProductID @"com.mapman.checkpoints"
+
+@interface PAAppDelegate () <UIGestureRecognizerDelegate, SKProductsRequestDelegate,SKPaymentTransactionObserver>
 
 @end
 
+static PAAppDelegate *PAAppDelegateInstance = nil;
+
 @implementation PAAppDelegate
 
+SKProductsRequest *productsRequest;
+NSArray *validProducts;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    
+    PAAppDelegateInstance = self;
+    
+    [PAAppDelegate deleteProductsFile];
+    
 	NSString *scriptPath = [self copyScriptResourcesIfNeeded];
 	
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
@@ -49,7 +60,11 @@
 	} else {
 		NSLog(@"Could not find main.py");
 	}
+    
+    [self fetchAvailableProducts];
+    
 	return YES;
+    
 }
 
 - (NSString *)copyScriptResourcesIfNeeded
@@ -126,6 +141,112 @@
 		}
 	}
 	return NO;
+}
+
+- (BOOL)canMakePurchases {
+    return [SKPaymentQueue canMakePayments];
+}
+
++(void)fetchProducts
+{
+    if (PAAppDelegateInstance != nil)
+    {
+    [PAAppDelegateInstance fetchAvailableProducts];
+    }
+}
+
++(void)deleteProductsFile
+{
+    NSString *appSupportDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *writableScriptDirectory = [appSupportDirectory stringByAppendingPathComponent:@"PythonistaScript"];
+    NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:@"products.txt"];
+    
+    NSError *error;
+    [[NSFileManager defaultManager] removeItemAtPath:destPath error:&error];
+    
+}
+
+-(void)fetchAvailableProducts
+{
+    
+    NSSet *productIdentifiers = [NSSet
+                                 setWithObjects:checkPointsProductID,nil];
+    
+    productsRequest = [[SKProductsRequest alloc]
+                       initWithProductIdentifiers:productIdentifiers];
+    
+    productsRequest.delegate = self;
+    
+    [productsRequest start];
+    
+}
+
+#pragma mark StoreKit Delegate
+
+-(void)paymentQueue:(SKPaymentQueue *)queue
+updatedTransactions:(NSArray *)transactions {
+    for (SKPaymentTransaction *transaction in transactions) {
+        switch (transaction.transactionState) {
+            case SKPaymentTransactionStatePurchasing:
+                NSLog(@"Purchasing");
+                break;
+                
+            case SKPaymentTransactionStatePurchased:
+                if ([transaction.payment.productIdentifier
+                     isEqualToString:checkPointsProductID]) {
+                    NSLog(@"Purchased ");
+                    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:
+                                              @"Purchase is completed succesfully" message:nil delegate:
+                                              self cancelButtonTitle:@"Ok" otherButtonTitles: nil];
+                    [alertView show];
+                }
+                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+                break;
+                
+            case SKPaymentTransactionStateRestored:
+                NSLog(@"Restored ");
+                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+                break;
+                
+            case SKPaymentTransactionStateFailed:
+                NSLog(@"Purchase failed ");
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+-(void)productsRequest:(SKProductsRequest *)request
+    didReceiveResponse:(SKProductsResponse *)response {
+
+    SKProduct *validProduct = nil;
+
+    if ([response.products count]>0) {
+        
+        /* https://developer.apple.com/documentation/storekit/skproduct */
+        validProduct = [response.products objectAtIndex:0];
+        
+        if ([validProduct.productIdentifier
+             isEqualToString:checkPointsProductID]){
+            
+            [PAAppDelegate deleteProductsFile];
+            
+            NSString *appSupportDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+            NSString *writableScriptDirectory = [appSupportDirectory stringByAppendingPathComponent:@"PythonistaScript"];
+            NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:@".products"];
+            
+            [[NSFileManager defaultManager] createFileAtPath:destPath contents:nil attributes:nil];
+            
+            NSString *price_string = [NSString stringWithFormat:@"%@", validProduct.price];
+            
+            NSString *out_string = [NSString stringWithFormat:@"%1$@,%2$@",validProduct.productIdentifier, price_string];
+            
+            [out_string writeToFile:destPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+
+        }
+    }
+    
 }
 
 @end

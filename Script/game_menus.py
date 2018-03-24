@@ -791,6 +791,9 @@ class PurchaseMenu(OneButtonMenu):
 		
 		products_controller = ProductsController.get()
 		
+		if not products_controller.validated:
+			products_controller.validate()
+		
 		self.can_purchase = False
 		self.price_text = ''
 		self.font_size = 20
@@ -807,7 +810,11 @@ class PurchaseMenu(OneButtonMenu):
 			
 				self.checkpoints = products_controller.checkpoints
 				
-				if self.checkpoints.valid:
+				if products_controller.valid_count < 1:
+					
+					self.price_text = 'no products available'
+					
+				elif self.checkpoints.valid:
 					
 					if self.checkpoints.purchased:
 							

@@ -2,12 +2,11 @@
 from scene import *
 from map_man import Game
 from in_app import InApp
-#import clear_files
+from in_app_proxy import InAppProxy
 
 if __name__ == '__main__':
     
-    InApp.initialize()
-    #InApp.initialize_dummy()
+    InApp.Instance = InAppProxy()
     
     game = Game()
 

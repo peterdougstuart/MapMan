@@ -65,7 +65,7 @@ def sync_in_app(drop_box_folder, xcode_folder, in_app_from_drop_box=True):
 drop_box_base_folder = r"/Users/stuart/Dropbox/Apps/MapMan2/MapMan"
 xcode_base_folder = r"/Users/stuart/MapMan/Script"
 
-sync_in_app(drop_box_base_folder, xcode_base_folder)
+#sync_in_app(drop_box_base_folder, xcode_base_folder)
 sync_folder(drop_box_base_folder, xcode_base_folder)
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Hearts')
 sync_folder(drop_box_base_folder, xcode_base_folder, allowed_extensions=['.png'], sub_folder='Heart')

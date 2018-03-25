@@ -78,13 +78,13 @@ class ProductsController(object):
 		
 		self.validated = False
 		
-		self.validate()
-		
+		InApp.Instance.get_products()
+	
 	def validate(self):
 		
 		if self.validated:
 			raise Exception('Already validated')
-			
+		
 		if InApp.Instance.products_validated:
 			
 			self.validated = True
@@ -112,6 +112,9 @@ class ProductsController(object):
 		
 		self.caller = caller
 		InApp.Instance.purchase(product.identifier)
+
+	def purchase_in_progress(self, product_identifier):
+		pass
 		
 	def purchase_successful(self, product_identifier):
 		ProductRegistry.get().register(product_identifier)
@@ -138,7 +141,9 @@ class ProductsController(object):
 		product.update_can_purchase()
 		 
 	def purchase_failed(self, product_identifier):
-		self.caller.purchase_failed(product_identifier)
+
+		if self.caller is not None:
+			self.caller.purchase_failed(product_identifier)
 		
 		self.caller = None
 	

@@ -3,9 +3,11 @@ from scene import *
 from map_man import Game
 from in_app import InApp
 from in_app_proxy import InAppProxy
+from rate import Rater
 
 if __name__ == '__main__':
     
+    Rater.initialize()
     InApp.Instance = InAppProxy()
     
     game = Game()

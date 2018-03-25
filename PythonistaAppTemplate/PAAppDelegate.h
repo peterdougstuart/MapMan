@@ -13,8 +13,7 @@
 
 @property (strong, nonatomic) UIWindow *window;
 
-- (void)fetchAvailableProducts;
-- (BOOL)canMakePurchases;
+
 
 @end
 
@@ -30,5 +29,20 @@
 @property (retain) UIViewController *rootViewController;
 @property (retain) UIApplication *app;
 + (instancetype)sharedContext;
+
+@end
+
+@interface PurchaseCallBack : NSObject
+
+- (void)successful;
+- (void)failed;
+- (void)restored;
+- (void)inProgress;
+
+@end
+
+@interface ProductsCallBack : NSObject
+
+- (void)loaded;
 
 @end

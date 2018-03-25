@@ -763,8 +763,12 @@ class MakePurchaseMenu(NoButtonMenu):
 		target_width=300.0,
 		font_type=font.BUTTON,
 		color='#000000')
+
 		ProductsController.get().purchase(self.product, self)
-	
+
+	def purchase_in_progress(self, product_identifier):
+		self.set_message('in progress...')
+
 	def purchase_successful(self, product_identifier):
 		
 		self.set_message('successful')

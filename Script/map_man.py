@@ -13,6 +13,7 @@ import bottom_bar
 import player
 import sys
 import time
+
 from timer import Timer
 
 from game_menus import get_checkpoint_level
@@ -49,6 +50,8 @@ from products_controller import ProductsController
 from completion import MapWoman
 from completion import Vortex
 from completion import Hearts
+
+from rate import Rater
 
 import palette
 
@@ -190,7 +193,7 @@ class Game (Scene):
 		
 		if self.menu is not None:
 			self.menu.update_options(self.music_option, self.fx_option, self.playing_position)
-
+			
 	def setup(self):
 		
 		Scaler.initialize(self)
@@ -1018,6 +1021,8 @@ class Game (Scene):
 		self.menu = MainMenu(self.highscore)
 		self.present_modal_scene(self.menu)
 		
+		self.request_review()
+		
 	def show_restart_menu(self):
 		
 		self.music.play_menu()
@@ -1293,6 +1298,26 @@ class Game (Scene):
 			self.bottom_bar.timer.show()
 			self.lives_display.show()
 	
+	def request_review(self):
+		
+		if not self.should_request_review():
+			return
+		
+		Rater.Instance.request_review()
+
+	def should_request_review(self):
+		
+		#only request review once checkpoint reached
+		
+		for level in self.check_points:
+				
+			check_point = self.check_points[level]
+				
+			if check_point.complete:
+				return True
+		
+		return False
+			
 	def new_tutorial(self):
 		self.new_game(tutorial=True)
 		
@@ -1378,7 +1403,7 @@ class Game (Scene):
 		
 if __name__ == '__main__':
 	
-	#InApp.initialize()
 	InApp.initialize_dummy()
+	Rater.initialize_dummy()
 	
 	run(Game(), LANDSCAPE, show_fps=False)

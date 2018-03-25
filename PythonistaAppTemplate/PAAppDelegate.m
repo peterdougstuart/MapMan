@@ -22,9 +22,15 @@ static PAAppDelegate *PAAppDelegateInstance = nil;
 SKProductsRequest *productsRequest;
 NSArray *validProducts;
 
+PurchaseCallBack *purchaseCallBack;
+ProductsCallBack *productsCallBack;
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     
+    purchaseCallBack = nil;
+    productsCallBack = nil;
+
     PAAppDelegateInstance = self;
     
     [PAAppDelegate deleteProductsFile];
@@ -143,23 +149,33 @@ NSArray *validProducts;
 	return NO;
 }
 
-- (BOOL)canMakePurchases {
++ (BOOL)canMakePayments {
     return [SKPaymentQueue canMakePayments];
 }
 
-+(void)fetchProducts
++(NSSet *)getProductIdentifiers
+{
+    
+    NSSet *productIdentifiers = [NSSet
+                                 setWithObjects:checkPointsProductID,nil];
+    
+    return productIdentifiers;
+    
+}
+
++(void)fetchProducts:(ProductsCallBack *) callBack dummy:(NSString *)dummy;
 {
     if (PAAppDelegateInstance != nil)
     {
-    [PAAppDelegateInstance fetchAvailableProducts];
+        [PAAppDelegateInstance fetchAvailableProducts:callBack];
     }
 }
 
-+(void)purchase
++(void)purchase:(NSString *) productIdentifier callBack:(PurchaseCallBack *) callBack;
 {
     if (PAAppDelegateInstance != nil)
     {
-        [PAAppDelegateInstance purchaseProduct:checkPointsProductID];
+        [PAAppDelegateInstance purchaseProduct:productIdentifier callBack:callBack];
     }
 }
     
@@ -187,25 +203,29 @@ NSArray *validProducts;
     return writableScriptDirectory;
 }
 
--(void)purchaseProduct:(NSString *)productIdentifier
+-(void)purchaseProduct:(NSString *)productIdentifier callBack:(PurchaseCallBack *) callBack;
 {
     
     SKProduct *product = [self getProduct:productIdentifier];
 
     if (product != nil)
     {
+        purchaseCallBack = callBack;
         SKPayment *payment = [SKPayment paymentWithProduct:product];
         [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
         [[SKPaymentQueue defaultQueue] addPayment:payment];
+    }else{
+        purchaseCallBack = nil;
     }
     
 }
 
--(void)fetchAvailableProducts
+-(void)fetchAvailableProducts:(ProductsCallBack *) callBack;
 {
     
-    NSSet *productIdentifiers = [NSSet
-                                 setWithObjects:checkPointsProductID,nil];
+    productsCallBack = callBack;
+    
+    NSSet *productIdentifiers = [PAAppDelegate getProductIdentifiers];
     
     productsRequest = [[SKProductsRequest alloc]
                        initWithProductIdentifiers:productIdentifiers];
@@ -242,13 +262,24 @@ updatedTransactions:(NSArray *)transactions {
     for (SKPaymentTransaction *transaction in transactions) {
         switch (transaction.transactionState) {
             case SKPaymentTransactionStatePurchasing:
+                
                 NSLog(@"Purchasing");
+                
+                if (purchaseCallBack != nil)
+                {
+                    [purchaseCallBack inProgress];
+                }
+                
                 break;
                 
             case SKPaymentTransactionStatePurchased:
                 if ([transaction.payment.productIdentifier
                      isEqualToString:checkPointsProductID]) {
                     NSLog(@"Purchased ");
+                    if (purchaseCallBack != nil)
+                    {
+                        [purchaseCallBack successful];
+                    }
                 }
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
                 break;
@@ -256,10 +287,18 @@ updatedTransactions:(NSArray *)transactions {
             case SKPaymentTransactionStateRestored:
                 NSLog(@"Restored ");
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+                if (purchaseCallBack != nil)
+                {
+                    [purchaseCallBack restored];
+                }
                 break;
                 
             case SKPaymentTransactionStateFailed:
                 NSLog(@"Purchase failed ");
+                if (purchaseCallBack != nil)
+                {
+                    [purchaseCallBack failed];
+                }
                 break;
             default:
                 break;
@@ -280,6 +319,7 @@ updatedTransactions:(NSArray *)transactions {
 
     if (validProducts.count > 0)
     {
+        NSLog(@"Products Received");
         
         NSString *destPath = [PAAppDelegate getProductsFile];
         
@@ -302,6 +342,15 @@ updatedTransactions:(NSArray *)transactions {
         
         [content writeToFile:destPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
     
+    }
+    else
+    {
+        NSLog(@"No Products Received");
+    }
+
+    if (productsCallBack != nil)
+    {
+        [productsCallBack loaded];
     }
     
 }

@@ -1,11 +1,6 @@
 from objc_util import *
 import datetime
 import os.path
-
-class DummyRater (object):
-	
-	def request_review(self):
-		pass
 		
 class Rater (object):
 
@@ -13,7 +8,7 @@ class Rater (object):
 	
 	FILE = '.rate_date'
 	DATE_FORMAT = '%d-%m-%Y'
-	DAYS_BETWEEN = 0
+	DAYS_BETWEEN = 125
 	
 	def __init__(self):
 		
@@ -37,9 +32,12 @@ class Rater (object):
 		if not self.can_request():
 			return
 		
-		self.review.requestReview()
+		self.do_request_review()
 		
 		self.write_date()
+
+	def do_request_review(self):
+		self.review.requestReview()
 
 	def can_request(self):
 		
@@ -75,6 +73,11 @@ class Rater (object):
 			date_text = self.now.strftime(Rater.DATE_FORMAT)
 			
 			f.write(date_text)
+
+class DummyRater (Rater):
+	
+	def do_request_review(self):
+		print 'Request Review: {0} days'.format(self.delta_days)
 
 if __name__ == '__main__':
 	rater = Rater()

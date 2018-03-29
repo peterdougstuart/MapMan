@@ -147,6 +147,10 @@ class Scaler (object):
 	@staticmethod
 	def get_heart_path(file_name):
 		return os.path.join('Heart', Scaler.get_file(file_name, force_normal=True))
+	
+	@staticmethod
+	def get_star_path(file_name):
+		return os.path.join('Star', Scaler.get_file(file_name))
 		
 	@staticmethod
 	def get_file(file_name, force_normal=False):

@@ -34,10 +34,10 @@
 
 @interface PurchaseCallBack : NSObject
 
-- (void)successful;
-- (void)failed;
-- (void)restored;
-- (void)inProgress;
+- (void)successful:(NSString *)identifier dummy:(NSString *)dummy;
+- (void)failed:(NSString *)identifier error:(NSString *)error;
+- (void)restored:(NSString *)identifier dummy:(NSString *)dummy;
+- (void)inProgress:(NSString *)identifier dummy:(NSString *)dummy;
 
 @end
 

@@ -9,7 +9,9 @@ level_messages = {}
 MAX_ROWS = 12
 MAX_COLUMNS = 17
 
-START_LEVEL = 1
+START_LEVEL = 10
+
+TEST_COMPLETION = True
 
 def next():
 	current = this()
@@ -2256,12 +2258,12 @@ mnmnmnmnmnm-cba-
 -22525252525252-
 --1616161616161
 '''
- 
+
 pre_completion = '''
 bcce
 '''
 
-if False:
+if TEST_COMPLETION:
 	levels[this()] = pre_completion
 	del loadings[this()]
 	START_LEVEL = this()

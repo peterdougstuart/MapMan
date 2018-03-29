@@ -98,27 +98,21 @@ ProductsCallBack *productsCallBack;
 
 	for (NSString *filename in scriptResources) {
         
-        if (![filename isEqualToString:@"simulate_tilt.txt"] || [mode isEqualToString:@"Simulator"])
-        {
+        NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
+        NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
         
-            NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
-            NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
+        NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
+        NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
+        
+        if (![destModificationDate isEqual:srcModificationDate] || [destModificationDate isEqual:NULL]) {
             
-            NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
-            NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
+            [fm removeItemAtPath:destPath error:NULL];
+            BOOL success = [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
             
-            if (![destModificationDate isEqual:srcModificationDate] || [destModificationDate isEqual:NULL]) {
-                
-                [fm removeItemAtPath:destPath error:NULL];
-                BOOL success = [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
-                
-                if (!success)
-                {
-                    has_error = YES;
-                }
-                
+            if (!success)
+            {
+                has_error = YES;
             }
-
             
         }
         
@@ -128,7 +122,14 @@ ProductsCallBack *productsCallBack;
     
     if (!has_error)
     {
-        mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main.py"];
+        if ([mode isEqualToString:@"Simulator"])
+        {
+            mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main.py"];
+        }
+        else
+        {
+            mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main_simulate_tilt.py"];
+        }
     }
     else
     {
@@ -203,6 +204,14 @@ ProductsCallBack *productsCallBack;
     return writableScriptDirectory;
 }
 
++(void)registerProduct:(NSString *) productIdentifier;
+{
+    NSString *writableScriptDirectory = [PAAppDelegate getWritableScriptDirectory];
+    NSString *fileName = [NSString stringWithFormat:@".%1$@",productIdentifier];
+    NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:fileName];
+    [productIdentifier writeToFile:destPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+}
+
 -(void)purchaseProduct:(NSString *)productIdentifier callBack:(PurchaseCallBack *) callBack;
 {
     
@@ -260,6 +269,9 @@ ProductsCallBack *productsCallBack;
 -(void)paymentQueue:(SKPaymentQueue *)queue
 updatedTransactions:(NSArray *)transactions {
     for (SKPaymentTransaction *transaction in transactions) {
+        
+        NSString *productIdentifier = transaction.payment.productIdentifier;
+        
         switch (transaction.transactionState) {
             case SKPaymentTransactionStatePurchasing:
                 
@@ -267,39 +279,58 @@ updatedTransactions:(NSArray *)transactions {
                 
                 if (purchaseCallBack != nil)
                 {
-                    [purchaseCallBack inProgress];
+                    [purchaseCallBack inProgress:productIdentifier dummy:productIdentifier];
                 }
                 
                 break;
                 
             case SKPaymentTransactionStatePurchased:
-                if ([transaction.payment.productIdentifier
-                     isEqualToString:checkPointsProductID]) {
-                    NSLog(@"Purchased ");
-                    if (purchaseCallBack != nil)
-                    {
-                        [purchaseCallBack successful];
-                    }
+                
+                NSLog(@"Purchased ");
+                
+                [PAAppDelegate registerProduct:transaction.payment.productIdentifier];
+                
+                if (purchaseCallBack != nil)
+                {
+                    [purchaseCallBack successful:productIdentifier dummy:productIdentifier];
                 }
+                
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
                 break;
                 
             case SKPaymentTransactionStateRestored:
+                
                 NSLog(@"Restored ");
+                
+                [PAAppDelegate registerProduct:productIdentifier];
+                
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
                 if (purchaseCallBack != nil)
                 {
-                    [purchaseCallBack restored];
+                    [purchaseCallBack restored:productIdentifier dummy:productIdentifier];
                 }
+                
                 break;
                 
             case SKPaymentTransactionStateFailed:
+                
                 NSLog(@"Purchase failed ");
+                /*
+                 0 : Cannot connect to iTunes Store
+                 */
+                /*
+                NSLog([NSString stringWithFormat:@"%ld", transaction.error.code]);
+                NSLog(transaction.error.localizedDescription);
+                */
+                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
                 if (purchaseCallBack != nil)
                 {
-                    [purchaseCallBack failed];
+                    NSString *error = transaction.error.localizedDescription;
+                    [purchaseCallBack failed:productIdentifier error:error];
                 }
+                
                 break;
+                
             default:
                 break;
         }

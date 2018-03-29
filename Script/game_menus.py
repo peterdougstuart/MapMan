@@ -29,21 +29,6 @@ def offer_active():
 	
 	return ProductsController.get().offer_active()
 
-def star_text(points):
-	if points < 1:
-		return ''
-	if points <= 12:
-		return font.STAR * points
-	else:
-		return '{0}{1}'.format(points, font.STAR)
-
-def extract_stars(text):
-	if len(text) > 1 and text.count(font.STAR)==1:
-		return int(text.replace(font.STAR, ''))
-	else:
-		return len(text)
-
-
 class ScoreLabelNode(LabelNode):
 	
 	def __init__(self, menu, score, base_text='score'):
@@ -60,8 +45,8 @@ class ScoreLabelNode(LabelNode):
 		
 		self.set_score(score)
 	
-	def add_score(self):
-		self.set_score(self.score + 1)
+	def add_score(self, step=1):
+		self.set_score(self.score + step)
 		
 	def set_score(self, score):
 		self.score = score
@@ -70,35 +55,126 @@ class ScoreLabelNode(LabelNode):
 	def make_score_text(self, score):
 		return '{0} {1} {2} {1}'.format(self.base_text, font.STAR, score)
 
-
-class Star:
+class Stars:
 	
-	def __init__(self, node, score_node, fx):
-		self.node = node
+	LONG_STARS = 12
+	THRESHOLD = 50
+	BIG_STEP = 5
+	SMALL_STEP = 1
+	
+	def __init__(self, menu, points, y, score_node, fx):
+		
+		self.parent = menu.menu_bg
+		
+		self.points = points
 		self.score_node = score_node
 		self.fx = fx
+		self.y = y
 		
+		self.star_texture = Texture(Scaler.get_star_path('star.png'))
+
+		self.add_stars()
+		
+		self.short_label = LabelNode(parent=self.parent)
+		self.short_label.anchor_point = (0.5, 0.5)
+		self.short_label.color = '#71c0e2'
+		
+		self.update_stars()
+		
+	def height(self):
+		return self.star_height
+	
+	def add_stars(self):
+		
+		self.stars = []
+		
+		for i in range(Stars.LONG_STARS):
+			star = SpriteNode(parent=self.parent)
+			star.anchor_point = (0.5, 0.5)
+			star.texture = self.star_texture
+			self.stars.append(star)
+		
+		self.star_width = self.stars[0].size.w
+		self.star_height = self.stars[0].size.h
+		
+		self.star_base_x_scale = self.stars[0].x_scale
+		self.star_base_y_scale = self.stars[0].y_scale
+		
+	def show_stars(self):
+		
+		if self.shorten():
+			count = 1
+		else:
+			count = self.points
+		
+		for i in range(len(self.stars)):
+			if i < count:
+				self.stars[i].x_scale = self.star_base_x_scale
+				self.stars[i].y_scale = self.star_base_y_scale
+			else:
+				self.stars[i].x_scale = 0
+				self.stars[i].y_scale = 0
+	
+	def set_positions(self):
+		
+		if self.shorten():
+			
+			width = self.short_label.size.w + self.star_width
+			
+			x = -0.5 * width + 0.5 * self.short_label.size.w
+			self.short_label.position = (x, self.y)
+			
+			x = 0.5 * width - 0.5 * self.star_width
+			self.stars[0].position = (x, self.y)
+			
+		else:
+			
+			width = self.points * self.star_width
+			lhs = -0.5 * (width - self.star_width)
+			
+			for i in range(len(self.stars)):
+				if i < self.points:
+					x = lhs + i * self.star_width
+					self.stars[i].position = (x, self.y)
+				
+	def shorten(self):
+		
+		if self.points > len(self.stars):
+			return True
+		else:
+			return False
+		
+	def update_stars(self):
+		
+		if self.shorten():
+			self.short_label.text = str(self.points)
+		else:
+			self.short_label.text = ''
+			
+		self.show_stars()
+		
+		self.set_positions()
+	
+	def step_size(self, points):
+		if self.points > Stars.THRESHOLD:
+			return Stars.BIG_STEP
+		else:
+			return Stars.SMALL_STEP
+			
 	def __call__(self):
 		
-		text = self.node.text
-		
-		if len(text) < 1:
+		if self.points < 1:
 			return
-		
+			
 		self.fx.play_star()
 		
-		points = extract_stars(text)
+		step = self.step_size(self.points)
 		
-		if points > 50:
-			step = 5
-		else:
-			step = 1
-			
-		self.node.text = star_text(points-step)
+		self.points -= step
 		
-		self.score_node.add_score()
-
-
+		self.update_stars()
+		self.score_node.add_score(step)
+		
 class Button(object):
 	
 	def __init__(self, action, tag):
@@ -423,24 +499,6 @@ class RestartMenu(MenuScene):
 				return False
 		else:
 			return True
-			
-class CopyFailMenu(Scene):
-	
-	def __init__(self):
-		
-		Scene.__init__(self)
-
-	def setup(self):
-		Scene.setup(self)
-		self.add_label(self.size.h*0.75, 'could not expand files')
-		self.add_label(self.size.h*0.50, 'try freeing up space')
-		self.add_label(self.size.h*0.25, 'on your device')
-		
-	def add_label(self, y, text):
-		label = LabelNode(parent=self)
-		label.anchor_point = (0.5, 0.5)
-		label.position = (self.size.w/2, y)
-		label.text = text
 		
 class CreditsMenu(ThreeButtonMenu):
 	
@@ -711,19 +769,6 @@ class ConfirmProductMenu(TwoButtonMenu):
 		else:
 			buttons = ['purchase menu']
 		
-		infos = []
-		
-		if product.can_purchase:
-			info1 = 'Buy'
-			info2 = product.title
-			header = 'Confirm'
-		else:
-			header = 'Cannot'
-			info1 = product.title
-			info2 = product.why_cant_purchase
-						
-		infos.append((info1, info2))
-		
 		TwoButtonMenu.__init__(self, tag='purchase_confirm',button_lhs=Button(tag='purchase_ok',action='okay'),button_rhs=Button(tag='purchase_cancel',action='cancel'))
 
 	def show_menu(self, menu):
@@ -743,10 +788,11 @@ class MakePurchaseMenu(NoButtonMenu):
 		self.enable_button = False
 		self.text_size = int(24 * Scaler.Menu)
 		
-		self.message = '{0} processing'.format(product.title)
+		self.set_message('purchasing...')
 		
-		MenuScene.__init__(self, 'purchase_thanks',main_menu_button=True)
+		MenuScene.__init__(self, 'purchase_progress',main_menu_button=True)
 		
+		self.thanks_texture = Texture(Scaler.get_menu('purchase_thanks'))
 		self.failed_texture = Texture(Scaler.get_menu('purchase_failed'))
 	
 	def show_menu(self, menu):
@@ -767,42 +813,54 @@ class MakePurchaseMenu(NoButtonMenu):
 		ProductsController.get().purchase(self.product, self)
 
 	def purchase_in_progress(self, product_identifier):
-		self.set_message('in progress...')
+		self.set_message('purchase in progress...')
 
 	def purchase_successful(self, product_identifier):
-		
-		self.set_message('successful')
+		self.menu_bg.texture = self.thanks_texture
+		self.set_message('purchase successful')
 		self.enable_button = True
 
 	def purchase_restored(self, product_identifier):
-		
-		self.set_message('restored')
+		self.menu_bg.texture = self.thanks_texture
+		self.set_message('purchase restored')
 		self.enable_button = True
 
-	def purchase_failed(self, product_identifier):
+	def purchase_failed(self, product_identifier, error=None):
+		
 		self.menu_bg.texture = self.failed_texture
-		self.set_message('failed')
+		
+		if error is not None:
+			message = 'failed: {0}'.format(error)
+		else:
+			message = 'failed'
+
+		self.set_message(message)
 		self.enable_button = True
 	
 	def set_message(self, message):
 		self.message_label.set_text(message, self.text_size)
-		
+
+class NullProduct:
+
+	def __init__(self):
+		self.identifier = 'NULL'
+		self.price = 0.0
+		self.can_purchase = False
+		self.valid = False
+		self.why_cant_purchase = ''
+
 class PurchaseMenu(OneButtonMenu):
-	
-	NULL_ACTION = 'NULL ACTION'
 	
 	def __init__(self):
 		
 		products_controller = ProductsController.get()
 		
-		if not products_controller.validated:
-			products_controller.validate()
-		
 		self.can_purchase = False
 		self.price_text = ''
 		self.font_size = 20
-		
-		action = PurchaseMenu.NULL_ACTION
+		self.checkpoints = NullProduct()
+
+		action = ''
 		
 		if not products_controller.enabled:
 			
@@ -814,7 +872,7 @@ class PurchaseMenu(OneButtonMenu):
 			
 				self.checkpoints = products_controller.checkpoints
 				
-				if products_controller.valid_count < 1:
+				if products_controller.valid_count() < 1:
 					
 					self.price_text = 'no products available'
 					
@@ -830,7 +888,7 @@ class PurchaseMenu(OneButtonMenu):
 						self.font_size = 36
 						self.can_purchase = True
 						
-						action = '{0}: {1}'.format(self.checkpoints.title, self.price_text)
+						action = self.checkpoints.identifier
 						
 				else:
 				
@@ -868,35 +926,19 @@ class PurchaseMenu(OneButtonMenu):
 	 	if menu.lower() == 'main menu':
 	 		self.presenting_scene.menu_button_selected(menu)
 	 	
-	 	elif menu in PurchaseMenu.NULL_ACTION:
-	 		
-	 		return
-	 		
-	 	else:
+	 	elif menu == self.checkpoints.identifier and self.checkpoints.valid:
 			self.presenting_scene.product_selected(self.checkpoints)
 
 class DynamicStarLabel(object):
 	
-	def __init__(self, menu, fx, stars, y):
+	def __init__(self, menu, fx, points, y):
 		
-		self.fx = fx
-		
-		self.stars_label = LabelNode(parent=menu.menu_bg)
-		self.stars_label.anchor_point = (0.5, 0.5)
-		self.stars_label.text = star_text(stars)
-		self.stars_label.color = '#71c0e2'
-		
-		self.score_node = menu.score_label
-		
-		self.set_position(y)
+		self.stars = Stars(menu, points, y, menu.score_label, fx)
 		
 		self.actions = self.add_actions()
 	
 	def height(self):
-		return self.stars_label.size.h
-		
-	def set_position(self, y):
-		self.stars_label.position = (0, y)
+		return self.stars.height()
 
 	def add_actions(self):
 		
@@ -913,31 +955,26 @@ class DynamicStarLabel(object):
 		
 	def star_action(self):
 		
-		count = extract_stars(self.stars_label.text)
-		
-		if count < 1:
+		if self.stars.points < 1:
 			return None
 		
-		star_action = Action.call(Star(self.stars_label, self.score_node, self.fx))
+		star_action = Action.call(self.stars)
 		wait_action = Action.wait(0.1)
 		
 		star_and_wait = Action.sequence([star_action, wait_action])
 
-		stars_to_add = count
-		stars_count = 0
+		stars_to_add = self.stars.points
+		action_count = 0
 		
 		while stars_to_add > 0:
 			
-			stars_count += 1
+			action_count += 1
 			
-			if stars_to_add > 50:
-				stars_to_add -= 5
-			else:
-				stars_to_add -= 1
+			stars_to_add -= self.stars.step_size(stars_to_add)
 				
-		stars = Action.repeat(star_and_wait, stars_count)
+		actions = Action.repeat(star_and_wait, action_count)
 		
-		return Action.sequence([Action.wait(0.2), stars])
+		return Action.sequence([Action.wait(0.2), actions])
 
 
 class EndLevelMenu(NoButtonMenu):

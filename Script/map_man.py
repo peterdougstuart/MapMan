@@ -19,7 +19,6 @@ from timer import Timer
 from game_menus import get_checkpoint_level
 from game_menus import is_checkpoint
 from game_menus import CheckpointsPurchaseRequiredMenu
-from game_menus import CopyFailMenu
 from game_menus import PauseMenu
 from game_menus import CreditsMenu
 from game_menus import OptionsMenu
@@ -106,29 +105,11 @@ class CheckPointInfo (object):
 class Game (Scene):
 	
 	POINTS_PER_LEVEL = 10
-	SIMULATE_TILT = 'simulate_tilt.txt'
 	
-	def __init__(self, copy_failed=False):
+	def __init__(self, simulate_tilt=False):
 		self.set_up_complete = False
-		self.copy_failed=copy_failed
+		self.simulate_tilt = simulate_tilt
 		Scene.__init__(self)
-		
-	def load_simulated(self):
-		
-		if not os.path.isfile(Game.SIMULATE_TILT):
-			self.simulate_tilt = False
-			return
-			
-		try:
-			with open(Game.SIMULATE_TILT, 'r') as f:
-				text = f.read().lower().strip()
-				if text == 'simulate':
-					self.simulate_tilt = True
-					Timer.INITIAL_SECONDS = 99
-				else:
-					self.simulate_tilt = False
-		except:
-			self.simulate_tilt = False
 	
 	def load_options(self):
 		
@@ -222,50 +203,39 @@ class Game (Scene):
 		self.menu = None
 		self.music = None
 			
-		if not self.copy_failed:
-			
-			self.load_options()
-			self.set_background()
+		self.load_options()
+		self.set_background()
 		
-			self.music = Music(enabled=self.music_option)
-			self.fx = FX(enabled=self.fx_option)
+		self.music = Music(enabled=self.music_option)
+		self.fx = FX(enabled=self.fx_option)
 			
-			self.shake = ShakeAndTilt()
+		self.shake = ShakeAndTilt()
 			
-			self.bottom_bar = bottom_bar.BottomBar(parent=self, fx=self.fx)
-			self.bottom_bar.hide()
+		self.bottom_bar = bottom_bar.BottomBar(parent=self, fx=self.fx)
+		self.bottom_bar.hide()
 			
-			self.background_gradient = Gradient(self, self.bottom_bar.size.h)
+		self.background_gradient = Gradient(self, self.bottom_bar.size.h)
 			
-			self.level_display = LevelDisplay(parent=self)
-			self.lives_display = LivesDisplay(parent=self)
-			self.points_display = 		PointsDisplay(parent=self)
+		self.level_display = LevelDisplay(parent=self)
+		self.lives_display = LivesDisplay(parent=self)
+		self.points_display = 		PointsDisplay(parent=self)
 		
-			self.map = map.Map(self)
+		self.map = map.Map(self)
 		
-			self.set_up_player()
+		self.set_up_player()
 		
-			self.vortex = Vortex(self)
-			self.vortex.hide()
+		self.vortex = Vortex(self)
+		self.vortex.hide()
 		
-			self.hearts = Hearts(self)
-			self.hearts.hide()
+		self.hearts = Hearts(self)
+		self.hearts.hide()
 
-			self.load_first_play()
-			self.simulated_tilt = None
-			self.load_simulated()
+		self.load_first_play()
 			
-			self.load_highscore()
-			self.load_check_points()
+		self.load_highscore()
+		self.load_check_points()
 		
-			self.show_start_menu()
-			
-		else:
-			
-			self.dummy_node = LabelNode(parent=self, text='', font=('Courier', 12))
-			
-			self.menu = CopyFailMenu()
-			self.present_modal_scene(self.menu)
+		self.show_start_menu()
 				
 		self.set_up_complete = True
 		
@@ -435,9 +405,6 @@ class Game (Scene):
 			self.hearts.update(heart_position)
 			
 	def update(self):
-		
-		if self.copy_failed:
-			return
 			
 		if self.menu is not None:
 			self.menu.update()

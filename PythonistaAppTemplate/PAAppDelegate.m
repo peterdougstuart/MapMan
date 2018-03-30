@@ -10,6 +10,7 @@
 #import "PAAppViewController.h"
 
 #define checkPointsProductID @"com.mapman.checkpoints"
+#define leaderBoardID @"com.mapman.leaderboard"
 
 @interface PAAppDelegate () <UIGestureRecognizerDelegate, SKProductsRequestDelegate,SKPaymentTransactionObserver>
 
@@ -124,11 +125,11 @@ ProductsCallBack *productsCallBack;
     {
         if ([mode isEqualToString:@"Simulator"])
         {
-            mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main.py"];
+            mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main_simulate_tilt.py"];
         }
         else
         {
-            mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main_simulate_tilt.py"];
+            mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main.py"];
         }
     }
     else

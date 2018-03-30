@@ -5,6 +5,7 @@ from scene import Texture
 import font
 from scaler import Scaler
 
+
 class LivesDisplay(object):
 	
 	INITIAL_LIVES = 3

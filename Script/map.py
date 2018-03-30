@@ -9,6 +9,7 @@ from check_point import CheckPoint
 
 A = Action
 
+
 def get_vanish(tile_type, x_hides):
 	if tile_type.isdigit():
 		return int(tile_type)

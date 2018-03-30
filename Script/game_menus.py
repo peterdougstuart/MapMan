@@ -71,14 +71,16 @@ class Stars:
 		self.fx = fx
 		self.y = y
 		
-		self.star_texture = Texture(Scaler.get_star_path('star.png'))
+		self.star_texture = Texture(Scaler.get_star_path('star_blue.png'))
 
 		self.add_stars()
 		
 		self.short_label = LabelNode(parent=self.parent)
 		self.short_label.anchor_point = (0.5, 0.5)
 		self.short_label.color = '#71c0e2'
-		
+
+		self.short_label.font = (font.BUTTON, int(25*Scaler.Menu))
+
 		self.update_stars()
 		
 	def height(self):
@@ -89,9 +91,9 @@ class Stars:
 		self.stars = []
 		
 		for i in range(Stars.LONG_STARS):
-			star = SpriteNode(parent=self.parent)
+			star = Scaler.new_sprite(texture=self.star_texture)
+			self.parent.add_child(star)
 			star.anchor_point = (0.5, 0.5)
-			star.texture = self.star_texture
 			self.stars.append(star)
 		
 		self.star_width = self.stars[0].size.w
@@ -121,8 +123,10 @@ class Stars:
 			
 			width = self.short_label.size.w + self.star_width
 			
+			width *= 1.1
+			
 			x = -0.5 * width + 0.5 * self.short_label.size.w
-			self.short_label.position = (x, self.y)
+			self.short_label.position = (x, self.y-0.1*self.star_height)
 			
 			x = 0.5 * width - 0.5 * self.star_width
 			self.stars[0].position = (x, self.y)
@@ -156,7 +160,7 @@ class Stars:
 		self.set_positions()
 	
 	def step_size(self, points):
-		if self.points > Stars.THRESHOLD:
+		if points > Stars.THRESHOLD:
 			return Stars.BIG_STEP
 		else:
 			return Stars.SMALL_STEP
@@ -204,6 +208,10 @@ class ButtonNode (SpriteNode):
 		self.disabled_texture = self.untouch_texture
 		
 		self.texture = self.untouch_texture
+
+		self.size = Scaler.size_from_texture(self.untouch_texture)
+		
+		self.base_size = self.size
 					
 	def set_action(self, action):
 		self.action = action
@@ -214,9 +222,11 @@ class ButtonNode (SpriteNode):
 		
 	def touch(self):
 		self.texture = self.touch_texture
+		self.size = self.base_size
 
 	def untouch(self):
 		self.texture = self.untouch_texture
+		self.size = self.base_size
 
 
 class MenuScene (Scene):
@@ -285,9 +295,13 @@ class MenuScene (Scene):
 		
 	def add_menu_bg(self):
 		
-		self.menu_bg = SpriteNode(texture=self.get_menu_bg_texture(), position=self.size/2, parent=self)
+		menu_texture = self.get_menu_bg_texture()
+
+		self.menu_bg = Scaler.new_sprite(texture=menu_texture)
+		self.add_child(self.menu_bg)
 		
 		self.menu_bg.anchor_point = (0.5, 0.5)
+		self.menu_bg.position=self.size/2
 		
 	def touch_began(self, touch):
 		
@@ -704,7 +718,8 @@ class MainMenu(MenuScene):
 		
 		if offer_active():
 			star_texture = Texture(Scaler.get_button_off('sale_star'))
-			star = SpriteNode(parent=self.purchase, texture=star_texture)
+			star = Scaler.new_sprite(texture=star_texture)
+			self.purchase.add_child(star)
 			star.anchor_point = (0.5, 0.5)
 			star.position = (-0.5*self.purchase.size.w, 0.5*self.purchase.size.h)
 			
@@ -1008,12 +1023,21 @@ class EndLevelMenu(NoButtonMenu):
 		else:
 			space_y = self.space_y
 		
-		y = self.top() - 0.3 * space_y
+		y = self.top() - 0.33 * space_y
 		
 		y -= index * 4.2 * space_y
 		
 		return y
-		
+
+		if index == 1:
+			return self.top() - 4.53 * self.space_y
+		elif index == 2:
+			return self.top() - 8.73 * self.space_y
+		elif index == 3:
+			return self.top() - 12.93 * self.space_y
+		else:
+			raise Exception('Unexpected y index')
+
 	def setup(self):
 		
 		MenuScene.setup(self)
@@ -1130,10 +1154,16 @@ class CompletionScoringMenu(EndLevelMenu):
 		check_point=False)
 	
 	def get_y(self, index):
-		return EndLevelMenu.get_y(self, index)
 		
+		if index == 1:
+			return self.top() - 5.0 * self.space_y
+		elif index == 2:
+			return self.top() - 12.0 * self.space_y
+		else:
+			raise Exception('Unexpected y index')
+	
 	def get_tag(self):
-		return 'end_level'
+		return 'completion'
 
 	def touch_ended(self, touch):
 		if not MenuScene.touch_ended(self, touch):
@@ -1144,7 +1174,8 @@ class CompletionSpriteNode(SpriteNode):
 	def __init__(self, game, parent, texture, get_x, scale,rotation_range=3.14, z_position=None):
 		
 		SpriteNode.__init__(self, parent=parent, texture=texture)
-		
+		self.size = Scaler.size_from_texture(texture)
+
 		if not z_position is None:
 			self.z_position = z_position
 			
@@ -1201,7 +1232,7 @@ class CompletionMenu(EndGameMenu):
 		else:
 			self.score_text = '{0}'.format(score)
 		
-		MenuScene.__init__(self, tag='end_level', main_menu_button=True)
+		MenuScene.__init__(self, tag='congratulations', main_menu_button=True)
 
 	def add_buttons(self):
 		MenuScene.add_buttons(self)

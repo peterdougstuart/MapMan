@@ -2,6 +2,7 @@
 from scene import Texture
 from scaler import Scaler
 
+
 class MapWoman (object):
 	
 	FRAMES = 14

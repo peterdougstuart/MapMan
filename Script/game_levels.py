@@ -11,7 +11,7 @@ MAX_COLUMNS = 17
 
 START_LEVEL = 10
 
-TEST_COMPLETION = True
+TEST_COMPLETION = False
 
 def next():
 	current = this()

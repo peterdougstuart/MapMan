@@ -1,8 +1,8 @@
-from scene import SpriteNode
 from scene import Texture
 from scene import Action
 import os.path
 from scaler import Scaler
+
 
 class CheckPoint(object):
 

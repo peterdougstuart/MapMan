@@ -2,6 +2,7 @@
 from scene import Texture
 from scaler import Scaler
 
+
 class Player (object):
 	
 	FRAMES = 14

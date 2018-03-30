@@ -34,48 +34,36 @@ class Scaler (object):
 			Scaler.DisplayShift = 0
 			
 			#iphone
-			if scene.get_screen_scale() == 1.0:
+			if scene.get_screen_scale() <= 1.0:
 				Scaler.Resolution = '1x'
 			elif scene.get_screen_scale() == 2.0:
 				Scaler.Resolution = '2x'
-			elif scene.get_screen_scale() >= 3.0:
-				Scaler.Resolution = '3x'
 			else:
 				Scaler.Resolution = '3x'
-		
+
+			Scaler.Score = 1.0
+			Scaler.Lives = 1.0
+			Scaler.Bottom_bar = 1.0
+			Scaler.Menu = 1.0
+			Scaler.Timer = 1.0
+
 			if game.size.w < 667:
+				
+				#iphone 4 and below
 				
 				if Scaler.Resolution == '1x':
 					Scaler.Size = 'Tiny'
 				else:
 					Scaler.Size = 'Small'
-				
-				#iphone 4 and below
-				Scaler.Bottom_bar = 1
-				Scaler.Timer = 1
-				Scaler.Menu = 0.8
-				Scaler.Score = 1
-				Scaler.Lives = 1
 
 			else:
 				
 				#iPhone 5, 6, 7
 				Scaler.Size = 'Normal'
-			
-				Scaler.Bottom_bar = 1
-				Scaler.Timer = 1
-				Scaler.Menu = 1
-				Scaler.Score = 1
-				Scaler.Lives = 1
 	
 	@staticmethod
-	def new_sprite(texture):
-		
-		#textures size is in pixels
-		#convert to points and apply to sprite
-		
-		node = SpriteNode(texture)
-		
+	def size_from_texture(texture):
+
 		if Scaler.Resolution == '1x':
 			scale = 1.0
 		elif Scaler.Resolution == '2x':
@@ -88,7 +76,17 @@ class Scaler (object):
 		x = int(texture.size[0] / scale)
 		y = int(texture.size[1] / scale)
 		
-		node.size = (x, y)
+		return (x, y)
+
+	@staticmethod
+	def new_sprite(texture):
+		
+		#textures size is in pixels
+		#convert to points and apply to sprite
+		
+		node = SpriteNode(texture)
+		
+		node.size = Scaler.size_from_texture(texture)
 		
 		return node
 

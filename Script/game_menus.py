@@ -988,11 +988,11 @@ class PurchaseMenu(OneButtonMenu):
 	
 	def pause_for_validation(self, controller):
 		
-		for i in range(10):
+		for i in range(3):
 			if controller.validated:
 				return
 			else:
-				time.sleep(100)
+				time.sleep(1)
 		
 	def setup(self):
 		OneButtonMenu.setup(self)

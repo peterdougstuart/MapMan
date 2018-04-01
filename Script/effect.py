@@ -106,9 +106,16 @@ class Effect(object):
 		self.node_bottom.size = (0, 0)
 		self.node.size = self.base_size
 
+	def half_size(self, size):
+		w = size[0] * 0.5
+		h = size[1] * 0.5
+		return (w, h)
+		
 	def show_double(self):
-		self.node_top.size = 0.5 * self.base_size
-		self.node_bottom.size = 0.5 * self.base_size
+		
+		self.node_top.size = self.half_size(self.base_size)
+		self.node_bottom.size = self.node_top.size
+		
 		self.node.size = (0, 0)
 		
 	def hide_effect(self):

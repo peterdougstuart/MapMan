@@ -938,6 +938,8 @@ class PurchaseMenu(OneButtonMenu):
 		
 		products_controller = ProductsController.get()
 		
+		self.purchase_active = False
+		
 		self.can_purchase = False
 		self.price_text = ''
 		self.font_size = 20
@@ -1018,7 +1020,9 @@ class PurchaseMenu(OneButtonMenu):
 	 	if menu.lower() == 'main menu':
 	 		self.presenting_scene.menu_button_selected(menu)
 	 	
-	 	elif menu == self.checkpoints.identifier and self.checkpoints.valid:
+	 	elif menu == self.checkpoints.identifier and self.checkpoints.valid and not self.purchase_active:
+			
+			self.purchase_active = True
 			self.presenting_scene.product_selected(self.checkpoints)
 
 class DynamicStarLabel(object):

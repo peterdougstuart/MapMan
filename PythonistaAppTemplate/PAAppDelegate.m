@@ -107,7 +107,9 @@ ProductsCallBack *productsCallBack;
 {
     NSDictionary *infoDictionary = [[NSBundle mainBundle]infoDictionary];
     NSString *version = infoDictionary[@"CFBundleShortVersionString"];
-    return version;
+    NSString *build = infoDictionary[@"CFBundleVersion"];
+    NSString *full_version = [NSString stringWithFormat:@"%@.%@", version, build];
+    return full_version;
 }
 
 - (NSString *)copyScriptResourcesIfNeeded

@@ -9,7 +9,7 @@ level_messages = {}
 MAX_ROWS = 12
 MAX_COLUMNS = 17
 
-START_LEVEL = 10
+START_LEVEL = 1
 
 TEST_COMPLETION = False
 

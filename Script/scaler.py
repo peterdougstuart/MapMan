@@ -60,7 +60,14 @@ class Scaler (object):
 				
 				#iPhone 5, 6, 7
 				Scaler.Size = 'Normal'
-	
+
+	@staticmethod
+	def update_texture(node, texture):
+		
+		node.texture = texture
+		
+		node.size = Scaler.size_from_texture(texture)
+		
 	@staticmethod
 	def size_from_texture(texture):
 

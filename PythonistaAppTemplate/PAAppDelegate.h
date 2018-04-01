@@ -38,6 +38,7 @@
 - (void)failed:(NSString *)identifier error:(NSString *)error;
 - (void)restored:(NSString *)identifier dummy:(NSString *)dummy;
 - (void)inProgress:(NSString *)identifier dummy:(NSString *)dummy;
+- (void)deferred:(NSString *)identifier dummy:(NSString *)dummy;
 
 @end
 

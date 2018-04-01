@@ -96,7 +96,7 @@ class ProductsController(object):
 		
 		self.enabled = InApp.Instance.can_make_purchases()
 		
-		self.checkpoints = Product('com.mapman.checkpoints')
+		self.checkpoints = Product('com.mapmangame.checkpoints')
 		
 		self.dict = {}
 		
@@ -105,7 +105,17 @@ class ProductsController(object):
 		self.validated = False
 		
 		InApp.Instance.get_products()
+	
+	def detach_caller(self):
+		self.caller = None
+	
+	def update(self):
 		
+		if self.validated:
+			for key in self.dict:
+				product = self.dict[key]
+				product.update()
+				
 	def validate(self, valid, products=None):
 		
 		if self.validated:
@@ -148,13 +158,18 @@ class ProductsController(object):
 		InApp.Instance.purchase(product.identifier)
 		
 	def purchase_in_progress(self, product_identifier):
-		pass
 		
+		if self.caller is not None:
+			self.caller.purchase_in_progress(product_identifier)
+			
 	def purchase_successful(self, product_identifier):
 	
 		if self.caller is not None:
 			self.caller.purchase_successful(product_identifier)
-			self.caller = None
+		
+		else:
+			
+			print 'purchase successful'
 			
 		self.dict[product_identifier].update()
 		
@@ -162,12 +177,28 @@ class ProductsController(object):
 	
 		if self.call is not None:
 			self.caller.purchase_restored(product_identifier)
-			self.caller = None
+		
+		else:
 			
+			print 'purchase restored'
+		
 		self.dict[product_identifier].update()
 		
 	def purchase_failed(self, product_identifier, error=None):
 	
 		if self.caller is not None:
 			self.caller.purchase_failed(product_identifier, error)
+		
+		else:
+			
+			print 'purchase failed'
+
+	def purchase_deferred(self, product_identifier, error=None):
+	
+		if self.caller is not None:
+			self.caller.purchase_deferred(product_identifier)
+		
+		else:
+			
+			print 'purchase deferred'
 

@@ -9,8 +9,7 @@
 #import "PAAppDelegate.h"
 #import "PAAppViewController.h"
 
-#define checkPointsProductID @"com.mapman.checkpoints"
-#define leaderBoardID @"com.mapman.leaderboard"
+#define checkPointsProductID @"com.mapmangame.checkpoints"
 
 @interface PAAppDelegate () <UIGestureRecognizerDelegate, SKProductsRequestDelegate,SKPaymentTransactionObserver>
 
@@ -74,8 +73,76 @@ ProductsCallBack *productsCallBack;
     
 }
 
+-(NSString *)lastVersionFile;
+{
+    NSString *writableScriptDirectory = [PAAppDelegate getWritableScriptDirectory];
+    NSString *fileName = @".last_version";
+    NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:fileName];
+    return destPath;
+}
+
+-(void)registerVersion:(NSString *) version;
+{
+    NSString *destPath = [self lastVersionFile];
+    [version writeToFile:destPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+}
+
+-(NSString *)getLastVersion;
+{
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *source = [self lastVersionFile];
+    
+    if ([fileManager fileExistsAtPath:source]){
+        NSString *content = [NSString stringWithContentsOfFile:source encoding:NSUTF8StringEncoding error:nil];
+        return content;
+    }
+    else{
+        return @"NONE";
+    }
+
+}
+
+-(NSString *)getCurrentVersion;
+{
+    NSDictionary *infoDictionary = [[NSBundle mainBundle]infoDictionary];
+    NSString *version = infoDictionary[@"CFBundleShortVersionString"];
+    return version;
+}
+
 - (NSString *)copyScriptResourcesIfNeeded
 {
+    
+#if TARGET_IPHONE_SIMULATOR
+    NSString *mode = @"Simulator";
+#else
+    NSString *mode = @"Device";
+#endif
+    
+    NSString *last_version = [self getLastVersion];
+    NSString *current_version = [self getCurrentVersion];
+    
+    BOOL force_update_for_simulator = NO;
+    BOOL up_to_date;
+
+    if ([mode isEqualToString:@"Simulator"] && force_update_for_simulator)
+    {
+        up_to_date = NO;
+    }
+    else
+    {
+        if ([last_version isEqual:current_version])
+        {
+            up_to_date = YES;
+            NSLog(@"Files up to date");
+        }
+        else
+        {
+            up_to_date = NO;
+            NSLog(@"Files need updating");
+        }
+    }
+        
 	//Copy files from <Main Bundle>/Scripts to ~/Library/Application Support/PythonistaScript.
 	//Files that are already there (and up-to-date) are skipped.
 	
@@ -86,43 +153,50 @@ ProductsCallBack *productsCallBack;
 
     NSFileManager *fm = [NSFileManager defaultManager];
 	[fm createDirectoryAtPath:writableScriptDirectory withIntermediateDirectories:YES attributes:nil error:NULL];
-	
-    #if TARGET_IPHONE_SIMULATOR
-        NSString *mode = @"Simulator";
-    #else
-        NSString *mode = @"Device";
-    #endif
     
 	NSArray *scriptResources = [fm contentsOfDirectoryAtPath:bundledScriptDirectory error:NULL];
 
     BOOL has_error = NO;
 
-	for (NSString *filename in scriptResources) {
+    if (!up_to_date)
+    {
         
-        NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
-        NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
+        NSLog(@"Updating files");
         
-        NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
-        NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
-        
-        if (![destModificationDate isEqual:srcModificationDate] || [destModificationDate isEqual:NULL]) {
+        for (NSString *filename in scriptResources) {
             
-            [fm removeItemAtPath:destPath error:NULL];
-            BOOL success = [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
+            NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
+            NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
             
-            if (!success)
-            {
-                has_error = YES;
+            NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
+            NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
+            
+            if (![destModificationDate isEqual:srcModificationDate] || [destModificationDate isEqual:NULL]) {
+                
+                [fm removeItemAtPath:destPath error:NULL];
+                BOOL success = [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
+                
+                if (!success)
+                {
+                    has_error = YES;
+                }
+                
             }
             
         }
-        
-	}
+    }
+    else
+    {
+        NSLog(@"Skipping file update");
+    }
     
     NSString *mainScriptFile;
     
     if (!has_error)
     {
+        
+        [self registerVersion:current_version];
+        
         if ([mode isEqualToString:@"Simulator"])
         {
             mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main_simulate_tilt.py"];
@@ -138,6 +212,7 @@ ProductsCallBack *productsCallBack;
     }
     
 	return mainScriptFile;
+    
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -328,6 +403,17 @@ updatedTransactions:(NSArray *)transactions {
                 {
                     NSString *error = transaction.error.localizedDescription;
                     [purchaseCallBack failed:productIdentifier error:error];
+                }
+                
+                break;
+            
+            case SKPaymentTransactionStateDeferred:
+
+                NSLog(@"Deferred ");
+                
+                if (purchaseCallBack != nil)
+                {
+                    [purchaseCallBack deferred:productIdentifier dummy:productIdentifier];
                 }
                 
                 break;

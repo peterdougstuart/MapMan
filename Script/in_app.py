@@ -18,6 +18,10 @@ def restored_dummy_(_self, _cmd, identifier, dummy):
 def inProgress_dummy_(_self, _cmd, identifier, dummy):
 	product_identifier = str(ObjCInstance(identifier))
 	InApp.Instance.inform_observers(3, product_identifier)
+
+def deferred_dummy_(_self, _cmd, identifier, dummy):
+	product_identifier = str(ObjCInstance(identifier))
+	InApp.Instance.inform_observers(4, product_identifier)
 	
 def loaded(_self, _cmd):
 	InApp.Instance.loaded()
@@ -60,7 +64,7 @@ class InApp:
 			
 			call_back_class = create_objc_class('PythonPurchaseCallBack',
 			ObjCClass("NSObject"),
-			methods=[successful_dummy_, failed_error_, restored_dummy_, inProgress_dummy_],
+			methods=[successful_dummy_, failed_error_, restored_dummy_, deferred_dummy_, inProgress_dummy_],
 			protocols=['PurchaseCallBack'])
 			
 			call_back_object = call_back_class.alloc().init()
@@ -81,6 +85,8 @@ class InApp:
 				observer.purchase_restored(product_identifier)
 			elif outcome == 3:
 				observer.purchase_in_progress(product_identifier)
+			elif outcome == 4:
+				observer.purchase_deferred(product_identifier)
 			else:
 				raise Exception('Unknown outcome')
 				
@@ -153,7 +159,7 @@ class InAppDummy:
 		
 		discounted = (randint(0, 2) == 0)
 		
-		identifier = 'com.mapman.checkpoints'
+		identifier = 'com.mapmangame.checkpoints'
 		
 		if discounted:
 			price = 0.99
@@ -177,10 +183,13 @@ class InAppDummy:
 		return '.{0}'.format(name)
 		
 	def purchase(self, product_identifier):
-	
+		
+		for observer in self.observers:
+			observer.purchase_in_progress(product_identifier)
+				
 		time.sleep(1.0)
 		
-		outcome = (randint(0, 3) == 0)
+		outcome = (randint(0, 4) == 0)
 		
 		for observer in self.observers:
 			if outcome == 0:
@@ -191,6 +200,8 @@ class InAppDummy:
 			elif outcome == 2:
 				self.register(product_identifier)
 				observer.purchase_restored(product_identifier)
+			elif outcome == 3:
+				observer.purchase_deferred(product_identifier)
 			else:
 				raise Exception('Unknown outcome')
 				

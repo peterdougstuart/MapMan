@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from scene import LabelNode
+from scene import Texture
 import font
 from scaler import Scaler
 
@@ -8,39 +9,57 @@ class PointsDisplay(object):
 	
 	def __init__(self, parent):
 		
-		self.reset()
+		self.score = 0
 		self.parent = parent
+		
 		self.add_score()
-
+		self.update()
+		
 	def hide(self):
 		self.score_label.scale = 0
+		self.star.size = (0, 0)
 		
 	def show(self):
 		self.score_label.scale = 1
+		self.star.size = self.base_size
 		
 	def reset(self):
 		self.score = 0
-		
-	def blank_score(self):
-		self.score_label.text = ''
+		self.update()
 		
 	def update(self):
 		
 		if not self.parent.tutorial:
 			self.score_label.text = self.score_text()
+			self.position()
 		else:
-			self.score_label.text = ''
+			self.hide()
 		
 	def add_score(self):
 		
-		self.score_label = LabelNode('', font=(font.SCORE_DISPLAY, 40*Scaler.Score), position=(self.parent.size.w/2, self.parent.size.h-30-Scaler.DisplayShift), parent=self.parent)
+		self.score_label = LabelNode(text='', font=(font.SCORE_DISPLAY, 40*Scaler.Score), parent=self.parent)
 		
 		self.score_label.anchor_point = (0.5, 0.5)
-
+		
+		self.star = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white.png')))
+		
+		self.star.anchor_point = (0.5, 0.5)
+		
+		self.base_size = self.star.size
+		
+		self.parent.add_child(self.star)
+		
+		self.position()
+		
+	def position(self):
+		
+		x = self.parent.size.w/2
+		y = self.parent.size.h-30-Scaler.DisplayShift
+		
+		self.star.position = (x+self.star.size.w*0.5, y+self.star.size.h*0.1)
+		
+		self.score_label.position = (x-self.score_label.size.w*0.5, y)
+		
 	def score_text(self):
 		
-		if not self.parent.tutorial:
-			return "{0}{1}".format(self.score, font.STAR)
-		else:
-			return ''
-	
+		return "{0}".format(self.score)

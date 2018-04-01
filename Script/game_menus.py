@@ -12,6 +12,7 @@ from products_controller import ProductsController
 from wrapping import WrappingLabelNode
 from random import random
 from random import randint
+import time
 
 def get_checkpoint_level(action):
 	data = action.lower().replace('l','')
@@ -39,21 +40,49 @@ class ScoreLabelNode(LabelNode):
 		
 		LabelNode.__init__(self, text='', font=button_font, color='#ffffff', parent =menu.menu_bg)
 
-		self.anchor_point = (0.5,1)
+		self.anchor_point = (0.5, 1)
 		
 		self.position=(0, menu.bottom()-menu.space_y*1.2)
 		
+		self.star_lhs = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white.png')))
+		self.add_child(self.star_lhs)
+		self.star_lhs.anchor_point = (1, 1)
+		
+		self.star_rhs = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white.png')))
+		self.add_child(self.star_rhs)
+		self.star_rhs.anchor_point = (0, 1)
+		
+		self.star_size = self.star_lhs.size
+		
 		self.set_score(score)
-	
+		
 	def add_score(self, step=1):
 		self.set_score(self.score + step)
 		
 	def set_score(self, score):
+		
 		self.score = score
 		self.text = self.make_score_text(score)
+		self.set_star_position()
+		
+		if len(self.text) < 1:
+			self.star_lhs.size = (0, 0)
+			self.star_rhs.size = (0, 0)
+		else:
+			self.star_lhs.size = self.star_size
+			self.star_rhs.size = self.star_size
+			
+	def set_star_position(self):
+		dy = self.star_lhs.size.h * 0.2
+		dx = self.star_lhs.size.w * 0.2
+		self.star_lhs.position = (-self.size.w*0.5-dx*1.5, dy)
+		self.star_rhs.position = (self.size.w*0.5+dx, dy)
 	
 	def make_score_text(self, score):
-		return '{0} {1} {2} {1}'.format(self.base_text, font.STAR, score)
+		if score <= 0:
+			return ''
+		else:
+			return '{0} {1}'.format(self.base_text, score)
 
 class Stars:
 	
@@ -204,30 +233,26 @@ class ButtonNode (SpriteNode):
 	def update_tag(self, tag):
 		
 		self.untouch_texture = Texture(Scaler.get_button_off(tag))
+		
 		self.touch_texture = Texture(Scaler.get_button_on(tag))
+		
 		self.disabled_texture = self.untouch_texture
 		
-		self.texture = self.untouch_texture
-
-		self.size = Scaler.size_from_texture(self.untouch_texture)
-		
-		self.base_size = self.size
+		Scaler.update_texture(self, self.untouch_texture)
 					
 	def set_action(self, action):
 		self.action = action
 		
 	def disable(self):
 		self.enabled = False
-		self.texture = self.disabled_texture
+		Scaler.update_texture(self, self.disabled_texture)
 		
 	def touch(self):
-		self.texture = self.touch_texture
-		self.size = self.base_size
+		Scaler.update_texture(self, self.touch_texture)
 
 	def untouch(self):
-		self.texture = self.untouch_texture
-		self.size = self.base_size
-
+		Scaler.update_texture(self, self.untouch_texture)
+		
 
 class MenuScene (Scene):
 	
@@ -747,7 +772,12 @@ class MainMenu(MenuScene):
 		
 		y += self.tutorial.size.h+self.space_y
 		
-		self.checkpoint = ButtonNode(button=Button(tag='restart_active', action='restart from checkpoint'), parent=self.menu_bg)
+		if ProductsController.get().checkpoints.purchased:
+			checkpoint_tag = 'restart_active'
+		else:
+			checkpoint_tag = 'restart_inactive'
+			
+		self.checkpoint = ButtonNode(button=Button(tag=checkpoint_tag, action='restart from checkpoint'), parent=self.menu_bg)
 		
 		self.checkpoint.anchor_point = (0.5, 0.0)
 		self.checkpoint.position = (0, y)
@@ -799,11 +829,11 @@ class MakePurchaseMenu(NoButtonMenu):
 	
 	def __init__(self, product):
 		
+		self.purchase_active = False
+		
 		self.product = product
 		self.enable_button = False
 		self.text_size = int(24 * Scaler.Menu)
-		
-		self.set_message('purchasing...')
 		
 		MenuScene.__init__(self, 'purchase_progress',main_menu_button=True)
 		
@@ -825,32 +855,70 @@ class MakePurchaseMenu(NoButtonMenu):
 		font_type=font.BUTTON,
 		color='#000000')
 
-		ProductsController.get().purchase(self.product, self)
+		self.main_menu_button_size = self.buttons[0].size
+		self.buttons[0].size = (0,0)
 
+		if not self.purchase_active:
+			
+			self.purchase_active = True
+			ProductsController.get().purchase(self.product, self)
+	
+	def show_main_menu_button(self):
+		
+		self.buttons[0].size = self.main_menu_button_size
+		
 	def purchase_in_progress(self, product_identifier):
+		
 		self.set_message('purchase in progress...')
 
 	def purchase_successful(self, product_identifier):
-		self.menu_bg.texture = self.thanks_texture
+		
+		Scaler.update_texture(self.menu_bg, self.thanks_texture)
+		
 		self.set_message('purchase successful')
 		self.enable_button = True
+		self.purchase_active = False
+		
+		ProductsController.get().detach_caller()
+		self.show_main_menu_button()
 
 	def purchase_restored(self, product_identifier):
-		self.menu_bg.texture = self.thanks_texture
+		
+		Scaler.update_texture(self.menu_bg, self.thanks_texture)
+		
 		self.set_message('purchase restored')
 		self.enable_button = True
+		self.purchase_active = False
+		
+		ProductsController.get().detach_caller()
+		self.show_main_menu_button()
 
 	def purchase_failed(self, product_identifier, error=None):
 		
-		self.menu_bg.texture = self.failed_texture
-		
+		Scaler.update_texture(self.menu_bg, self.failed_texture)
+
 		if error is not None:
 			message = 'failed: {0}'.format(error)
 		else:
 			message = 'failed'
 
 		self.set_message(message)
+		
 		self.enable_button = True
+		self.purchase_active = False
+		
+		ProductsController.get().detach_caller()
+		self.show_main_menu_button()
+
+	def purchase_deferred(self, product_identifier):
+
+		self.set_message('Awaiting Approval')
+		
+		self.enable_button = True
+		self.purchase_active = False
+		
+		ProductsController.get().detach_caller()
+		self.show_main_menu_button()
 	
 	def set_message(self, message):
 		self.message_label.set_text(message, self.text_size)
@@ -874,7 +942,8 @@ class PurchaseMenu(OneButtonMenu):
 		self.price_text = ''
 		self.font_size = 20
 		self.checkpoints = NullProduct()
-
+		self.pause_for_validation(products_controller)
+		
 		action = ''
 		
 		if not products_controller.enabled:
@@ -917,6 +986,14 @@ class PurchaseMenu(OneButtonMenu):
 		
 		OneButtonMenu.__init__(self, tag='purchase', button=button)
 	
+	def pause_for_validation(self, controller):
+		
+		for i in range(10):
+			if controller.validated:
+				return
+			else:
+				time.sleep(100)
+		
 	def setup(self):
 		OneButtonMenu.setup(self)
 		self.add_price_label()
@@ -1017,24 +1094,13 @@ class EndLevelMenu(NoButtonMenu):
 			return 'end_level'
 
 	def get_y(self, index):
-		
-		if self.check_point:
-			space_y = self.space_y
-		else:
-			space_y = self.space_y
-		
-		y = self.top() - 0.33 * space_y
-		
-		y -= index * 4.2 * space_y
-		
-		return y
 
 		if index == 1:
-			return self.top() - 4.53 * self.space_y
+			return self.top() - 4.5 * self.space_y
 		elif index == 2:
-			return self.top() - 8.73 * self.space_y
+			return self.top() - 9.0 * self.space_y
 		elif index == 3:
-			return self.top() - 12.93 * self.space_y
+			return self.top() - 13.1 * self.space_y
 		else:
 			raise Exception('Unexpected y index')
 
@@ -1171,15 +1237,15 @@ class CompletionScoringMenu(EndLevelMenu):
 
 class CompletionSpriteNode(SpriteNode):
 	
-	def __init__(self, game, parent, texture, get_x, scale,rotation_range=3.14, z_position=None):
+	def __init__(self, game, parent, texture, get_x, rotation_range=3.14, z_position=None):
 		
 		SpriteNode.__init__(self, parent=parent, texture=texture)
+		
 		self.size = Scaler.size_from_texture(texture)
 
 		if not z_position is None:
 			self.z_position = z_position
 			
-		self.base_scale = scale
 		self.game = game
 		
 		self.anchor_point=(0.5,0.5)
@@ -1194,7 +1260,7 @@ class CompletionSpriteNode(SpriteNode):
 		self.set_speed()
 	
 	def set_scale(self):
-		self.scale = self.base_scale = 0.9 + 0.2*random()
+		self.scale = (0.9 + 0.2*random()) * 2
 		self.max_dimension = max([self.size.w, self.size.h])
 		self.min_height = -self.game.size.h*0.5-self.max_dimension
 		
@@ -1265,16 +1331,14 @@ class CompletionMenu(EndGameMenu):
 		
 		self.edge = 0.5 * (self.game.size.w- self.get_width())
 		
-		self.scroller_scale = float(self.get_width()) / float(self.game.size.w)
-		
 		self.scrollers = []
-		self.add_scroller(Scaler.get_man_idle_path('front.png'), self.get_lhs, 0.5 * 3.14, 3000)
-		self.add_scroller(Scaler.get_woman_idle_path('front.png'), self.get_rhs, 0.5 * 3.14,3000)
+		self.add_scroller(Texture(Scaler.get_man_idle_path('front.png')), self.get_lhs, 0.5 * 3.14, 3000)
+		self.add_scroller(Texture(Scaler.get_woman_idle_path('front.png')), self.get_rhs, 0.5 * 3.14,3000)
 		
 		for i in range(10):
 			
-			self.add_scroller(self.get_tile(), self.get_lhs)
-			self.add_scroller(self.get_tile(), self.get_rhs)
+			self.add_scroller(Texture(self.get_tile()), self.get_lhs)
+			self.add_scroller(Texture(self.get_tile()), self.get_rhs)
 		
 	def get_lhs(self, width):
 		return -(0.5 * self.get_width() + random() * (self.edge-width))-0.5*width
@@ -1307,7 +1371,7 @@ class CompletionMenu(EndGameMenu):
 			
 	def add_scroller(self, texture, get_x, rotation_range=3.14,z_position=None):
 		
-		item = CompletionSpriteNode(self.game, parent=self.menu_bg,texture=texture, get_x=get_x, scale=self.scroller_scale,
+		item = CompletionSpriteNode(self.game, parent=self.menu_bg,texture=texture, get_x=get_x,
 		rotation_range=rotation_range,
 		z_position=z_position)
 		

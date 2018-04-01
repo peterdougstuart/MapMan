@@ -205,19 +205,35 @@ class Game (Scene):
 			
 		self.load_options()
 		self.set_background()
+
+		self.load_highscore()
+		self.load_first_play()
+		self.load_check_points()
 		
+		self.load_resources()
+	
+		self.show_start_menu()
+		
+		self.set_up_complete = True
+		
+	def load_resources(self):
+
 		self.music = Music(enabled=self.music_option)
+		
 		self.fx = FX(enabled=self.fx_option)
 			
 		self.shake = ShakeAndTilt()
 			
 		self.bottom_bar = bottom_bar.BottomBar(parent=self, fx=self.fx)
+		
 		self.bottom_bar.hide()
-			
+
 		self.background_gradient = Gradient(self, self.bottom_bar.size.h)
-			
+		
 		self.level_display = LevelDisplay(parent=self)
+		
 		self.lives_display = LivesDisplay(parent=self)
+		
 		self.points_display = 		PointsDisplay(parent=self)
 		
 		self.map = map.Map(self)
@@ -230,13 +246,6 @@ class Game (Scene):
 		self.hearts = Hearts(self)
 		self.hearts.hide()
 
-		self.load_first_play()
-			
-		self.load_highscore()
-		self.load_check_points()
-		
-		self.show_start_menu()
-				
 		self.set_up_complete = True
 		
 	def stop(self):
@@ -307,9 +316,6 @@ class Game (Scene):
 			self.bottom_bar.effect.clear()
 
 	def loaded(self):
-		
-		if self.completed:
-			raise Exception('stop')
 		
 		if self.started():
 			return
@@ -405,12 +411,12 @@ class Game (Scene):
 			self.hearts.update(heart_position)
 			
 	def update(self):
+
+		if not self.set_up_complete:
+				return
 			
 		if self.menu is not None:
 			self.menu.update()
-			
-		if not self.set_up_complete:
-			return
 			
 		self.bottom_bar.timer.update()
 		self.music.restart()
@@ -717,7 +723,9 @@ class Game (Scene):
 		
 		if self.tutorial:
 			self.bottom_bar.set_time_message('')
-		elif time_left > 19:
+		elif self.completed:
+			self.bottom_bar.set_time_message('')
+		elif time_left > 19 and self.started():
 			self.bottom_bar.set_time_message('go!')
 		elif self.bottom_bar.timer.low_time:
 			self.bottom_bar.set_time_message('hurry up!')
@@ -939,12 +947,15 @@ class Game (Scene):
 				self.tutorial = False
 				self.level_display.level = 1
 				self.lives_display.update()
+				self.lives_display.show()
+				self.points_display.show()
 			else:
 				self.completed = True
 				self.completed_auto = False
 				self.completed_loaded = False
 				self.level_display.hide()
 				self.lives_display.hide()
+				self.points_display.hide()
 				self.bottom_bar.timer.hide()
 		
 		self.bottom_bar.timer.stop()
@@ -982,6 +993,8 @@ class Game (Scene):
 		self.present_modal_scene(self.menu)
 		
 	def show_start_menu(self):
+		
+		ProductsController.get().update()
 		
 		self.music.play_menu()
 		
@@ -1261,9 +1274,11 @@ class Game (Scene):
 		if self.tutorial:
 			self.bottom_bar.timer.hide()
 			self.lives_display.hide()
+			self.points_display.hide()
 		else:
 			self.bottom_bar.timer.show()
 			self.lives_display.show()
+			self.points_display.show()
 	
 	def request_review(self):
 		

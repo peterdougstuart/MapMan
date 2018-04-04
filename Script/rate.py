@@ -1,7 +1,8 @@
 from objc_util import *
 import datetime
 import os.path
-		
+from messenger import Messenger
+
 class Rater (object):
 
 	Instance = None
@@ -77,10 +78,11 @@ class Rater (object):
 class DummyRater (Rater):
 	
 	def do_request_review(self):
-		print 'Request Review: {0} days'.format(self.delta_days)
+		Messenger.get().show_message('Request Review: {0} days'.format(self.delta_days))
 
 if __name__ == '__main__':
-	rater = Rater()
+	Messenger.initialize_dummy()
+	rater = DummyRater()
 	rater.request_review()
 	print rater.delta_days
 

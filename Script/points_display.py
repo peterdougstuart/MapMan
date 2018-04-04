@@ -22,6 +22,7 @@ class PointsDisplay(object):
 	def show(self):
 		self.score_label.scale = 1
 		self.star.size = self.base_size
+		self.update()
 		
 	def reset(self):
 		self.score = 0
@@ -41,7 +42,7 @@ class PointsDisplay(object):
 		
 		self.score_label.anchor_point = (0.5, 0.5)
 		
-		self.star = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white.png')))
+		self.star = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white_transparent.png')))
 		
 		self.star.anchor_point = (0.5, 0.5)
 		

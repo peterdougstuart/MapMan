@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PythonistaAppTemplate/PAAppDelegate.m"
-            timestampString = "544314369.509931"
+            timestampString = "544574396.139693"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "72"
-            endingLineNumber = "72"
+            startingLineNumber = "80"
+            endingLineNumber = "80"
             landmarkName = "-application:didFinishLaunchingWithOptions:"
             landmarkType = "7">
          </BreakpointContent>
@@ -60,11 +60,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PythonistaAppTemplate/PAAppDelegate.m"
-            timestampString = "544314369.545218"
+            timestampString = "544574396.274249"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "38"
-            endingLineNumber = "38"
+            startingLineNumber = "46"
+            endingLineNumber = "46"
             landmarkName = "-application:didFinishLaunchingWithOptions:"
             landmarkType = "7">
          </BreakpointContent>
@@ -76,11 +76,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PythonistaAppTemplate/PAAppDelegate.m"
-            timestampString = "544314369.547447"
+            timestampString = "544574396.276113"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "39"
-            endingLineNumber = "39"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
             landmarkName = "-application:didFinishLaunchingWithOptions:"
             landmarkType = "7">
          </BreakpointContent>
@@ -92,11 +92,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PythonistaAppTemplate/PAAppDelegate.m"
-            timestampString = "544314369.549147"
+            timestampString = "544574396.277527"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "176"
-            endingLineNumber = "176"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
             landmarkName = "-copyScriptResourcesIfNeeded"
             landmarkType = "7">
          </BreakpointContent>
@@ -108,11 +108,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PythonistaAppTemplate/PAAppDelegate.m"
-            timestampString = "544314369.550537"
+            timestampString = "544574396.278982"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "178"
-            endingLineNumber = "178"
+            startingLineNumber = "186"
+            endingLineNumber = "186"
             landmarkName = "-copyScriptResourcesIfNeeded"
             landmarkType = "7">
          </BreakpointContent>
@@ -124,12 +124,76 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PythonistaAppTemplate/PAAppDelegate.m"
-            timestampString = "544314369.551674"
+            timestampString = "544574396.280467"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "195"
-            endingLineNumber = "195"
-            landmarkName = "-copyScriptResourcesIfNeeded"
+            startingLineNumber = "414"
+            endingLineNumber = "414"
+            landmarkName = "-paymentQueue:updatedTransactions:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PythonistaAppTemplate/PAAppDelegate.m"
+            timestampString = "544574396.2823139"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "391"
+            endingLineNumber = "391"
+            landmarkName = "-paymentQueueRestoreCompletedTransactionsFinished:"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PAAppDelegate paymentQueueRestoreCompletedTransactionsFinished:]"
+                  moduleName = "MapMan"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/stuart/MapMan/PythonistaAppTemplate/PAAppDelegate.m"
+                  timestampString = "544574398.897591"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "391"
+                  endingLineNumber = "391"
+                  offsetFromSymbolStart = "86">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PAAppDelegate paymentQueueRestoreCompletedTransactionsFinished:]"
+                  moduleName = "MapMan"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/stuart/MapMan/PythonistaAppTemplate/PAAppDelegate.m"
+                  timestampString = "544574398.9021569"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "391"
+                  endingLineNumber = "391"
+                  offsetFromSymbolStart = "94">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PythonistaAppTemplate/PAAppDelegate.m"
+            timestampString = "544574396.283628"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "-applicationWillTerminate:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

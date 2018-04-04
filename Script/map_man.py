@@ -51,6 +51,7 @@ from completion import Vortex
 from completion import Hearts
 
 from rate import Rater
+from messenger import Messenger
 
 import palette
 
@@ -104,13 +105,36 @@ class CheckPointInfo (object):
 		
 class Game (Scene):
 	
+	Instance = None
 	POINTS_PER_LEVEL = 10
+	USE_MAKE_PURCHASE = True
 	
 	def __init__(self, simulate_tilt=False):
+		
 		self.set_up_complete = False
 		self.simulate_tilt = simulate_tilt
+		self.message = None
+		
 		Scene.__init__(self)
+		
+		if Messenger.Instance is None:
+			Messenger.initialize(self)
+
+	def show_message(self, message):
+		self.message = message
 	
+	def post_message(self):
+		
+		if self.message is None:
+			return
+		
+		if self.menu is None:
+			return
+			
+		if self.menu.is_main():
+			self.menu.post_message(self.message)
+			self.message = None
+			
 	def load_options(self):
 		
 		try:
@@ -207,6 +231,7 @@ class Game (Scene):
 		self.set_background()
 
 		self.load_highscore()
+		self.load_completion()
 		self.load_first_play()
 		self.load_check_points()
 		
@@ -414,7 +439,9 @@ class Game (Scene):
 
 		if not self.set_up_complete:
 				return
-			
+		
+		self.post_message()
+		
 		if self.menu is not None:
 			self.menu.update()
 			
@@ -951,6 +978,7 @@ class Game (Scene):
 				self.points_display.show()
 			else:
 				self.completed = True
+				self.save_completion()
 				self.completed_auto = False
 				self.completed_loaded = False
 				self.level_display.hide()
@@ -998,7 +1026,7 @@ class Game (Scene):
 		
 		self.music.play_menu()
 		
-		self.menu = MainMenu(self.highscore)
+		self.menu = MainMenu(self.highscore, self.has_completed)
 		self.present_modal_scene(self.menu)
 		
 		self.request_review()
@@ -1016,6 +1044,23 @@ class Game (Scene):
 		except:
 			self.first_play = True
 
+	def save_completion(self):
+		
+		if self.has_completed:
+			return
+			
+		with open('.completed', 'w') as f:
+			f.write(str(datetime.datetime.now()))
+			
+		self.has_completed = True
+	
+	def load_completion(self):
+		
+		if os.path.isfile('.completed'):
+			self.has_completed = True
+		else:
+			self.has_completed = False
+			
 	def save_first_play(self):
 		
 		if not self.first_play:
@@ -1059,14 +1104,32 @@ class Game (Scene):
 		except:
 			
 			pass
+
+	def restore_product(self, product):
 		
+		self.dismiss_modal_scene()
+		
+		if Game.USE_MAKE_PURCHASE:
+			
+			self.menu = MakePurchaseMenu(product, restore=True)
+			self.present_modal_scene(self.menu)
+			
+		else:
+			ProductsController.get().restore(product, caller=None)
+			self.show_start_menu()
+
 	def purchase_product(self, product):
 		
 		self.dismiss_modal_scene()
 		
-		self.menu = MakePurchaseMenu(product)
-		
-		self.present_modal_scene(self.menu)
+		if Game.USE_MAKE_PURCHASE:
+			
+			self.menu = MakePurchaseMenu(product)
+			self.present_modal_scene(self.menu)
+			
+		else:
+			ProductsController.get().purchase(product, caller=None)
+			self.show_start_menu()
 		
 	def product_selected(self, product):
 		
@@ -1230,11 +1293,11 @@ class Game (Scene):
 
 	def show_game_complete(self):
 		
+		self.points_display.score += self.end_of_level_points
+		
 		pb = self.process_pb()
 		
 		self.dismiss_modal_scene()
-		
-		self.points_display.score += self.end_of_level_points
 		
 		self.menu = CompletionMenu(self, self.points_display.score, pb)
 		

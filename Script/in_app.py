@@ -60,19 +60,34 @@ class InApp:
 		
 		try:
 		
-			superclass = ObjCClass("NSObject")
-			
-			call_back_class = create_objc_class('PythonPurchaseCallBack',
-			ObjCClass("NSObject"),
-			methods=[successful_dummy_, failed_error_, restored_dummy_, deferred_dummy_, inProgress_dummy_],
-			protocols=['PurchaseCallBack'])
-			
-			call_back_object = call_back_class.alloc().init()
+			call_back_object = self.create_call_back()
 			self.outer.purchase_callBack_(product_identifier, call_back_object)
 			
 		except Exception as e:
-			self.inform_observers(1)
+			self.inform_observers(1, product_identifier, str(e))
 			
+	def restore(self, product_identifier):
+		
+		try:
+		
+			call_back_object = self.create_call_back()
+			self.outer.restore_callBack_(product_identifier, call_back_object)
+			
+		except Exception as e:
+			self.inform_observers(1, product_identifier, str(e))
+	
+	def create_call_back(self):
+		
+		superclass = ObjCClass("NSObject")
+			
+		call_back_class = create_objc_class('PythonPurchaseCallBack',
+		ObjCClass("NSObject"),
+		methods=[successful_dummy_, failed_error_, restored_dummy_, deferred_dummy_, inProgress_dummy_],
+		protocols=['PurchaseCallBack'])
+			
+		call_back_object = call_back_class.alloc().init()
+		
+		return call_back_object
 			
 	def inform_observers(self, outcome, product_identifier, error=None):
 	
@@ -181,15 +196,20 @@ class InAppDummy:
 				
 	def get_file(self, name):
 		return '.{0}'.format(name)
-		
-	def purchase(self, product_identifier):
+	
+	def restore(self, product_identifier):
+		self.purchase(product_identifier, outcome=2)
+	
+	def purchase(self, product_identifier, outcome=None):
 		
 		for observer in self.observers:
 			observer.purchase_in_progress(product_identifier)
 				
 		time.sleep(1.0)
 		
-		outcome = (randint(0, 4) == 0)
+		if outcome is None:
+			outcome = (randint(0, 4) == 0)
+			# outcome = 4
 		
 		for observer in self.observers:
 			if outcome == 0:
@@ -202,6 +222,8 @@ class InAppDummy:
 				observer.purchase_restored(product_identifier)
 			elif outcome == 3:
 				observer.purchase_deferred(product_identifier)
+			elif outcome == 4:
+				observer.purchase_failed(product_identifier, 'error message')
 			else:
 				raise Exception('Unknown outcome')
 				

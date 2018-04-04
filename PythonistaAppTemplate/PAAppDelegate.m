@@ -24,6 +24,12 @@ NSArray *validProducts;
 
 PurchaseCallBack *purchaseCallBack;
 ProductsCallBack *productsCallBack;
+NSString *activeRestoreProductID;
+
+- (void)applicationWillTerminate:(NSNotification *)notification
+{
+    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -34,6 +40,8 @@ ProductsCallBack *productsCallBack;
     PAAppDelegateInstance = self;
     
     [PAAppDelegate deleteProductsFile];
+
+    [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     
 	NSString *scriptPath = [self copyScriptResourcesIfNeeded];
 	
@@ -124,7 +132,7 @@ ProductsCallBack *productsCallBack;
     NSString *last_version = [self getLastVersion];
     NSString *current_version = [self getCurrentVersion];
     
-    BOOL force_update_for_simulator = NO;
+    BOOL force_update_for_simulator = YES;
     BOOL up_to_date;
 
     if ([mode isEqualToString:@"Simulator"] && force_update_for_simulator)
@@ -257,7 +265,15 @@ ProductsCallBack *productsCallBack;
         [PAAppDelegateInstance purchaseProduct:productIdentifier callBack:callBack];
     }
 }
-    
+
++(void)restore:(NSString *) productIdentifier callBack:(PurchaseCallBack *) callBack;
+{
+    if (PAAppDelegateInstance != nil)
+    {
+        [PAAppDelegateInstance restoreProduct:productIdentifier callBack:callBack];
+    }
+}
+
 +(void)deleteProductsFile
 {
 
@@ -299,8 +315,23 @@ ProductsCallBack *productsCallBack;
     {
         purchaseCallBack = callBack;
         SKPayment *payment = [SKPayment paymentWithProduct:product];
-        [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
         [[SKPaymentQueue defaultQueue] addPayment:payment];
+    }else{
+        purchaseCallBack = nil;
+    }
+    
+}
+
+-(void)restoreProduct:(NSString *)productIdentifier callBack:(PurchaseCallBack *) callBack;
+{
+    
+    SKProduct *product = [self getProduct:productIdentifier];
+    
+    if (product != nil)
+    {
+        purchaseCallBack = callBack;
+        activeRestoreProductID = productIdentifier;
+        [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
     }else{
         purchaseCallBack = nil;
     }
@@ -343,6 +374,38 @@ ProductsCallBack *productsCallBack;
 }
 
 #pragma mark StoreKit Delegate
+
+- (void)paymentQueue:(SKPaymentQueue *)queue restoreCompletedTransactionsFailedWithError:(NSError *)error{
+    
+    if (purchaseCallBack != nil)
+    {
+        NSString *error_message = error.localizedDescription;
+        [purchaseCallBack failed:activeRestoreProductID error:error_message];
+    }
+    
+}
+
+//Then this delegate Function Will be fired
+- (void) paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
+{
+    for (SKPaymentTransaction *transaction in queue.transactions)
+    {
+        
+        NSString *productIdentifier = transaction.payment.productIdentifier;
+        
+        NSLog(@"Restored ");
+        
+        [PAAppDelegate registerProduct:productIdentifier];
+        
+        [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+        
+        if (purchaseCallBack != nil)
+        {
+            [purchaseCallBack restored:productIdentifier dummy:productIdentifier];
+        }
+        
+    }
+}
 
 -(void)paymentQueue:(SKPaymentQueue *)queue
 updatedTransactions:(NSArray *)transactions {

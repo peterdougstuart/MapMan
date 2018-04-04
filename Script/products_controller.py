@@ -1,6 +1,6 @@
 from in_app import InApp
 import os.path
-
+from messenger import Messenger 
 
 class Product(object):
 
@@ -148,7 +148,15 @@ class ProductsController(object):
 				return True
 				
 		return False
-		
+
+	def restore(self, product, caller):
+	
+		if not product.can_purchase:
+			raise Exception('Cannot purchase product')
+			
+		self.caller = caller
+		InApp.Instance.restore(product.identifier)
+	
 	def purchase(self, product, caller):
 	
 		if not product.can_purchase:
@@ -169,18 +177,18 @@ class ProductsController(object):
 		
 		else:
 			
-			print 'purchase successful'
+			Messenger.get().show_message('purchase successful')
 			
 		self.dict[product_identifier].update()
 		
 	def purchase_restored(self, product_identifier):
 	
-		if self.call is not None:
+		if self.caller is not None:
 			self.caller.purchase_restored(product_identifier)
 		
 		else:
 			
-			print 'purchase restored'
+			Messenger.get().show_message('purchase restored')
 		
 		self.dict[product_identifier].update()
 		
@@ -191,7 +199,11 @@ class ProductsController(object):
 		
 		else:
 			
-			print 'purchase failed'
+			if error is not None:
+				Messenger.get().show_message('purchase failed: {0}'.format(error))
+				
+			else:
+				Messenger.get().show_message('purchase failed')
 
 	def purchase_deferred(self, product_identifier, error=None):
 	
@@ -200,5 +212,5 @@ class ProductsController(object):
 		
 		else:
 			
-			print 'purchase deferred'
+			Messenger.get().show_message('purchase deferred')
 

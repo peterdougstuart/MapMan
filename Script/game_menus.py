@@ -13,6 +13,7 @@ from wrapping import WrappingLabelNode
 from random import random
 from random import randint
 import time
+import datetime
 
 def get_checkpoint_level(action):
 	data = action.lower().replace('l','')
@@ -32,7 +33,7 @@ def offer_active():
 
 class ScoreLabelNode(LabelNode):
 	
-	def __init__(self, menu, score, base_text='score'):
+	def __init__(self, menu, score, base_text='score', show_completion=False):
 		
 		self.base_text = base_text
 		
@@ -43,7 +44,14 @@ class ScoreLabelNode(LabelNode):
 		self.anchor_point = (0.5, 1)
 		
 		self.position=(0, menu.bottom()-menu.space_y*1.2)
-		
+
+		if show_completion:
+			self.star_lhs_complete = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white.png')))
+			self.add_child(self.star_lhs_complete)
+			self.star_lhs_complete.anchor_point = (1, 1)
+		else:
+			self.star_lhs_complete = None
+
 		self.star_lhs = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white.png')))
 		self.add_child(self.star_lhs)
 		self.star_lhs.anchor_point = (1, 1)
@@ -51,8 +59,16 @@ class ScoreLabelNode(LabelNode):
 		self.star_rhs = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white.png')))
 		self.add_child(self.star_rhs)
 		self.star_rhs.anchor_point = (0, 1)
-		
+
+		if show_completion:
+			self.star_rhs_complete = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white.png')))
+			self.add_child(self.star_rhs_complete)
+			self.star_rhs_complete.anchor_point = (0, 1)
+		else:
+			self.star_rhs_complete = None
+			
 		self.star_size = self.star_lhs.size
+		self.star_half_size = (self.star_size.w*0.5, self.star_size.h*0.5)
 		
 		self.set_score(score)
 		
@@ -63,20 +79,44 @@ class ScoreLabelNode(LabelNode):
 		
 		self.score = score
 		self.text = self.make_score_text(score)
+		
 		self.set_star_position()
 		
 		if len(self.text) < 1:
+			
+			if self.star_lhs_complete is not None:
+				self.star_lhs_complete.size = (0, 0)
+			
+			if self.star_rhs_complete is not None:
+				self.star_rhs_complete.size = (0, 0)
+			
 			self.star_lhs.size = (0, 0)
 			self.star_rhs.size = (0, 0)
+			
 		else:
+			
+			if self.star_lhs_complete is not None:
+				self.star_lhs_complete.size = self.star_half_size
+			
+			if self.star_rhs_complete is not None:
+				self.star_rhs_complete.size = self.star_half_size
+			
 			self.star_lhs.size = self.star_size
 			self.star_rhs.size = self.star_size
 			
 	def set_star_position(self):
+		
 		dy = self.star_lhs.size.h * 0.2
 		dx = self.star_lhs.size.w * 0.2
+		
 		self.star_lhs.position = (-self.size.w*0.5-dx*1.5, dy)
 		self.star_rhs.position = (self.size.w*0.5+dx, dy)
+		
+		if self.star_lhs_complete is not None:
+			self.star_lhs_complete.position = (self.star_lhs.position[0]-self.star_lhs.size.w, dy-self.star_half_size[1])
+		
+		if self.star_rhs_complete is not None:
+			self.star_rhs_complete.position = (self.star_rhs.position[0]+self.star_rhs.size.w, dy-self.star_half_size[1])
 	
 	def make_score_text(self, score):
 		if score <= 0:
@@ -270,6 +310,9 @@ class MenuScene (Scene):
 	
 	def get_menu_bg_texture(self):
 		return Texture(Scaler.get_menu(self.tag))
+	
+	def is_main(self):
+		return False
 		
 	def update(self):
 		# overloaded by menus with animated bits
@@ -729,12 +772,53 @@ class ConfirmQuitMenu(TwoButtonMenu):
 
 class MainMenu(MenuScene):
 	
-	def __init__(self, highscore):
+	MESSAGE = ''
+	LAST_UPDATE = None
+	MESSAGE_COUNT = 0
 	
+	def __init__(self, highscore, has_completed=False):
+	
+		self.message_label = None
+		
 		MenuScene.__init__(self, tag='welcome')
 		
+		self.has_completed = has_completed
 		self.high_score = highscore
 		self.space_y *= 0.75
+
+	def is_main(self):
+		return True
+	
+	def post_message(self, message):
+		
+		MainMenu.MESSAGE_COUNT = 10
+		MainMenu.MESSAGE = message
+		
+		MainMenu.LAST_UPDATE = datetime.datetime.now()
+		
+		self.update()
+	
+	def update(self):
+		
+		if self.message_label is None:
+			return
+		
+		if MainMenu.LAST_UPDATE is None:
+			return
+		
+		delta = datetime.datetime.now() - MainMenu.LAST_UPDATE
+		
+		if delta.total_seconds() > 1:
+			
+			MainMenu.LAST_UPDATE = datetime.datetime.now()
+			
+			MainMenu.MESSAGE_COUNT -= 1
+			
+		if MainMenu.MESSAGE_COUNT < 1:
+			MainMenu.LAST_UPDATE = None
+			MainMenu.MESSAGE = ''
+		
+		self.message_label.text = MainMenu.MESSAGE
 		
 	def add_buttons(self):
 		
@@ -797,7 +881,14 @@ class MainMenu(MenuScene):
 		
 		MenuScene.setup(self)
 		
-		self.score_label = ScoreLabelNode(menu=self, score=self.high_score, base_text='best score')
+		self.message_label = LabelNode(parent=self)
+		self.message_label.anchor_point = (0, 0)
+		self.message_label.position = (5*Scaler.Menu, 5*Scaler.Menu)
+		self.message_label.text = ''
+		self.message_label.font = (font.BUTTON, int(20*Scaler.Menu))
+		self.message_label.z_position = 10000
+		
+		self.score_label = ScoreLabelNode(menu=self, score=self.high_score, base_text='best score', show_completion=self.has_completed)
 		
 		if offer_active():
 			pass
@@ -827,24 +918,43 @@ class ConfirmProductMenu(TwoButtonMenu):
 		
 class MakePurchaseMenu(NoButtonMenu):
 	
-	def __init__(self, product):
+	def __init__(self, product, restore=False):
 		
+		self.restore = restore
 		self.purchase_active = False
-		
 		self.product = product
 		self.enable_button = False
+		
 		self.text_size = int(24 * Scaler.Menu)
 		
-		MenuScene.__init__(self, 'purchase_progress',main_menu_button=True)
+		if restore:
+			tag = 'restore_progress'
+		else:
+			tag = 'purchase_progress'
+			
+		MenuScene.__init__(self, tag, main_menu_button=True)
 		
 		self.thanks_texture = Texture(Scaler.get_menu('purchase_thanks'))
 		self.failed_texture = Texture(Scaler.get_menu('purchase_failed'))
 	
+	def is_enabled(self):
+		return self.enable_button
+			
 	def show_menu(self, menu):
 		
-		if self.enable_button:
+		if self.is_enabled():
+			ProductsController.get().detach_caller()
+			
 			NoButtonMenu.show_menu(self, menu)
-		
+	
+	def touch_began(self, touch):
+		if self.is_enabled():
+			MenuScene.touch_began(self, touch)
+
+	def touch_ended(self, touch):
+		if self.is_enabled():
+			MenuScene.touch_ended(self, touch)
+
 	def setup(self):
 		
 		MenuScene.setup(self)
@@ -854,14 +964,22 @@ class MakePurchaseMenu(NoButtonMenu):
 		target_width=300.0,
 		font_type=font.BUTTON,
 		color='#000000')
-
+		
 		self.main_menu_button_size = self.buttons[0].size
-		self.buttons[0].size = (0,0)
+		
+		if not self.is_enabled():
+			self.buttons[0].size = (0,0)
 
 		if not self.purchase_active:
 			
 			self.purchase_active = True
-			ProductsController.get().purchase(self.product, self)
+			
+			if not self.restore:
+				ProductsController.get().purchase(self.product, self)
+			
+			else:
+				ProductsController.get().restore(self.product, self)
+				
 	
 	def show_main_menu_button(self):
 		
@@ -879,7 +997,6 @@ class MakePurchaseMenu(NoButtonMenu):
 		self.enable_button = True
 		self.purchase_active = False
 		
-		ProductsController.get().detach_caller()
 		self.show_main_menu_button()
 
 	def purchase_restored(self, product_identifier):
@@ -890,7 +1007,6 @@ class MakePurchaseMenu(NoButtonMenu):
 		self.enable_button = True
 		self.purchase_active = False
 		
-		ProductsController.get().detach_caller()
 		self.show_main_menu_button()
 
 	def purchase_failed(self, product_identifier, error=None):
@@ -907,7 +1023,6 @@ class MakePurchaseMenu(NoButtonMenu):
 		self.enable_button = True
 		self.purchase_active = False
 		
-		ProductsController.get().detach_caller()
 		self.show_main_menu_button()
 
 	def purchase_deferred(self, product_identifier):
@@ -917,7 +1032,6 @@ class MakePurchaseMenu(NoButtonMenu):
 		self.enable_button = True
 		self.purchase_active = False
 		
-		ProductsController.get().detach_caller()
 		self.show_main_menu_button()
 	
 	def set_message(self, message):
@@ -990,7 +1104,7 @@ class PurchaseMenu(OneButtonMenu):
 	
 	def pause_for_validation(self, controller):
 		
-		for i in range(3):
+		for i in range(5):
 			if controller.validated:
 				return
 			else:
@@ -1020,10 +1134,31 @@ class PurchaseMenu(OneButtonMenu):
 	 	if menu.lower() == 'main menu':
 	 		self.presenting_scene.menu_button_selected(menu)
 	 	
+	 	elif menu.lower() == 'restore':
+			
+			if self.checkpoints.can_purchase:
+				self.presenting_scene.restore_product(self.checkpoints)
+
 	 	elif menu == self.checkpoints.identifier and self.checkpoints.valid and not self.purchase_active:
 			
 			self.purchase_active = True
 			self.presenting_scene.product_selected(self.checkpoints)
+	
+	def add_buttons(self):
+		
+		OneButtonMenu.add_buttons(self)
+		
+		if self.checkpoints.can_purchase:
+			
+			self.restore = ButtonNode(button=Button('restore','restore'), parent=self.menu_bg)
+
+			x = 0
+			y = self.size.h * 0.5 - self.space_y
+		
+			self.restore.anchor_point = (0.5, 1.0)
+			self.restore.position = (x, y)
+			
+			self.buttons.append(self.restore)
 
 class DynamicStarLabel(object):
 	
@@ -1093,7 +1228,7 @@ class EndLevelMenu(NoButtonMenu):
 	def get_tag(self):
 
 		if self.check_point:
-			return 'end_level' #todo
+			return 'end_level_checkpoint'
 		else:
 			return 'end_level'
 
@@ -1188,13 +1323,21 @@ class EndGameMenu(TwoButtonMenu):
 			self.score_text = '{0} - new PB!'.format(score)
 		else:
 			self.score_text = '{0}'.format(score)
-		
+
+		if ProductsController.get().checkpoints.purchased:
+			checkpoint_tag = 'game_over_checkpoint'
+		else:
+			checkpoint_tag = 'game_over_checkpoint_locked'
+			
 		lhs = Button(tag='game_over_restart',action='play from start')
-		
-		rhs = Button(tag='game_over_checkpoint',action='restart from checkpoint')
+
+		rhs = Button(tag=checkpoint_tag,action='restart from checkpoint')
 		
 		TwoButtonMenu.__init__(self, tag='game_over',button_lhs=lhs,button_rhs=rhs,main_menu_button=True)
 
+	def get_score_y(self):
+		return 35 * Scaler.Menu
+	
 	def setup(self):
 		
 		TwoButtonMenu.setup(self)
@@ -1205,7 +1348,7 @@ class EndGameMenu(TwoButtonMenu):
 		
 		self.score_label.anchor_point = (0.5, 0.5)
 		
-		y = 35 * Scaler.Menu
+		y = self.get_score_y()
 		
 		self.score_label.position = (0, y)
 		self.score_label.text = self.score_text
@@ -1304,9 +1447,12 @@ class CompletionMenu(EndGameMenu):
 		
 		MenuScene.__init__(self, tag='congratulations', main_menu_button=True)
 
+	def get_score_y(self):
+		return 15 * Scaler.Menu
+	
 	def add_buttons(self):
 		MenuScene.add_buttons(self)
-		
+	
 	def update(self):
 		for item in self.scrollers:
 			item.update()
@@ -1316,22 +1462,7 @@ class CompletionMenu(EndGameMenu):
 
 	def setup(self):
 		
-		MenuScene.setup(self)
-		
-		self.score_label_top = LabelNode(parent=self.menu_bg)
-		self.score_label_top.color = '#000000'
-		self.score_label_top.text = 'your score'
-		self.score_label_top.anchor_point = (0.5, 0.5)
-		y = self.space_y * 5
-		self.score_label_top.position = (0, y)
-		
-		self.score_label_bottom = LabelNode(parent=self.menu_bg)
-		self.score_label_bottom.color = '#000000'
-		self.score_label_bottom.text = self.score_text
-		self.score_label_bottom.anchor_point = (0.5, 0.5)
-		
-		y -= self.score_label_top.size.h
-		self.score_label_bottom.position = (0, y)
+		EndGameMenu.setup(self)
 		
 		self.edge = 0.5 * (self.game.size.w- self.get_width())
 		

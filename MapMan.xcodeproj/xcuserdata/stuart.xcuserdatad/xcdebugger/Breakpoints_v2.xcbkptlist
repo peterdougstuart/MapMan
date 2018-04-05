@@ -92,54 +92,6 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PythonistaAppTemplate/PAAppDelegate.m"
-            timestampString = "544651775.628273"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "479"
-            endingLineNumber = "479"
-            landmarkName = "-paymentQueueRestoreCompletedTransactionsFinished:"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[PAAppDelegate paymentQueueRestoreCompletedTransactionsFinished:]"
-                  moduleName = "MapMan"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/stuart/MapMan/PythonistaAppTemplate/PAAppDelegate.m"
-                  timestampString = "544651776.34233"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "479"
-                  endingLineNumber = "479"
-                  offsetFromSymbolStart = "86">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[PAAppDelegate paymentQueueRestoreCompletedTransactionsFinished:]"
-                  moduleName = "MapMan"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/stuart/MapMan/PythonistaAppTemplate/PAAppDelegate.m"
-                  timestampString = "544651776.347729"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "479"
-                  endingLineNumber = "479"
-                  offsetFromSymbolStart = "94">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "PythonistaAppTemplate/PAAppDelegate.m"
             timestampString = "544651775.629743"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
@@ -161,7 +113,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "140"
             endingLineNumber = "140"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -177,7 +129,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "144"
             endingLineNumber = "144"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -193,7 +145,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "145"
             endingLineNumber = "145"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -209,7 +161,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "147"
             endingLineNumber = "147"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -225,7 +177,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "151"
             endingLineNumber = "151"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -241,7 +193,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "141"
             endingLineNumber = "141"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -257,7 +209,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "281"
             endingLineNumber = "281"
-            landmarkName = "-copyScriptResourcesIfNeeded"
+            landmarkName = "+restore:callBack:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -273,7 +225,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "153"
             endingLineNumber = "153"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -289,7 +241,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "157"
             endingLineNumber = "157"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -305,7 +257,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "206"
             endingLineNumber = "206"
-            landmarkName = "-copyFolder:target:"
+            landmarkName = "-copyScriptResourcesIfNeeded"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -321,7 +273,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "209"
             endingLineNumber = "209"
-            landmarkName = "-copyFolder:target:"
+            landmarkName = "-copyScriptResourcesIfNeeded"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -337,7 +289,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "148"
             endingLineNumber = "148"
-            landmarkName = "-updateNeeded:target:"
+            landmarkName = "-copyFolder:target:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

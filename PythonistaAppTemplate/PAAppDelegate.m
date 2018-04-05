@@ -344,6 +344,7 @@ BOOL observing;
         purchaseCallBack = callBack;
         activeRestoreProductID = productIdentifier;
         [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
+        [purchaseCallBack inProgress:productIdentifier dummy:productIdentifier];
     }else{
         purchaseCallBack = nil;
     }
@@ -397,28 +398,6 @@ BOOL observing;
     
 }
 
-//Then this delegate Function Will be fired
-- (void) paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
-{
-    for (SKPaymentTransaction *transaction in queue.transactions)
-    {
-        
-        NSString *productIdentifier = transaction.payment.productIdentifier;
-        
-        NSLog(@"Restored ");
-        
-        [PAAppDelegate registerProduct:productIdentifier];
-        
-        [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-        
-        if (purchaseCallBack != nil)
-        {
-            [purchaseCallBack restored:productIdentifier dummy:productIdentifier];
-        }
-        
-    }
-}
-
 -(void)paymentQueue:(SKPaymentQueue *)queue
 updatedTransactions:(NSArray *)transactions {
     for (SKPaymentTransaction *transaction in transactions) {
@@ -441,7 +420,7 @@ updatedTransactions:(NSArray *)transactions {
                 
                 NSLog(@"Purchased ");
                 
-                [PAAppDelegate registerProduct:transaction.payment.productIdentifier];
+                [PAAppDelegate registerProduct:productIdentifier];
                 
                 if (purchaseCallBack != nil)
                 {
@@ -455,11 +434,17 @@ updatedTransactions:(NSArray *)transactions {
                 
                 NSLog(@"Restored ");
                 
-                [PAAppDelegate registerProduct:productIdentifier];
-                
                 if (purchaseCallBack != nil)
                 {
-                    [purchaseCallBack restored:productIdentifier dummy:productIdentifier];
+                    
+                    SKProduct* product = [self getProduct:productIdentifier];
+                    
+                    if (product != nil)
+                    {
+                        [PAAppDelegate registerProduct:productIdentifier];
+                        [purchaseCallBack restored:productIdentifier dummy:productIdentifier];
+                    }
+                    
                 }
 
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];

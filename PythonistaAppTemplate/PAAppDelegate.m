@@ -25,7 +25,7 @@ NSArray *validProducts;
 PurchaseCallBack *purchaseCallBack;
 ProductsCallBack *productsCallBack;
 NSString *activeRestoreProductID;
-BOOL *observing;
+BOOL observing;
 
 - (void)dealloc
 {
@@ -46,7 +46,7 @@ BOOL *observing;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     
-    *observing = NO;
+    observing = NO;
     
     purchaseCallBack = nil;
     productsCallBack = nil;
@@ -93,43 +93,98 @@ BOOL *observing;
     
 }
 
--(NSString *)lastVersionFile;
-{
-    NSString *writableScriptDirectory = [PAAppDelegate getWritableScriptDirectory];
-    NSString *fileName = @".last_version";
-    NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:fileName];
-    return destPath;
-}
-
--(void)registerVersion:(NSString *) version;
-{
-    NSString *destPath = [self lastVersionFile];
-    [version writeToFile:destPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-}
-
--(NSString *)getLastVersion;
+- (BOOL)updateNeeded:(NSString *)source target:(NSString *)target
 {
     
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *source = [self lastVersionFile];
+    NSFileManager *fm = [NSFileManager defaultManager];
     
-    if ([fileManager fileExistsAtPath:source]){
-        NSString *content = [NSString stringWithContentsOfFile:source encoding:NSUTF8StringEncoding error:nil];
-        return content;
+    if (![fm fileExistsAtPath:target]){
+        return YES;
     }
-    else{
-        return @"NONE";
+
+    NSDate *srcModificationDate = [[fm attributesOfItemAtPath:source error:NULL] fileModificationDate];
+    NSDate *destModificationDate = [[fm attributesOfItemAtPath:target error:NULL] fileModificationDate];
+
+    if ([destModificationDate isEqual:NULL]){
+        return YES;
+    }
+
+    if ([srcModificationDate timeIntervalSinceDate:destModificationDate] > 0)
+    {
+        return YES;
+    }
+    else
+    {
+        return NO;
     }
 
 }
 
--(NSString *)getCurrentVersion;
+- (BOOL)isFolder:(NSString *)path
 {
-    NSDictionary *infoDictionary = [[NSBundle mainBundle]infoDictionary];
-    NSString *version = infoDictionary[@"CFBundleShortVersionString"];
-    NSString *build = infoDictionary[@"CFBundleVersion"];
-    NSString *full_version = [NSString stringWithFormat:@"%@.%@", version, build];
-    return full_version;
+    BOOL isDir = NO;
+    
+    if([[NSFileManager defaultManager]
+        fileExistsAtPath:path isDirectory:&isDir] && isDir){
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+    
+}
+
+- (BOOL)copyFolder:(NSString *)source target:(NSString *)target
+{
+
+    NSFileManager *fm = [NSFileManager defaultManager];
+
+    [fm createDirectoryAtPath:target withIntermediateDirectories:YES attributes:nil error:NULL];
+
+    NSArray *items = [fm contentsOfDirectoryAtPath:source error:NULL];
+    
+    BOOL has_error = NO;
+    BOOL folder_error;
+    
+    for (NSString *filename in items)
+    {
+        
+        NSString *sourcePath = [source stringByAppendingPathComponent:filename];
+        NSString *targetPath = [target stringByAppendingPathComponent:filename];
+        
+        if ([self isFolder:sourcePath])
+        {
+            folder_error = [self copyFolder:sourcePath target:targetPath];
+            if (folder_error)
+            {
+                has_error = YES;
+            }
+        }
+        else
+        {
+            
+            if ([self updateNeeded:sourcePath target:targetPath])
+            {
+                
+                NSLog(@"Updating file");
+                
+                [fm removeItemAtPath:targetPath error:NULL];
+                BOOL success = [fm copyItemAtPath:sourcePath toPath:targetPath error:NULL];
+                
+                if (!success)
+                {
+                    has_error = YES;
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+    return has_error;
+    
 }
 
 - (NSString *)copyScriptResourcesIfNeeded
@@ -140,35 +195,6 @@ BOOL *observing;
 #else
     NSString *mode = @"Device";
 #endif
-    
-    NSString *last_version = [self getLastVersion];
-    NSString *current_version = [self getCurrentVersion];
-    
-    BOOL force_update_for_simulator = NO;
-    BOOL up_to_date;
-
-    if ([mode isEqualToString:@"Simulator"] && force_update_for_simulator)
-    {
-        up_to_date = NO;
-    }
-    else
-    {
-        
-        NSLog(last_version);
-        NSLog(current_version);
-        
-        if ([last_version isEqual:current_version])
-        {
-            up_to_date = YES;
-            NSLog(@"Files up to date");
-        }
-        else
-        {
-            up_to_date = NO;
-            NSLog(@"Files need updating");
-        }
-        
-    }
         
 	//Copy files from <Main Bundle>/Scripts to ~/Library/Application Support/PythonistaScript.
 	//Files that are already there (and up-to-date) are skipped.
@@ -181,49 +207,16 @@ BOOL *observing;
     NSFileManager *fm = [NSFileManager defaultManager];
 	[fm createDirectoryAtPath:writableScriptDirectory withIntermediateDirectories:YES attributes:nil error:NULL];
     
-	NSArray *scriptResources = [fm contentsOfDirectoryAtPath:bundledScriptDirectory error:NULL];
-
     BOOL has_error = NO;
 
-    if (!up_to_date)
-    {
-        
-        NSLog(@"Updating files");
-        
-        for (NSString *filename in scriptResources) {
-            
-            NSString *fullPath = [bundledScriptDirectory stringByAppendingPathComponent:filename];
-            NSString *destPath = [writableScriptDirectory stringByAppendingPathComponent:filename];
-            
-            NSDate *srcModificationDate = [[fm attributesOfItemAtPath:fullPath error:NULL] fileModificationDate];
-            NSDate *destModificationDate = [[fm attributesOfItemAtPath:destPath error:NULL] fileModificationDate];
-            
-            if (![destModificationDate isEqual:srcModificationDate] || [destModificationDate isEqual:NULL]) {
-                
-                [fm removeItemAtPath:destPath error:NULL];
-                BOOL success = [fm copyItemAtPath:fullPath toPath:destPath error:NULL];
-                
-                if (!success)
-                {
-                    has_error = YES;
-                }
-                
-            }
-            
-        }
-    }
-    else
-    {
-        NSLog(@"Skipping file update");
-    }
+    NSLog(@"Updating files");
+    has_error = [self copyFolder:bundledScriptDirectory target:writableScriptDirectory];
+    NSLog(@"Update complete");
     
     NSString *mainScriptFile;
     
     if (!has_error)
     {
-        
-        [self registerVersion:current_version];
-        
         if ([mode isEqualToString:@"Simulator"])
         {
             mainScriptFile = [writableScriptDirectory stringByAppendingPathComponent:@"main_simulate_tilt.py"];

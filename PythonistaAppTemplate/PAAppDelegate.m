@@ -25,14 +25,28 @@ NSArray *validProducts;
 PurchaseCallBack *purchaseCallBack;
 ProductsCallBack *productsCallBack;
 NSString *activeRestoreProductID;
+BOOL *observing;
 
-- (void)applicationWillTerminate:(NSNotification *)notification
+- (void)dealloc
 {
-    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
+    if (observing)
+    {
+        [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
+    }
+}
+
+- (void)startObserving
+{
+    if (!observing)
+    {
+        [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+    }
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    
+    *observing = NO;
     
     purchaseCallBack = nil;
     productsCallBack = nil;
@@ -40,8 +54,6 @@ NSString *activeRestoreProductID;
     PAAppDelegateInstance = self;
     
     [PAAppDelegate deleteProductsFile];
-
-    [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     
 	NSString *scriptPath = [self copyScriptResourcesIfNeeded];
 	
@@ -132,7 +144,7 @@ NSString *activeRestoreProductID;
     NSString *last_version = [self getLastVersion];
     NSString *current_version = [self getCurrentVersion];
     
-    BOOL force_update_for_simulator = YES;
+    BOOL force_update_for_simulator = NO;
     BOOL up_to_date;
 
     if ([mode isEqualToString:@"Simulator"] && force_update_for_simulator)
@@ -141,6 +153,10 @@ NSString *activeRestoreProductID;
     }
     else
     {
+        
+        NSLog(last_version);
+        NSLog(current_version);
+        
         if ([last_version isEqual:current_version])
         {
             up_to_date = YES;
@@ -151,6 +167,7 @@ NSString *activeRestoreProductID;
             up_to_date = NO;
             NSLog(@"Files need updating");
         }
+        
     }
         
 	//Copy files from <Main Bundle>/Scripts to ~/Library/Application Support/PythonistaScript.
@@ -313,6 +330,7 @@ NSString *activeRestoreProductID;
 
     if (product != nil)
     {
+        [self startObserving];
         purchaseCallBack = callBack;
         SKPayment *payment = [SKPayment paymentWithProduct:product];
         [[SKPaymentQueue defaultQueue] addPayment:payment];
@@ -329,6 +347,7 @@ NSString *activeRestoreProductID;
     
     if (product != nil)
     {
+        [self startObserving];
         purchaseCallBack = callBack;
         activeRestoreProductID = productIdentifier;
         [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
@@ -445,25 +464,21 @@ updatedTransactions:(NSArray *)transactions {
                 
                 [PAAppDelegate registerProduct:productIdentifier];
                 
-                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
                 if (purchaseCallBack != nil)
                 {
                     [purchaseCallBack restored:productIdentifier dummy:productIdentifier];
                 }
-                
+
+                [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+
                 break;
                 
             case SKPaymentTransactionStateFailed:
                 
                 NSLog(@"Purchase failed ");
-                /*
-                 0 : Cannot connect to iTunes Store
-                 */
-                /*
-                NSLog([NSString stringWithFormat:@"%ld", transaction.error.code]);
-                NSLog(transaction.error.localizedDescription);
-                */
+
                 [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+
                 if (purchaseCallBack != nil)
                 {
                     NSString *error = transaction.error.localizedDescription;

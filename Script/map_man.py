@@ -16,8 +16,9 @@ import time
 
 from timer import Timer
 
+from game_menus import SyncMenu
 from game_menus import get_checkpoint_level
-from game_menus import is_checkpoint
+from game_menus import is_checkpoint       
 from game_menus import CheckpointsPurchaseRequiredMenu
 from game_menus import PauseMenu
 from game_menus import CreditsMenu
@@ -52,6 +53,7 @@ from completion import Hearts
 
 from rate import Rater
 from messenger import Messenger
+from sync import Sync
 
 import palette
 
@@ -109,11 +111,21 @@ class Game (Scene):
 	POINTS_PER_LEVEL = 10
 	USE_MAKE_PURCHASE = True
 	
-	def __init__(self, simulate_tilt=False):
+	def __init__(self, simulate_tilt=False, sync=True):
 		
 		self.set_up_complete = False
 		self.simulate_tilt = simulate_tilt
 		self.message = None
+		
+		if sync:
+			self.sync_started = False
+			self.sync_finished = False
+		else:
+			self.sync_started = True
+			self.sync_finished = True
+			
+		self.resource_load_started = False
+		self.resource_load_finished = False
 		
 		Scene.__init__(self)
 		
@@ -235,9 +247,7 @@ class Game (Scene):
 		self.load_first_play()
 		self.load_check_points()
 		
-		self.load_resources()
-	
-		self.show_start_menu()
+		self.dummy = LabelNode(parent=self)
 		
 		self.set_up_complete = True
 		
@@ -272,6 +282,10 @@ class Game (Scene):
 		self.hearts.hide()
 
 		self.set_up_complete = True
+		
+		self.resource_load_finished = True
+		
+		self.show_start_menu()
 		
 	def stop(self):
 		if not self.music is None:
@@ -436,8 +450,28 @@ class Game (Scene):
 			self.hearts.update(heart_position)
 			
 	def update(self):
-
+		
 		if not self.set_up_complete:
+				return
+		
+		if not self.sync_finished:
+		
+			if not self.sync_started:
+					
+				self.sync_started = True
+				self.show_sync_menu()
+				
+			return
+					
+		else:
+			
+			if not self.resource_load_finished:
+				
+				if not self.resource_load_started:
+					
+					self.resource_load_started = True
+					self.load_resources()
+			
 				return
 		
 		self.post_message()
@@ -1019,7 +1053,12 @@ class Game (Scene):
 		self.paused = True
 		self.menu = PauseMenu(self.tutorial)
 		self.present_modal_scene(self.menu)
+
+	def show_sync_menu(self):
 		
+		self.menu = SyncMenu()
+		self.present_modal_scene(self.menu)
+	
 	def show_start_menu(self):
 		
 		ProductsController.get().update()
@@ -1139,11 +1178,14 @@ class Game (Scene):
 	
 	def can_checkpoint(self):
 		return ProductsController.get().checkpoints.purchased
+	
+	def sync_complete(self):
+		self.sync_finished = True
+		self.dismiss_modal_scene()
 		
 	def menu_button_selected(self, title):
 		
 		title = title.lower()
-		
 		
 		if title in ['play','new game', 'play game','play from start']:
 			
@@ -1450,5 +1492,6 @@ if __name__ == '__main__':
 	
 	InApp.initialize_dummy()
 	Rater.initialize_dummy()
+	Sync.initialize_dummy()
 	
 	run(Game(), LANDSCAPE, show_fps=False)

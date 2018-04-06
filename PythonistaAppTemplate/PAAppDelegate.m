@@ -93,25 +93,25 @@ BOOL observing;
     
 }
 
-- (BOOL)updateNeeded:(NSString *)source target:(NSString *)target
++ (BOOL)included:(NSString *)file extension:(NSString *)extension filter:(NSString *)filter
 {
+
+        
+    NSString *file_extension = [[file pathExtension] lowercaseString];
+    NSString *lower_extension = [extension lowercaseString];
     
-    NSFileManager *fm = [NSFileManager defaultManager];
-    
-    if (![fm fileExistsAtPath:target]){
-        return YES;
-    }
-
-    NSDate *srcModificationDate = [[fm attributesOfItemAtPath:source error:NULL] fileModificationDate];
-    NSDate *destModificationDate = [[fm attributesOfItemAtPath:target error:NULL] fileModificationDate];
-
-    if ([destModificationDate isEqual:NULL]){
-        return YES;
-    }
-
-    if ([srcModificationDate timeIntervalSinceDate:destModificationDate] > 0)
+    if ([lower_extension isEqualToString:file_extension])
     {
-        return YES;
+        if ([filter length] < 1)
+        {
+            return YES;
+        }
+        else
+        {
+            NSString *lower_file = [file lowercaseString];
+            NSString *lower_filter = [filter lowercaseString];
+            return [lower_file hasPrefix:lower_filter];
+        }
     }
     else
     {
@@ -120,7 +120,36 @@ BOOL observing;
 
 }
 
-- (BOOL)isFolder:(NSString *)path
++ (BOOL)updateNeeded:(NSString *)source target:(NSString *)target extension:(NSString *)extension filter:(NSString *)filter
+{
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
+    BOOL include_file = [self included:source extension:extension filter:filter];
+    
+    if (![fm fileExistsAtPath:target])
+    {
+        return include_file;
+    }
+
+    NSDate *srcModificationDate = [[fm attributesOfItemAtPath:source error:NULL] fileModificationDate];
+    NSDate *destModificationDate = [[fm attributesOfItemAtPath:target error:NULL] fileModificationDate];
+
+    if ([destModificationDate isEqual:NULL]){
+        return include_file;
+    }
+
+    if ([srcModificationDate timeIntervalSinceDate:destModificationDate] > 0)
+    {
+        return include_file;
+    }
+    else
+    {
+        return NO;
+    }
+
+}
+
++ (BOOL)isFolder:(NSString *)path
 {
     BOOL isDir = NO;
     
@@ -135,7 +164,26 @@ BOOL observing;
     
 }
 
-- (BOOL)copyFolder:(NSString *)source target:(NSString *)target
++ (BOOL)syncFolder:(NSString *)name extension:(NSString *)extension filter:(NSString *)filter recursive:(BOOL)recursive
+{
+    
+    NSString *source = [[PAAppDelegate getBundleScriptDirectory] stringByAppendingPathComponent:name];
+    NSString *target = [[PAAppDelegate getWritableScriptDirectory] stringByAppendingPathComponent:name];
+    
+    BOOL error = [PAAppDelegate copyFolder:source target:target extension:extension filter:filter recursive:recursive];
+    
+    if (!error)
+    {
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+    
+}
+
++ (BOOL)copyFolder:(NSString *)source target:(NSString *)target extension:(NSString *)extension filter:(NSString *)filter recursive:(BOOL)recursive
 {
 
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -153,18 +201,21 @@ BOOL observing;
         NSString *sourcePath = [source stringByAppendingPathComponent:filename];
         NSString *targetPath = [target stringByAppendingPathComponent:filename];
         
-        if ([self isFolder:sourcePath])
+        if ([PAAppDelegate isFolder:sourcePath])
         {
-            folder_error = [self copyFolder:sourcePath target:targetPath];
-            if (folder_error)
+            if (recursive)
             {
-                has_error = YES;
+                folder_error = [self copyFolder:sourcePath target:targetPath extension:extension filter:filter recursive:recursive];
+                if (folder_error)
+                {
+                    has_error = YES;
+                }
             }
         }
         else
         {
             
-            if ([self updateNeeded:sourcePath target:targetPath])
+            if ([PAAppDelegate updateNeeded:sourcePath target:targetPath extension:extension filter:filter])
             {
                 
                 NSLog(@"Updating file");
@@ -210,7 +261,7 @@ BOOL observing;
     BOOL has_error = NO;
 
     NSLog(@"Updating files");
-    has_error = [self copyFolder:bundledScriptDirectory target:writableScriptDirectory];
+    has_error = [PAAppDelegate copyFolder:bundledScriptDirectory target:writableScriptDirectory extension:@"py" filter:@"" recursive:NO];
     NSLog(@"Update complete");
     
     NSString *mainScriptFile;
@@ -304,8 +355,12 @@ BOOL observing;
 +(NSString *)getWritableScriptDirectory
 {
     NSString *appSupportDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
-    NSString *writableScriptDirectory = [appSupportDirectory stringByAppendingPathComponent:@"PythonistaScript"];
-    return writableScriptDirectory;
+    return [appSupportDirectory stringByAppendingPathComponent:@"PythonistaScript"];
+}
+
++(NSString *)getBundleScriptDirectory
+{
+    return [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Script"];
 }
 
 +(void)registerProduct:(NSString *) productIdentifier;

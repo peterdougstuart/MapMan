@@ -10,6 +10,8 @@ import font
 from scaler import Scaler
 from products_controller import ProductsController
 from wrapping import WrappingLabelNode
+from sync import Sync
+
 from random import random
 from random import randint
 import time
@@ -309,7 +311,10 @@ class MenuScene (Scene):
 		self.tag = tag
 	
 	def get_menu_bg_texture(self):
-		return Texture(Scaler.get_menu(self.tag))
+		if self.tag is not None:
+			return Texture(Scaler.get_menu(self.tag))
+		else:
+			return None
 	
 	def is_main(self):
 		return False
@@ -335,6 +340,9 @@ class MenuScene (Scene):
 	
 	def fade_bg(self):
 		
+		if self.menu_bg is None:
+			return
+			
 		#self.bg.alpha = 0
 		self.menu_bg.alpha = 0
 		#self.bg.run_action(Action.fade_to(1))
@@ -365,11 +373,17 @@ class MenuScene (Scene):
 		
 		menu_texture = self.get_menu_bg_texture()
 
-		self.menu_bg = Scaler.new_sprite(texture=menu_texture)
-		self.add_child(self.menu_bg)
+		if menu_texture is not None:
+			
+			self.menu_bg = Scaler.new_sprite(texture=menu_texture)
+			self.add_child(self.menu_bg)
 		
-		self.menu_bg.anchor_point = (0.5, 0.5)
-		self.menu_bg.position=self.size/2
+			self.menu_bg.anchor_point = (0.5, 0.5)
+			self.menu_bg.position=self.size/2
+		
+		else:
+		
+			self.menu_bg = None
 		
 	def touch_began(self, touch):
 		
@@ -1511,3 +1525,60 @@ class CompletionMenu(EndGameMenu):
 		z_position=z_position)
 		
 		self.scrollers.append(item)
+		
+class SyncMenu(NoButtonMenu):
+	
+	def __init__(self):
+		
+		MenuScene.__init__(self, tag=None, main_menu_button=False)
+		
+		self.success = True
+		
+	def touch_began(self, touch):
+		pass
+
+	def touch_ended(self, touch):
+		self.presenting_scene.sync_complete()
+	
+	def setup(self):
+		
+		MenuScene.setup(self)
+		
+		self.message = LabelNode(parent=self)
+
+		self.message.anchor_point = (0.5, 0.5)
+		self.message.position=self.size/2
+			
+		self.success = True
+		
+		self.sync_item('Buttons','png',Scaler.Resolution)
+		self.sync_item('CheckPoint','png',Scaler.Resolution)
+		self.sync_item('Effects','png',Scaler.Resolution)
+		self.sync_item('GameMusic','caf')
+		self.sync_item('Gradients','png',Scaler.Resolution)
+		self.sync_item('Heart','png',Scaler.Resolution)
+		self.sync_item('Hearts','png',Scaler.Resolution)
+		self.sync_item('Man','png',Scaler.Resolution)
+		self.sync_item('Menu','png',Scaler.Resolution)
+		self.sync_item('SoundEffects','caf')
+		self.sync_item('Star','png',Scaler.Resolution)
+		self.sync_item('Tiles','png',Scaler.Resolution)
+		self.sync_item('Vortex','png',Scaler.Resolution)
+		self.sync_item('Woman','png',Scaler.Resolution)
+		
+		if self.success:
+			self.set_message('complete')
+		else:
+			self.set_message('failed')
+			
+	def set_message(self, name):
+		self.message.text = name
+	
+	def sync_item(self, name, extension, filter='', recursive=False):
+		
+		self.set_message('loading {0} loading'.format(name.lower()))
+		
+		success = Sync.sync(name, extension, filter, recursive)
+		
+		if not success:
+			self.success = False

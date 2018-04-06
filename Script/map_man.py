@@ -453,7 +453,10 @@ class Game (Scene):
 		
 		if not self.set_up_complete:
 				return
-		
+
+		if self.menu is not None:
+			self.menu.update()
+
 		if not self.sync_finished:
 		
 			if not self.sync_started:
@@ -475,9 +478,6 @@ class Game (Scene):
 				return
 		
 		self.post_message()
-		
-		if self.menu is not None:
-			self.menu.update()
 			
 		self.bottom_bar.timer.update()
 		self.music.restart()

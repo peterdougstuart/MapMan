@@ -1533,12 +1533,7 @@ class SyncMenu(NoButtonMenu):
 		MenuScene.__init__(self, tag=None, main_menu_button=False)
 		
 		self.success = True
-		
-	def touch_began(self, touch):
-		pass
-
-	def touch_ended(self, touch):
-		self.presenting_scene.sync_complete()
+		self.set_up_complete = False
 	
 	def setup(self):
 		
@@ -1550,7 +1545,6 @@ class SyncMenu(NoButtonMenu):
 		self.message.position=self.size/2
 			
 		self.success = True
-		
 		self.sync_item('Buttons','png',Scaler.Resolution)
 		self.sync_item('CheckPoint','png',Scaler.Resolution)
 		self.sync_item('Effects','png',Scaler.Resolution)
@@ -1569,7 +1563,9 @@ class SyncMenu(NoButtonMenu):
 		if self.success:
 			self.set_message('complete')
 		else:
-			self.set_message('failed')
+			self.set_message('failed to decompress files\ntry freeing up some space\non your device')
+		
+		self.set_up_complete = True
 			
 	def set_message(self, name):
 		self.message.text = name
@@ -1582,3 +1578,9 @@ class SyncMenu(NoButtonMenu):
 		
 		if not success:
 			self.success = False
+		
+	def update(self):
+		
+		if self.success and self.set_up_complete:
+			if self.presenting_scene is not None:
+				self.presenting_scene.sync_complete()

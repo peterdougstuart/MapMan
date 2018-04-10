@@ -1,5 +1,5 @@
 # coding: utf-8
-
+#
 from scene import LabelNode
 from scene import SpriteNode
 from effect import Effect

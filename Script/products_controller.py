@@ -74,6 +74,15 @@ class Product(object):
 			self.discounted = self.is_discounted(product.identifier, product.price)
 			
 			self.log_price(product.identifier, product.price)
+		
+	def force_valid(self):
+		
+		if not self.purchased:
+			raise Exception('Should only be called if item is purchased')
+		
+		self.valid = True
+		self.price = 0
+		self.discounted = False
 			
 			
 class ProductsController(object):
@@ -104,8 +113,29 @@ class ProductsController(object):
 		
 		self.validated = False
 		
-		InApp.Instance.get_products()
+		if self.all_purchased():
+			# optimisation avoidcontact store if nothing to buy
+			self.force_valid()
+		else:
+			InApp.Instance.get_products()
 	
+	def force_valid(self):
+		for key in self.dict:
+			product = self.dict[key]
+			product.force_valid()
+		self.validated = True
+
+	def all_purchased(self):
+
+		for key in self.dict:
+			
+			product = self.dict[key]
+			
+			if not product.purchased:
+				return False
+		
+		return True
+
 	def detach_caller(self):
 		self.caller = None
 	

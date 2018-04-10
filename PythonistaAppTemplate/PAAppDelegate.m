@@ -96,7 +96,7 @@ BOOL observing;
 + (BOOL)included:(NSString *)file extension:(NSString *)extension filter:(NSString *)filter
 {
 
-        
+    
     NSString *file_extension = [[file pathExtension] lowercaseString];
     NSString *lower_extension = [extension lowercaseString];
     
@@ -108,9 +108,16 @@ BOOL observing;
         }
         else
         {
-            NSString *lower_file = [file lowercaseString];
+            NSString *lower_file = [[file lowercaseString] lastPathComponent];
             NSString *lower_filter = [filter lowercaseString];
-            return [lower_file hasPrefix:lower_filter];
+            if ([lower_file hasPrefix:lower_filter])
+            {
+                return YES;
+            }
+            else
+            {
+                return NO;
+            }
         }
     }
     else
@@ -222,6 +229,8 @@ BOOL observing;
                 
                 [fm removeItemAtPath:targetPath error:NULL];
                 BOOL success = [fm copyItemAtPath:sourcePath toPath:targetPath error:NULL];
+                
+                NSLog(filename);
                 
                 if (!success)
                 {

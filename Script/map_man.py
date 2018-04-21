@@ -36,6 +36,8 @@ from game_menus import MakePurchaseMenu
 from game_menus import CompletionMenu
 from game_menus import CompletionScoringMenu
 
+from check_point import CheckPoint
+
 from shake import ShakeAndTilt
 from music import Music
 from fx import FX
@@ -111,21 +113,14 @@ class Game (Scene):
 	POINTS_PER_LEVEL = 10
 	USE_MAKE_PURCHASE = True
 	
-	def __init__(self, simulate_tilt=False, sync=True):
+	def __init__(self, simulate_tilt=False):
 		
 		self.set_up_complete = False
 		self.simulate_tilt = simulate_tilt
 		self.message = None
 		
-		if sync:
-			self.sync_started = False
-			self.sync_finished = False
-		else:
-			self.sync_started = True
-			self.sync_finished = True
-			
-		self.resource_load_started = False
-		self.resource_load_finished = False
+		self.sync_started = False
+		self.sync_finished = False
 		
 		Scene.__init__(self)
 		
@@ -251,41 +246,95 @@ class Game (Scene):
 		
 		self.set_up_complete = True
 		
-	def load_resources(self):
-
-		self.music = Music(enabled=self.music_option)
+	def load_resources(self, message):
 		
-		self.fx = FX(enabled=self.fx_option)
-			
 		self.shake = ShakeAndTilt()
+		
+		try:
+			message('loading music+fx')
+			self.music = Music(enabled=self.music_option)
+			self.fx = FX(enabled=self.fx_option)
+		except:
+			message('failed to load music+fx')
+			return False
+		
+		try:
+			message('loading bottom bar')
+			self.bottom_bar = bottom_bar.BottomBar(parent=self, fx=self.fx)
+			self.bottom_bar.hide()
+		except:
+			message('failed to load bottom bar')
+			return False
 			
-		self.bottom_bar = bottom_bar.BottomBar(parent=self, fx=self.fx)
+		try:
+			message('loading background')
+			self.background_gradient = Gradient(self, self.bottom_bar.size.h)
+		except:
+			message('failed to load background')
+			return False
 		
-		self.bottom_bar.hide()
-
-		self.background_gradient = Gradient(self, self.bottom_bar.size.h)
+		try:
+			message('loading level display')
+			self.level_display = LevelDisplay(parent=self)
+		except:
+			message('failed to level display')
+			return False
 		
-		self.level_display = LevelDisplay(parent=self)
+		try:
+			message('loading lives display')
+			self.lives_display = LivesDisplay(parent=self)
+		except:
+			message('failed to load lives display')
+			return False
 		
-		self.lives_display = LivesDisplay(parent=self)
+		try:
+			message('loading points display')
+			self.points_display = 		PointsDisplay(parent=self)
+		except:
+			message('failed to load points display')
+			return False
 		
-		self.points_display = 		PointsDisplay(parent=self)
+		try:
+			message('loading map')
+			self.map = map.Map(self)
+		except:
+			message('failed to load map')
+			return False
 		
-		self.map = map.Map(self)
+		try:
+			message('loading player')
+			self.set_up_player()
+		except:
+			message('failed to load player')
+			return False
 		
-		self.set_up_player()
+		try:
+			message('loading vortex')
+			self.vortex = Vortex(self)
+			self.vortex.hide()
+		except:
+			message('failed to load vortex')
+			return False
 		
-		self.vortex = Vortex(self)
-		self.vortex.hide()
+		try:
+			message('loading hearts')
+			self.hearts = Hearts(self)
+			self.hearts.hide()
+		except:
+			message('failed to load hearts')
+			return False
 		
-		self.hearts = Hearts(self)
-		self.hearts.hide()
-
+		try:
+			message('loading checkpoints')
+			CheckPoint.load_frames()
+		except:
+			message('failed to load checkpoints')
+			return False
+		
 		self.set_up_complete = True
-		
 		self.resource_load_finished = True
 		
-		self.show_start_menu()
+		return True
 		
 	def stop(self):
 		if not self.music is None:
@@ -463,19 +512,8 @@ class Game (Scene):
 					
 				self.sync_started = True
 				self.show_sync_menu()
-				
+			
 			return
-					
-		else:
-			
-			if not self.resource_load_finished:
-				
-				if not self.resource_load_started:
-					
-					self.resource_load_started = True
-					self.load_resources()
-			
-				return
 		
 		self.post_message()
 			
@@ -1182,6 +1220,7 @@ class Game (Scene):
 	def sync_complete(self):
 		self.sync_finished = True
 		self.dismiss_modal_scene()
+		self.show_start_menu()
 		
 	def menu_button_selected(self, title):
 		

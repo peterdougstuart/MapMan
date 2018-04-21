@@ -230,8 +230,6 @@ BOOL observing;
                 [fm removeItemAtPath:targetPath error:NULL];
                 BOOL success = [fm copyItemAtPath:sourcePath toPath:targetPath error:NULL];
                 
-                NSLog(filename);
-                
                 if (!success)
                 {
                     has_error = YES;

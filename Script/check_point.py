@@ -3,15 +3,16 @@ from scene import Action
 import os.path
 from scaler import Scaler
 
-
 class CheckPoint(object):
 
-	FRAMES = 117
+	NUMBER_OF_FRAMES = 117
+	
+	Frames = None
 	
 	def __init__(self, tile):
 
 		self.frame = 0
-		self.frames = self.load_frames()
+		self.frames = self.get_frames()
 		
 		self.node = Scaler.new_sprite(self.frames[0])
 		self.base_scale = self.node.scale
@@ -24,12 +25,23 @@ class CheckPoint(object):
 		
 		self.parent = tile.node.parent
 		self.parent.add_child(self.node)
+	
+	def get_frames(self):
 		
-	def load_frames(self):
+		if CheckPoint.Frames is None:
+			self.load_frames()
 		
-		frames = []
+		return CheckPoint.Frames
+
+	@classmethod
+	def load_frames(cls):
 		
-		for index in range(CheckPoint.FRAMES):
+		if CheckPoint.Frames is not None:
+			return
+		
+		CheckPoint.Frames = []
+		
+		for index in range(CheckPoint.NUMBER_OF_FRAMES):
 			
 			frame = index + 1
 			
@@ -37,13 +49,12 @@ class CheckPoint(object):
 			
 			path = Scaler.get_checkpoint_path(image)
 			
-			texture = self.create_texture(path)
+			texture = CheckPoint.create_texture(path)
 			
-			frames.append(texture)
-			
-		return frames
-
-	def create_texture(self, image):
+			CheckPoint.Frames.append(texture)
+	
+	@classmethod
+	def create_texture(cls, image):
 		try:
 			return Texture(image)
 		except:

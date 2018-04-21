@@ -1532,8 +1532,10 @@ class SyncMenu(NoButtonMenu):
 		
 		MenuScene.__init__(self, tag=None, main_menu_button=False)
 		
-		self.success = True
-		self.set_up_complete = False
+		self.sync_started = False
+		self.sync_complete = False
+		
+		self.success = False
 	
 	def setup(self):
 		
@@ -1543,29 +1545,45 @@ class SyncMenu(NoButtonMenu):
 
 		self.message.anchor_point = (0.5, 0.5)
 		self.message.position=self.size/2
-			
-		self.success = True
+	
+	def do_sync(self):
+		
+		success = True
+		
+		self.sync_started = True
 		self.sync_item('Buttons','png',Scaler.Resolution)
 		self.sync_item('CheckPoint','png',Scaler.Resolution)
 		self.sync_item('Effects','png',Scaler.Resolution)
+		
 		self.sync_item('GameMusic','caf')
-		self.sync_item('Gradients','png',Scaler.Resolution)
+		self.sync_item('Gradients','png')
 		self.sync_item('Heart','png',Scaler.Resolution)
 		self.sync_item('Hearts','png',Scaler.Resolution)
-		self.sync_item('Man','png',Scaler.Resolution)
+		self.sync_item('Man','png',Scaler.Resolution, recursive=True)
 		self.sync_item('Menu','png',Scaler.Resolution)
 		self.sync_item('SoundEffects','caf')
 		self.sync_item('Star','png',Scaler.Resolution)
 		self.sync_item('Tiles','png',Scaler.Resolution)
 		self.sync_item('Vortex','png',Scaler.Resolution)
 		self.sync_item('Woman','png',Scaler.Resolution)
-		
-		if self.success:
-			self.set_message('complete')
+
+		if success:
+			
+			self.set_message('loading resources')
+			
+			if self.presenting_scene.load_resources(self.set_message):
+				self.set_message('resources loaded')
+				self.success = True
+			else:
+				self.success = False
+				
 		else:
+			
 			self.set_message('failed to decompress files\ntry freeing up some space\non your device')
+			
+			self.success = False
 		
-		self.set_up_complete = True
+		self.sync_complete = True
 			
 	def set_message(self, name):
 		self.message.text = name
@@ -1581,6 +1599,15 @@ class SyncMenu(NoButtonMenu):
 		
 	def update(self):
 		
-		if self.success and self.set_up_complete:
-			if self.presenting_scene is not None:
-				self.presenting_scene.sync_complete()
+		if not self.sync_complete:
+			
+			if not self.sync_started:
+				
+				self.do_sync()
+		
+		else:
+			
+			if self.success:
+				
+				if self.presenting_scene is not None:
+					self.presenting_scene.sync_complete()

@@ -16,7 +16,7 @@ import time
 
 from timer import Timer
 
-from game_menus import SyncMenu
+from game_menus import StartupMenu
 from game_menus import get_checkpoint_level
 from game_menus import is_checkpoint       
 from game_menus import CheckpointsPurchaseRequiredMenu
@@ -55,6 +55,7 @@ from completion import Hearts
 
 from rate import Rater
 from messenger import Messenger
+from startup import Startup
 from sync import Sync
 
 import palette
@@ -106,7 +107,17 @@ class CheckPointInfo (object):
 			self.score = score
 		elif score > self.score:
 			self.score = score
-		
+
+class ResourceCommand (object):
+	
+	def __init__(self, action, name):
+		self.action = action
+		self.name = name
+	
+	def execute(self):
+		self.action()
+		return True
+	
 class Game (Scene):
 	
 	Instance = None
@@ -116,11 +127,13 @@ class Game (Scene):
 	def __init__(self, simulate_tilt=False):
 		
 		self.set_up_complete = False
+		self.update_complete = False
+		
 		self.simulate_tilt = simulate_tilt
 		self.message = None
 		
-		self.sync_started = False
-		self.sync_finished = False
+		self.startup_started = False
+		self.startup_finished = False
 		
 		Scene.__init__(self)
 		
@@ -226,6 +239,7 @@ class Game (Scene):
 		self.last_hide_time = None
 		self.wait_until = None
 		
+		self.dead = False
 		self.stuck = False
 		self.reverse = False
 		self.vanish = 0
@@ -243,98 +257,60 @@ class Game (Scene):
 		self.load_check_points()
 		
 		self.dummy = LabelNode(parent=self)
-		
-		self.set_up_complete = True
-		
-	def load_resources(self, message):
-		
+
 		self.shake = ShakeAndTilt()
 		
-		try:
-			message('loading music+fx')
-			self.music = Music(enabled=self.music_option)
-			self.fx = FX(enabled=self.fx_option)
-		except:
-			message('failed to load music+fx')
-			return False
+		self.music = Music(enabled=self.music_option)
 		
-		try:
-			message('loading bottom bar')
-			self.bottom_bar = bottom_bar.BottomBar(parent=self, fx=self.fx)
-			self.bottom_bar.hide()
-		except:
-			message('failed to load bottom bar')
-			return False
-			
-		try:
-			message('loading background')
-			self.background_gradient = Gradient(self, self.bottom_bar.size.h)
-		except:
-			message('failed to load background')
-			return False
-		
-		try:
-			message('loading level display')
-			self.level_display = LevelDisplay(parent=self)
-		except:
-			message('failed to level display')
-			return False
-		
-		try:
-			message('loading lives display')
-			self.lives_display = LivesDisplay(parent=self)
-		except:
-			message('failed to load lives display')
-			return False
-		
-		try:
-			message('loading points display')
-			self.points_display = 		PointsDisplay(parent=self)
-		except:
-			message('failed to load points display')
-			return False
-		
-		try:
-			message('loading map')
-			self.map = map.Map(self)
-		except:
-			message('failed to load map')
-			return False
-		
-		try:
-			message('loading player')
-			self.set_up_player()
-		except:
-			message('failed to load player')
-			return False
-		
-		try:
-			message('loading vortex')
-			self.vortex = Vortex(self)
-			self.vortex.hide()
-		except:
-			message('failed to load vortex')
-			return False
-		
-		try:
-			message('loading hearts')
-			self.hearts = Hearts(self)
-			self.hearts.hide()
-		except:
-			message('failed to load hearts')
-			return False
-		
-		try:
-			message('loading checkpoints')
-			CheckPoint.load_frames()
-		except:
-			message('failed to load checkpoints')
-			return False
-		
+		self.fx = FX(enabled=self.fx_option)
+
 		self.set_up_complete = True
-		self.resource_load_finished = True
+	
+	def get_resource_actions(self):
 		
-		return True
+		actions = []
+		actions.append(ResourceCommand(self.load_level_display, 'Level Display'))
+		actions.append(ResourceCommand(self.load_bottom_bar, 'Bottom Bar'))
+		actions.append(ResourceCommand(self.load_lives_display, 'Lives Display'))
+		actions.append(ResourceCommand(self.load_points_display, 'Points Display'))
+		actions.append(ResourceCommand(self.load_map, 'Map'))
+		actions.append(ResourceCommand(self.set_up_player, 'Player'))
+		actions.append(ResourceCommand(self.load_vortex, 'Vortex'))
+		actions.append(ResourceCommand(self.set_up_player, 'Player'))
+		actions.append(ResourceCommand(self.load_hearts, 'Hearts'))
+		actions.append(ResourceCommand(self.load_checkpoint_frames, 'Checkpoint'))
+		
+		return actions
+		
+	def load_level_display(self):
+		self.level_display = LevelDisplay(parent=self)
+	
+	def load_bottom_bar(self):
+		
+		self.bottom_bar = bottom_bar.BottomBar(parent=self, fx=self.fx)
+		self.bottom_bar.hide()
+		
+		self.background_gradient = Gradient(self, self.bottom_bar.size.h)
+	
+	def load_lives_display(self):
+		self.lives_display = LivesDisplay(parent=self)
+	
+	def load_points_display(self):
+		self.points_display = 		PointsDisplay(parent=self)
+	
+	def load_map(self):
+		self.map = map.Map(self)
+	
+	def load_vortex(self):
+		self.vortex = Vortex(self)
+		self.vortex.hide()
+			
+	def load_hearts(self):
+		self.hearts = Hearts(self)
+		self.hearts.hide()
+		
+	def load_checkpoint_frames(self):
+		CheckPoint.load_frames()
 		
 	def stop(self):
 		if not self.music is None:
@@ -500,22 +476,26 @@ class Game (Scene):
 			
 	def update(self):
 		
-		if not self.set_up_complete:
-				return
-
-		if self.menu is not None:
-			self.menu.update()
-
-		if not self.sync_finished:
-		
-			if not self.sync_started:
-					
-				self.sync_started = True
-				self.show_sync_menu()
+		if not self.update_complete:
+			self.update_complete = True
+			return
 			
+		if not self.set_up_complete:
 			return
 		
 		self.post_message()
+				
+		if self.menu is not None:
+			self.menu.update()
+
+		if not self.startup_finished:
+		
+			if not self.startup_started:
+				
+				self.startup_started = True
+				self.show_startup_menu()
+			
+			return
 			
 		self.bottom_bar.timer.update()
 		self.music.restart()
@@ -583,13 +563,19 @@ class Game (Scene):
 
 	def touch_began(self, touch):
 		
+		if not self.startup_finished:
+			return
+			
 		if not self.simulate_tilt:
 				return
 		else:
 			self.simulated_tilt = SimulatedTilt(self.size, touch)
 
 	def touch_ended(self, touch):
-
+		
+		if not self.startup_finished:
+			return
+			
 		if not self.simulate_tilt: 
 			if self.paused:
 				return
@@ -1092,9 +1078,9 @@ class Game (Scene):
 		self.menu = PauseMenu(self.tutorial)
 		self.present_modal_scene(self.menu)
 
-	def show_sync_menu(self):
+	def show_startup_menu(self):
 		
-		self.menu = SyncMenu()
+		self.menu = StartupMenu(Startup(self))
 		self.present_modal_scene(self.menu)
 	
 	def show_start_menu(self):
@@ -1217,8 +1203,8 @@ class Game (Scene):
 	def can_checkpoint(self):
 		return ProductsController.get().checkpoints.purchased
 	
-	def sync_complete(self):
-		self.sync_finished = True
+	def startup_complete(self):
+		self.startup_finished = True
 		self.dismiss_modal_scene()
 		self.show_start_menu()
 		
@@ -1533,4 +1519,6 @@ if __name__ == '__main__':
 	Rater.initialize_dummy()
 	Sync.initialize_dummy()
 	
-	run(Game(), LANDSCAPE, show_fps=False)
+	game = Game()
+	
+	run(game, LANDSCAPE, show_fps=False)

@@ -40,11 +40,11 @@ class PointsDisplay(object):
 		
 		self.score_label = LabelNode(text='', font=(font.SCORE_DISPLAY, 40*Scaler.Score), parent=self.parent)
 		
-		self.score_label.anchor_point = (0.5, 0.5)
+		self.score_label.anchor_point = (1.0, 0.5)
 		
 		self.star = Scaler.new_sprite(Texture(Scaler.get_star_path('star_white_transparent.png')))
 		
-		self.star.anchor_point = (0.5, 0.5)
+		self.star.anchor_point = (0.0, 0.5)
 		
 		self.base_size = self.star.size
 		
@@ -54,12 +54,17 @@ class PointsDisplay(object):
 		
 	def position(self):
 		
-		x = self.parent.size.w/2
+		total_width = self.star.size.w +self.score_label.size.w
+		
+		lhs = self.parent.size.w*0.5 - total_width*0.5
+		
+		rhs = lhs + total_width
+		
 		y = self.parent.size.h-30-Scaler.DisplayShift
 		
-		self.star.position = (x+self.star.size.w*0.5, y+self.star.size.h*0.1)
+		self.star.position = (lhs, y+self.star.size.h*0.1)
 		
-		self.score_label.position = (x-self.score_label.size.w*0.5, y)
+		self.score_label.position = (rhs, y)
 		
 	def score_text(self):
 		

@@ -15,19 +15,23 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.1</string>
+	<string>1.0.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>6</string>
+	<string>4</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Application does not use Bluetooth. Usage request can be safely denied.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Application does not use calendar. Usage request can be safely denied.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Application does not use location. Usage request can be safely denied.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Application does not use photo library. Usage request can be safely denied.</string>
 	<key>UILaunchStoryboardName</key>

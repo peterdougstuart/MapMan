@@ -10,7 +10,6 @@ import font
 from scaler import Scaler
 from products_controller import ProductsController
 from wrapping import WrappingLabelNode
-from sync import Sync
 
 from random import random
 from random import randint
@@ -298,10 +297,11 @@ class ButtonNode (SpriteNode):
 
 class MenuScene (Scene):
 	
-	def __init__(self, tag, main_menu_button=True):
+	def __init__(self, tag, main_menu_button=True,fade=True):
 		
 		Scene.__init__(self)
 		
+		self.fade = fade
 		self.space_x = 13.5 * Scaler.Menu
 		self.space_y = 13.5 * Scaler.Menu
 		
@@ -340,13 +340,9 @@ class MenuScene (Scene):
 	
 	def fade_bg(self):
 		
-		if self.menu_bg is None:
-			return
-			
-		#self.bg.alpha = 0
-		self.menu_bg.alpha = 0
-		#self.bg.run_action(Action.fade_to(1))
-		self.menu_bg.run_action(Action.fade_to(1))
+		if self.fade:
+			self.menu_bg.alpha = 0
+			self.menu_bg.run_action(Action.fade_to(1))
 	
 	def add_buttons(self):
 		
@@ -372,18 +368,23 @@ class MenuScene (Scene):
 	def add_menu_bg(self):
 		
 		menu_texture = self.get_menu_bg_texture()
-
+		
 		if menu_texture is not None:
 			
 			self.menu_bg = Scaler.new_sprite(texture=menu_texture)
-			self.add_child(self.menu_bg)
-		
-			self.menu_bg.anchor_point = (0.5, 0.5)
-			self.menu_bg.position=self.size/2
-		
+			
 		else:
+			
+			shape = ui.Path.rounded_rect(0, 0, 1, 1, 1)
 		
-			self.menu_bg = None
+			self.menu_bg = ShapeNode(shape, fill_color=palette.BASE_BG, stroke_color=palette.BASE_BG)
+		
+			self.menu_bg.size = (0,0)
+		
+		self.add_child(self.menu_bg)
+		
+		self.menu_bg.anchor_point = (0.5, 0.5)
+		self.menu_bg.position=self.size/2
 		
 	def touch_began(self, touch):
 		
@@ -419,9 +420,9 @@ class MenuScene (Scene):
 
 class NoButtonMenu(MenuScene):
 
-	def __init__(self, tag, main_menu_button=True):
+	def __init__(self, tag, main_menu_button=True,fade=False):
 	
-		MenuScene.__init__(self, tag=tag,main_menu_button=main_menu_button)
+		MenuScene.__init__(self, tag=tag,main_menu_button=main_menu_button,fade=fade)
 
 
 class OneButtonMenu(MenuScene):
@@ -1525,89 +1526,110 @@ class CompletionMenu(EndGameMenu):
 		z_position=z_position)
 		
 		self.scrollers.append(item)
-		
-class SyncMenu(NoButtonMenu):
+
+class StartupMenu(NoButtonMenu):
 	
-	def __init__(self):
+	def __init__(self, startup):
+
+		NoButtonMenu.__init__(self, tag=None, main_menu_button=False)
 		
-		MenuScene.__init__(self, tag=None, main_menu_button=False)
+		self.set_up_complete = False
+		self.update_complete = False
 		
-		self.sync_started = False
-		self.sync_complete = False
+		self.success = True
 		
-		self.success = False
-	
+		self.startup = startup
+		
 	def setup(self):
 		
-		MenuScene.setup(self)
+		NoButtonMenu.setup(self)
 		
-		self.message = LabelNode(parent=self)
-
+		self.background_color = palette.BASE_BG
+		
+		self.progress_width = 300 * Scaler.Menu
+		self.progress_height = 20 * Scaler.Menu
+		
+		bg_shape = ui.Path.rounded_rect(0, 0, self.progress_width, self.progress_height, 5)
+		
+		bg_shape.line_width = 4
+		
+		self.progress_outline = ShapeNode(bg_shape, fill_color=palette.BASE_BG, stroke_color='#ffffff', parent=self.menu_bg)
+		
+		self.progress_outline.size = (self.progress_width, self.progress_height)
+		
+		self.progress_outline.anchor_point = (0, 0.5)
+		
+		self.progress_outline.size = (self.progress_width, self.progress_height)
+		
+		self.progress_outline.position = (-self.progress_width*0.5, 0)
+		
+		self.progress_outline.z_position = 100
+		
+		self.progress = ShapeNode(bg_shape, fill_color='#ffffff', stroke_color='#ffffff', parent=self.menu_bg)
+		
+		self.progress.alpha = 0.7
+		
+		self.progress.anchor_point = (0, 0.5)
+		
+		self.progress.size = (self.progress_width, self.progress_height)
+		
+		self.progress.position = (-self.progress_width * 0.5, 0)
+		
+		self.progress.z_position = 101
+		
+		self.update_progress()
+		
+		self.message = LabelNode(parent=self.menu_bg)
+		self.message.color = '#ffffff'
 		self.message.anchor_point = (0.5, 0.5)
-		self.message.position=self.size/2
-	
-	def do_sync(self):
+		self.message.position=(0,0)
 		
-		success = True
-		
-		self.sync_started = True
-		self.sync_item('Buttons','png',Scaler.Resolution)
-		self.sync_item('CheckPoint','png',Scaler.Resolution)
-		self.sync_item('Effects','png',Scaler.Resolution)
-		
-		self.sync_item('GameMusic','caf')
-		self.sync_item('Gradients','png')
-		self.sync_item('Heart','png',Scaler.Resolution)
-		self.sync_item('Hearts','png',Scaler.Resolution)
-		self.sync_item('Man','png',Scaler.Resolution, recursive=True)
-		self.sync_item('Menu','png',Scaler.Resolution)
-		self.sync_item('SoundEffects','caf')
-		self.sync_item('Star','png',Scaler.Resolution)
-		self.sync_item('Tiles','png',Scaler.Resolution)
-		self.sync_item('Vortex','png',Scaler.Resolution)
-		self.sync_item('Woman','png',Scaler.Resolution)
+		self.set_up_complete = True
 
-		if success:
+	def finish_sync(self):
+		
+		if not self.success:
+			return
 			
-			self.set_message('loading resources')
+		if not self.startup.error:
 			
-			if self.presenting_scene.load_resources(self.set_message):
-				self.set_message('resources loaded')
-				self.success = True
-			else:
-				self.success = False
+			self.success = True
 				
 		else:
 			
-			self.set_message('failed to decompress files\ntry freeing up some space\non your device')
+			self.progress.size = (0, 0)
+			self.progress_outline.size = (0, 0)
+			self.set_message(self.startup.error_message)
 			
 			self.success = False
-		
-		self.sync_complete = True
 			
 	def set_message(self, name):
 		self.message.text = name
 	
-	def sync_item(self, name, extension, filter='', recursive=False):
+	def update_progress(self):
 		
-		self.set_message('loading {0} loading'.format(name.lower()))
-		
-		success = Sync.sync(name, extension, filter, recursive)
-		
-		if not success:
-			self.success = False
+		self.progress.size = (self.progress_width * self.startup.fraction_complete(), self.progress_height)
 		
 	def update(self):
 		
-		if not self.sync_complete:
+		if not self.set_up_complete:
+			return
 			
-			if not self.sync_started:
-				
-				self.do_sync()
+		if not self.update_complete:
+			self.update_complete = True
+			return
+		
+		if self.startup.error:
+			self.finish_sync()
+			return
+			
+		if not self.startup.is_complete():
+			
+			self.startup.next()
+			
+			self.update_progress()
+			
+			return
 		
 		else:
-			
-			if self.success:
-				
-				if self.presenting_scene is not None:
-					self.presenting_scene.sync_complete()
+			self.presenting_scene.startup_complete()

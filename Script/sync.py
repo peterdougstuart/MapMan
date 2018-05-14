@@ -1,5 +1,6 @@
 from objc_util import *
 import os.path
+import time
 
 class Sync:
 
@@ -40,6 +41,8 @@ class SyncDummy (object):
 		
 		if not os.path.isdir(name):
 			raise Exception('Non-existent folder {0}'.format(name))
-			
+		
+		#time.sleep(1)
+		
 		return True
 	

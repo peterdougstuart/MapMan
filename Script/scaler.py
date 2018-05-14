@@ -10,7 +10,8 @@ class Scaler (object):
 	Timer = None
 	Score = None
 	DisplayShift = None
-	Luves = None
+	Lives = None
+	Size = None
 	
 	@staticmethod
 	def initialize(game):
@@ -160,9 +161,14 @@ class Scaler (object):
 	@staticmethod
 	def get_file(file_name, force_normal=False):
 		
+		filter = Scaler.get_filter(force_normal)
+		
+		return '{0}_{1}'.format(filter, file_name)
+
+	@staticmethod
+	def get_filter(force_normal=False):
+		
 		if Scaler.Size not in ['Tiny','Large'] or force_normal:
-			return '{0}_{1}'.format(Scaler.Resolution, file_name)
+			return Scaler.Resolution
 		else:
-			return '{0}_{1}'.format(Scaler.Size, file_name)
-			
-			
+			return Scaler.Size

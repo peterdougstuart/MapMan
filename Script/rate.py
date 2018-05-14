@@ -3,6 +3,11 @@ import datetime
 import os.path
 from messenger import Messenger
 
+class NullRate (object):
+	
+	def request_review(self):
+		pass
+		
 class Rater (object):
 
 	Instance = None
@@ -22,7 +27,10 @@ class Rater (object):
 		
 	@classmethod
 	def initialize(cls):
-		cls.Instance = Rater()
+		try:
+			cls.Instance = Rater()
+		except:
+			cls.Instance = NullRater()
 
 	@classmethod
 	def initialize_dummy(cls):

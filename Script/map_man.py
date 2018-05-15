@@ -12,6 +12,7 @@ import map
 import bottom_bar
 import player
 import sys
+
 import time
 
 from timer import Timer
@@ -67,8 +68,8 @@ class SimulatedTilt (object):
 	def __init__(self, size, touch):
 		
 		x, y = touch.location
-		threshold_3 = 0.11
-		threshold_4 = 0.5
+		threshold_3 = 0.11*2
+		threshold_4 = 0.5*2
 		
 		if y < (size.h / 4):
 			self.y = -threshold_4

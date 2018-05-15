@@ -3,7 +3,7 @@ import datetime
 import os.path
 from messenger import Messenger
 
-class NullRate (object):
+class NullRater (object):
 	
 	def request_review(self):
 		pass
